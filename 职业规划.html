@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>职业规划智能助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { primary: '#2563eb', secondary: '#475569' } } } }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .section-title { position: relative; padding-left: 1rem; }
+        .section-title::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 100%; background-color: #2563eb; border-radius: 2px; }
+        .sidebar-nav-btn.active { background-color: #eff6ff; color: #2563eb; font-weight: 600; }
+        .top-nav-btn.active { border-bottom-color: #2563eb; color: #2563eb; font-weight: 700; }
+        #main-content::-webkit-scrollbar { width: 6px; }
+        #main-content::-webkit-scrollbar-thumb { background-color: #e2e8f0; border-radius: 3px; }
+        .sidebar-nav-btn:not(.active):hover { background-color: #f8fafc; color: #1e40af; }
+        .page-content { animation: fadeIn 0.18s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .exp-card-actions { opacity: 0; transition: opacity 0.15s; }
+        .exp-card:hover .exp-card-actions { opacity: 1; }
+        #exp-modal { background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); }
+        #upload-zone.drag-over { border-color: #2563eb; background-color: #eff6ff; }
+        input[type="month"] { color-scheme: light; }
+        .modal-tag-btn.tag-active { background-color: #2563eb; color: #fff; border-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex overflow-hidden">
+
+<!-- ===================== 经历编辑弹窗 ===================== -->
+<div id="exp-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col">
+        <div id="exp-modal-inner" class="p-6 overflow-y-auto flex-grow"></div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="app-toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-2xl text-sm font-bold flex items-center gap-2 transition-all"></div>
+
+<!-- ===================== 左侧边栏 ===================== -->
+<aside id="sidebar" class="w-56 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-30">
+    <div class="p-5 border-b border-gray-100 flex-shrink-0">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-blue-200 flex-shrink-0">
+                <i class="fa-solid fa-graduation-cap text-white text-sm"></i>
+            </div>
+            <div>
+                <h1 class="text-sm font-black text-gray-900 leading-tight">职业规划助手</h1>
+                <p class="text-[9px] text-gray-400 font-medium tracking-wide">AI Career Planner</p>
+            </div>
+        </div>
+    </div>
+    <nav class="flex-grow p-3 space-y-0.5 overflow-y-auto">
+        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-3 pt-2 pb-1.5">核心功能</p>
+        <button class="sidebar-nav-btn active w-full text-left px-3 py-2.5 rounded-lg text-sm flex items-center gap-3 transition-colors" data-page="profile">
+            <i class="fa-solid fa-user-circle w-4 text-center opacity-80"></i><span>我的画像</span>
+        </button>
+        <button class="sidebar-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center gap-3 transition-colors" data-page="matching">
+            <i class="fa-solid fa-briefcase w-4 text-center opacity-60"></i><span>人岗匹配</span>
+            <span class="ml-auto text-[9px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded font-bold border border-gray-200">规划中</span>
+        </button>
+        <button class="sidebar-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center gap-3 transition-colors" data-page="report">
+            <i class="fa-solid fa-file-lines w-4 text-center opacity-60"></i><span>职业报告</span>
+            <span class="ml-auto text-[9px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded font-bold border border-gray-200">规划中</span>
+        </button>
+        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-3 pt-4 pb-1.5">AI 工具</p>
+        <button class="sidebar-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center gap-3 transition-colors" data-page="ai-eval">
+            <i class="fa-solid fa-robot w-4 text-center opacity-60"></i><span>AI 画像评估</span>
+        </button>
+    </nav>
+    <div class="p-3 border-t border-gray-100 flex-shrink-0 space-y-0.5">
+        <div class="px-3 py-1.5 text-[10px] text-gray-400 flex items-center gap-2">
+            <i class="fa-solid fa-circle-dot text-green-400 text-[8px]"></i>
+            <span id="save-status-text">数据已同步</span>
+        </div>
+        <button id="btn-save-sidebar" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center gap-3 hover:bg-gray-50 transition-colors">
+            <i class="fa-solid fa-floppy-disk w-4 text-center opacity-60"></i><span>保存到本地</span>
+        </button>
+        <button id="settings-btn" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center gap-3 hover:bg-gray-50 transition-colors">
+            <i class="fa-solid fa-gear w-4 text-center opacity-60"></i><span>系统设置</span>
+        </button>
+    </div>
+</aside>
+
+<!-- ===================== 右侧主区域 ===================== -->
+<div class="flex-grow flex flex-col overflow-hidden">
+    <div id="top-nav" class="hidden bg-white border-b border-gray-200 px-6 flex-shrink-0 flex items-center gap-0">
+        <button class="top-nav-btn active px-5 py-3.5 text-sm border-b-2 transition-colors" data-tab="overview">总览</button>
+        <button class="top-nav-btn px-5 py-3.5 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition-colors" data-tab="jd-profile">岗位画像库</button>
+        <button class="top-nav-btn px-5 py-3.5 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition-colors" data-tab="match-result">匹配结果</button>
+        <button class="top-nav-btn px-5 py-3.5 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition-colors" data-tab="career-path">职业路径</button>
+    </div>
+
+    <main id="main-content" class="flex-grow overflow-y-auto bg-gray-100">
+
+        <!-- 设置弹窗（含危险操作区） -->
+        <div id="settings-popover" class="hidden fixed top-14 left-56 z-50 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 p-5 ml-4">
+            <h3 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-sliders text-primary mr-2"></i>系统设置</h3>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                <input type="password" id="api-key-input" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="sk-...">
+                <p class="text-xs text-gray-500 mt-1">用于调用 AI 评估与解析模型</p>
+            </div>
+            <button id="save-api-key" class="w-full bg-primary text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 transition-colors">保存设置</button>
+            <!-- 危险操作区 -->
+            <div class="mt-5 pt-4 border-t border-gray-100">
+                <p class="text-xs font-bold text-red-500 mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-triangle-exclamation"></i> 危险操作
+                </p>
+                <button id="btn-clear-all-data" class="w-full flex items-center gap-2 px-3 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fa-solid fa-trash-can text-xs"></i> 清空所有画像数据
+                </button>
+                <p class="text-[11px] text-gray-400 mt-1.5 leading-snug">清空画像、AI评估结果等全部内容（含姓名）。操作后 8 秒内可撤销。</p>
+            </div>
+        </div>
+
+        <!-- ── 我的画像 页 ── -->
+        <div id="page-profile" class="page-content py-8 px-4 md:px-8">
+            <div id="app" class="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden min-h-[600px]"></div>
+        </div>
+
+        <!-- ── 人岗匹配 页 ── -->
+        <div id="page-matching" class="hidden page-content py-8 px-4 md:px-8">
+            <div class="max-w-5xl mx-auto space-y-6">
+                <div id="tab-overview" class="space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-lg font-bold text-gray-800 mb-1 section-title">求职意向</h2>
+                        <p class="text-xs text-gray-400 mb-4 ml-4">技术方向 · 业务领域 · 求职偏好</p>
+                        <div id="matching-intent-content" class="text-sm text-gray-500 italic">加载中...</div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-1">
+                            <h2 class="text-lg font-bold text-gray-800 section-title">人岗匹配分析</h2>
+                            <span class="text-xs bg-blue-50 text-primary border border-blue-100 px-2.5 py-1 rounded-full font-bold">开发中</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-6 ml-4">基于岗位画像与学生画像的多维对比评分</p>
+                        <div class="border-2 border-dashed border-gray-200 rounded-xl p-12 text-center text-gray-400">
+                            <i class="fa-solid fa-diagram-project text-5xl mb-4 text-gray-300"></i>
+                            <p class="font-bold text-gray-500 text-base">匹配模块开发中</p>
+                            <p class="text-sm mt-2 text-gray-400">将展示：岗位画像库 · 多维匹配评分 · 能力差距分析 · 提升建议</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab-jd-profile" class="hidden space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-lg font-bold text-gray-800 mb-6 section-title">岗位画像库</h2>
+                        <div class="border-2 border-dashed border-gray-200 rounded-xl p-16 text-center text-gray-400">
+                            <i class="fa-solid fa-building text-5xl mb-4 text-gray-300"></i>
+                            <p class="font-bold text-gray-500">岗位数据接入中</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab-match-result" class="hidden space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-lg font-bold text-gray-800 mb-6 section-title">匹配结果</h2>
+                        <div class="border-2 border-dashed border-gray-200 rounded-xl p-16 text-center text-gray-400">
+                            <i class="fa-solid fa-chart-bar text-5xl mb-4 text-gray-300"></i>
+                            <p class="font-bold text-gray-500">待完善学生画像后开始匹配</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab-career-path" class="hidden space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-lg font-bold text-gray-800 mb-6 section-title">职业路径图谱</h2>
+                        <div class="border-2 border-dashed border-gray-200 rounded-xl p-16 text-center text-gray-400">
+                            <i class="fa-solid fa-route text-5xl mb-4 text-gray-300"></i>
+                            <p class="font-bold text-gray-500">路径图谱开发中</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── AI 画像评估 页 ── -->
+        <div id="page-ai-eval" class="hidden page-content py-8 px-4 md:px-8">
+            <div class="max-w-5xl mx-auto">
+                <div id="ai-eval-content" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div class="p-12 text-center text-gray-400">
+                        <i class="fa-solid fa-robot text-5xl mb-4 text-gray-300"></i>
+                        <p class="text-base font-medium">加载 AI 评估模块...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── 职业报告 页 ── -->
+        <div id="page-report" class="hidden page-content py-8 px-4 md:px-8">
+            <div class="max-w-5xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-bold text-gray-800 mb-6 section-title">职业生涯发展报告</h2>
+                    <div class="border-2 border-dashed border-gray-200 rounded-xl p-16 text-center text-gray-400">
+                        <i class="fa-solid fa-file-chart-column text-5xl mb-4 text-gray-300"></i>
+                        <p class="font-bold text-gray-500">职业报告模块开发中</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+// ====================================================================
+// 常量
+// ====================================================================
+const DIRECTION_CAPABILITY_MAP = {
+    "Web开发":["软件工程","计算机基础"],"移动开发":["软件工程","计算机基础"],
+    "测试开发QA":["质量保障","软件工程"],"数据开发":["数据工程","系统架构"],
+    "数据分析":["数据工程","计算机基础"],"算法AI":["AI/ML能力","计算机基础"],
+    "安全":["安全能力","计算机基础"],"运维DevOps":["云原生与DevOps","系统架构"],
+    "产品经理":[],"UIUX设计":[],"技术支持实施":["软件工程"],"AI应用开发":["LLM应用能力","软件工程"]
+};
+const CAPABILITY_GROUPS = {
+    "计算机基础":["算法分析与应用","网络协议理解与调试","操作系统原理应用","数据库设计与优化"],
+    "软件工程":["需求分析与拆解","模块/接口设计","面向对象设计","设计模式应用","代码质量与可维护性"],
+    "系统架构":["系统架构设计","分布式系统设计","高并发与性能优化","缓存与异步设计","高可用与容灾设计"],
+    "数据工程":["SQL与数仓建模","大数据处理","ETL/Pipeline设计","数据质量治理"],
+    "AI/ML能力":["特征工程","模型训练与调优","模型评估设计","模型部署上线"],
+    "LLM应用能力":["Prompt工程","RAG系统设计","Agent工作流设计","LLM评测与调优"],
+    "质量保障":["测试策略设计","自动化测试实现","测试用例设计","性能测试分析"],
+    "安全能力":["Web攻防基础","渗透测试","安全审计","漏洞分析"],
+    "云原生与DevOps":["容器化与编排","CI/CD流水线","监控与可观测性","基础设施即代码"],
+    "通用工程素养":["英文文档阅读","技术文档写作","开源项目贡献","代码审查能力","技术方案表达","独立问题定位","跨团队协作沟通"]
+};
+const DIRECTIONS = ["Web开发","移动开发","测试开发QA","数据开发","数据分析","算法AI","安全","运维DevOps","产品经理","UIUX设计","技术支持实施","AI应用开发"];
+const DOMAINS_QUICK = ["电商","金融","教育","医疗","企业服务SaaS","社交","游戏","AI应用","物联网","政务","本地生活"];
+
+const DELTA_RANGE = {
+    basicInfo:   { min: -30, max: 10 },
+    summary:     { min: -30, max: 10 },
+    skills:      { min: -60, max: 10 },
+    experiences: { min: -30, max: 10 },
+    preference:  { min: -20, max: 10 },
+    direction:   { min: -60, max: 10 },
+};
+
+const EXP_TYPE_NAMES = {internship:'实习经历',projects:'项目经历',competition:'竞赛荣誉',research:'科研经历',campus:'校园经历',learning:'学习轨迹',certificates:'获得证书'};
+const EXP_TAG_PRESETS = {
+    internship:["全职","兼职","远程","前端","后端","全栈","移动端","数据","算法","产品","测试","运维","设计","管理"],
+    projects:["个人项目","团队项目","开源项目","课程项目","比赛项目","毕设项目","商业项目"],
+    competition:["全国级","省级","校级","个人赛","团队赛","一等奖","二等奖","三等奖","优秀奖"],
+    research:["NLP","CV","推荐系统","强化学习","大数据","安全","系统","网络","多模态"],
+    campus:["班委","学生会","社团","团委","志愿者","院级","校级","国家级"],
+    learning:["大学课程","在线课程","教材自学","实战练习","视频教程","官方文档","读书"],
+    certificates:["英语","计算机","职业资格","专业认证","驾照","奖学金","论文"]
+};
+
+const SOFT_QUALITY_DIMS = [
+    {key:'沟通表达',desc:'班干部、汇报经历、文档写作'},
+    {key:'团队协作',desc:'主导/执行/协调的团队配合'},
+    {key:'责任心',  desc:'项目完成度与量化结果'},
+    {key:'执行力',  desc:'从想法到落地的能力'},
+    {key:'职业意识',desc:'求职方向认知与主动准备'},
+];
+const GROWTH_POTENTIAL_DIMS = [
+    {key:'学习能力',  desc:'快速掌握新技术、学习-落地周期'},
+    {key:'创新能力',  desc:'个人项目、竞赛、开源等自驱输出'},
+    {key:'抗压能力',  desc:'实习强度、竞赛经历下的稳定输出'},
+    {key:'迁移能力',  desc:'跨领域经历能否复用'},
+    {key:'目标清晰度',desc:'方向是否收敛，而非广撒网'},
+];
+const LEVEL_LABELS    = {1:'信号不足',2:'初步信号',3:'较明确佐证',4:'强力佐证'};
+const LEVEL_BADGE_CLS = {1:'bg-gray-100 text-gray-500 border-gray-200',2:'bg-amber-50 text-amber-600 border-amber-200',3:'bg-blue-50 text-blue-600 border-blue-200',4:'bg-green-50 text-green-700 border-green-200'};
+const LEVEL_DOT_CLS   = {1:'bg-gray-300',2:'bg-amber-400',3:'bg-blue-500',4:'bg-green-500'};
+
+// ====================================================================
+// 数据模板
+// ====================================================================
+const defaultData = {
+    student_id:"STU_889900",direction:"Web开发",domains:["电商","AI应用"],
+    techStack:[{name:"React",level:3},{name:"MySQL",level:2}],
+    techCapabilities:[{name:"系统设计",level:2},{name:"数据结构与算法",level:3}],
+    devTools:[{name:"Git",level:4}],
+    basicInfo:{name:"张三",schoolName:"浙江大学",schoolMajor:"软件工程",educationLevel:"本科",graduationYear:2026,graduationMonth:6,graduationProvince:"浙江",certificates:[{name:"英语四级",level:"四级",note:"",date:"",tags:[]}]},
+    summary:"前端基础扎实，学习意愿强，具备持续成长潜力。热爱开源技术，具备良好的团队协作能力。",
+    explicitMetrics:{graduationCity:"广州市",schoolTags:["985","211","双一流"]},
+    preference:{preferredCities:["北京","上海","广州"],expectedSalaryMin:15,expectedSalaryMax:20,willingToTravel:false,willingToRelocate:true},
+    experiences:{
+        internship:[{experience_id:"INT_001",companyName:"某科技公司",positionName:"前端实习生",jobDesc:"负责活动页面开发、组件封装与联调测试（3个月）。主导了公司核心产品营销页面的重构，使用 React + Tailwind 提升了页面加载速度。",startDate:"2023-07",endDate:"2023-09",tags:["前端","全职"]}],
+        projects:[{experience_id:"PRJ_001",projectName:"电商前台重构",roleName:"前端开发",jobDesc:"重构首页、列表页与结算流程，将首屏加载时间从 3s 降低至 1.2s。",startDate:"2023-03",endDate:"2023-06",tags:["团队项目","前端"]},{experience_id:"PRJ_002",projectName:"个人博客",roleName:"独立开发",jobDesc:"基于 Next.js 搭建，实现 SEO 优化，后端采用 Node.js + MongoDB。",startDate:"2022-10",endDate:"2023-01",tags:["个人项目"]}],
+        competition:[{experience_id:"CMP_001",competitionName:"蓝桥杯",award:"省级二等奖",roleName:"个人参赛",date:"2023-04",tags:["省级","个人赛"]}],
+        research:[{experience_id:"RES_001",labName:"智能系统实验室",direction:"推荐系统",roleName:"参与者",startDate:"2022-09",endDate:"2023-06",tags:["推荐系统"]}],
+        campus:[{experience_id:"CAM_001",orgName:"软件工程2101班",position:"班长",duty:"组织班级活动，协调师生沟通，多次获评优秀班干部。",startDate:"2021-09",endDate:"2023-06",tags:["班委","院级"]}],
+        learning:[{experience_id:"LRN_001",type:"self_study",skill:"Python",semester:"大二上",notes:"学习基础语法、函数、面向对象及常用标准库",startDate:"2022-09",endDate:"2022-12",tags:["教材自学"]},{experience_id:"LRN_002",type:"self_study_with_project",skill:"Vue3",semester:"",notes:"通过官方文档学习 Composition API",startDate:"2023-01",endDate:"",tags:["官方文档"]}]
+    }
+};
+
+function createEmptyData() {
+    return {
+        student_id:`STU_${Math.floor(Math.random()*900000+100000)}`,
+        direction:'',domains:[],
+        techStack:[],techCapabilities:[],devTools:[],
+        basicInfo:{name:'',schoolName:'',schoolMajor:'',educationLevel:'本科',graduationYear:'',graduationMonth:'',graduationProvince:'',certificates:[]},
+        summary:'',
+        explicitMetrics:{graduationCity:'',schoolTags:[]},
+        preference:{preferredCities:[],expectedSalaryMin:0,expectedSalaryMax:0,willingToTravel:false,willingToRelocate:false},
+        experiences:{internship:[],projects:[],competition:[],research:[],campus:[],learning:[]}
+    };
+}
+
+// ====================================================================
+// 状态
+// ====================================================================
+let studentData = JSON.parse(localStorage.getItem('student_profile'));
+if (!studentData) studentData = JSON.parse(JSON.stringify(defaultData));
+if (!studentData.techStack) studentData.techStack = [];
+if (!studentData.techCapabilities) studentData.techCapabilities = [];
+if (!studentData.devTools) studentData.devTools = [];
+if (!studentData.preference) studentData.preference = {preferredCities:[],expectedSalaryMin:0,expectedSalaryMax:0,willingToTravel:false,willingToRelocate:false};
+if (!studentData.experiences) studentData.experiences = {};
+
+let aiResults = (() => { try { return JSON.parse(localStorage.getItem('student_ai_eval')) || {}; } catch(e) { return {}; } })();
+aiResults.completeness    = aiResults.completeness    || null;
+aiResults.skillcheck      = aiResults.skillcheck      || null;
+aiResults.infer           = aiResults.infer           || null;
+aiResults.softQuality     = aiResults.softQuality     || null;
+aiResults.growthPotential = aiResults.growthPotential || null;
+
+let aiState = {loadingC:false,errC:'',loadingS:false,errS:'',loadingI:false,errI:'',loadingSQ:false,errSQ:'',loadingGP:false,errGP:''};
+let isEditingBasicInfo = false;
+let modalState = {type:null,index:null};
+let _resumeDataUrl = null;
+let _resumeFileName = '';
+
+function saveData()      { localStorage.setItem('student_profile', JSON.stringify(studentData)); }
+function saveAIResults() { localStorage.setItem('student_ai_eval', JSON.stringify(aiResults)); }
+
+// ====================================================================
+// 完整度规则层
+// ====================================================================
+function checkRatio(items) { return Math.round(items.filter(Boolean).length / items.length * 100); }
+function calcBaseScores(data) {
+    return {
+        basicInfo:   checkRatio([!!data.basicInfo?.name,!!data.basicInfo?.schoolName,!!data.basicInfo?.schoolMajor,!!data.basicInfo?.educationLevel,!!data.basicInfo?.graduationYear,!!data.explicitMetrics?.graduationCity]),
+        summary:     checkRatio([(data.summary?.length||0)>=30,(data.summary?.length||0)>=80,(data.summary?.length||0)>=150]),
+        skills:      checkRatio([(data.techStack?.length||0)>=1,(data.techStack?.length||0)>=3,(data.techCapabilities?.length||0)>=1,(data.devTools?.length||0)>=1]),
+        experiences: checkRatio([(data.experiences?.internship?.length||0)>0,(data.experiences?.projects?.length||0)>0,(data.experiences?.competition?.length||0)>0,(data.experiences?.learning?.length||0)>0,(data.experiences?.research?.length||0)>0]),
+        preference:  checkRatio([(data.preference?.preferredCities?.length||0)>0,(data.preference?.expectedSalaryMin||0)>0,(data.preference?.expectedSalaryMax||0)>0]),
+        direction:   checkRatio([!!data.direction,(data.domains?.length||0)>0,(data.domains?.length||0)>=2]),
+    };
+}
+
+// ====================================================================
+// 辅助
+// ====================================================================
+const renderTags = (tags, colorClass) => (tags||[]).map(t=>`<span class="px-3 py-1 rounded-full text-sm font-medium ${colorClass}">${t}</span>`).join('');
+const formatDateRange = (s,e) => { if (!s&&!e) return ''; if (s&&!e) return s; if (!s&&e) return `至 ${e}`; return `${s} → ${e}`; };
+
+function showToast(msg, type='success') {
+    const el = document.getElementById('app-toast');
+    if (!el) return;
+    el.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-2xl text-sm font-bold flex items-center gap-2 ${type==='success'?'bg-green-600':'bg-red-600'} text-white`;
+    el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 3000);
+}
+
+window._undoClearProfile = function() {
+    const backup   = localStorage.getItem('student_profile_backup');
+    const aiBackup = localStorage.getItem('student_ai_eval_backup');
+    if (backup) { studentData = JSON.parse(backup); saveData(); }
+    if (aiBackup) {
+        const parsed = JSON.parse(aiBackup);
+        Object.assign(aiResults, parsed);
+        saveAIResults();
+    }
+    localStorage.removeItem('student_profile_backup');
+    localStorage.removeItem('student_ai_eval_backup');
+    document.getElementById('app-toast').classList.add('hidden');
+    renderApp();
+    showToast('已撤销，数据已恢复');
+};
+
+// ====================================================================
+// Header
+// ====================================================================
+function renderHeader() {
+    const {basicInfo:bi,explicitMetrics:em,student_id} = studentData;
+    const tags = em?.schoolTags||[];
+    const field = (biKey,val,placeholder,cls='w-36') => isEditingBasicInfo
+        ? `<input data-bi-key="${biKey}" value="${val||''}" placeholder="${placeholder}" class="bg-white/20 border-b border-white/60 focus:outline-none text-white px-1 py-0.5 rounded text-sm ${cls}">`
+        : `<span>${val||placeholder}</span>`;
+    return `
+    <div class="bg-primary text-white p-8 sm:p-12 relative overflow-hidden">
+        <div class="absolute -right-20 -top-20 opacity-10"><i class="fa-solid fa-graduation-cap text-[15rem]"></i></div>
+        <button id="btn-toggle-edit-basic" class="absolute top-4 right-4 z-20 flex items-center gap-1.5 text-xs font-semibold bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg border border-white/30 transition-colors">
+            <i class="fa-solid ${isEditingBasicInfo?'fa-check':'fa-pen'} text-[10px]"></i> ${isEditingBasicInfo?'完成编辑':'编辑信息'}
+        </button>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center relative z-10 gap-6">
+            <div>
+                ${isEditingBasicInfo
+                    ? `<input data-bi-key="name" value="${bi.name||''}" placeholder="姓名" class="text-4xl font-extrabold tracking-tight bg-white/20 border-b-2 border-white/60 focus:outline-none text-white px-2 py-0.5 rounded w-52">`
+                    : `<h1 class="text-4xl font-extrabold tracking-tight">${bi.name||'未命名'}</h1>`}
+                <div class="text-base mt-3 text-blue-100 font-light flex flex-wrap items-center gap-x-2 gap-y-1">
+                    ${field('schoolName',bi.schoolName,'学校名称')}
+                    <span class="opacity-40">|</span>
+                    ${field('schoolMajor',bi.schoolMajor,'专业')}
+                    <span class="opacity-40">|</span>
+                    ${isEditingBasicInfo
+                        ? `<select data-bi-key="educationLevel" class="bg-white/20 border-b border-white/60 text-white text-sm px-1 py-0.5 rounded focus:outline-none">${['专科','本科','硕士','博士'].map(l=>`<option value="${l}" ${bi.educationLevel===l?'selected':''}>${l}</option>`).join('')}</select>`
+                        : `<span>${bi.educationLevel||''}</span>`}
+                </div>
+                ${isEditingBasicInfo
+                    ? `<div class="mt-3 flex flex-wrap gap-2 items-center"><span class="text-[10px] text-blue-200 font-bold mr-1">学校标签</span>${['985','211','双一流','C9','普通本科'].map(tag=>{const on=tags.includes(tag);return`<button class="btn-toggle-school-tag text-xs px-2.5 py-1 rounded border transition-colors ${on?'bg-white text-primary border-white font-bold':'bg-white/15 text-white/70 border-white/30 hover:bg-white/25'}" data-tag="${tag}">${tag}</button>`;}).join('')}</div>`
+                    : `<div class="flex flex-wrap gap-2 mt-4">${renderTags(tags,'bg-blue-800 text-blue-100')}</div>`}
+            </div>
+            <div class="flex flex-col gap-2 text-blue-100 text-sm sm:text-right flex-shrink-0">
+                <p class="flex items-center sm:justify-end gap-1.5"><i class="fa-solid fa-calendar-check w-4 text-center"></i>
+                    ${isEditingBasicInfo
+                        ? `<input data-bi-key="graduationYear" type="number" value="${bi.graduationYear||''}" class="bg-white/20 border-b border-white/60 text-white text-sm w-14 text-center focus:outline-none rounded">年<input data-bi-key="graduationMonth" type="number" value="${bi.graduationMonth||''}" min="1" max="12" class="bg-white/20 border-b border-white/60 text-white text-sm w-8 text-center focus:outline-none rounded">月毕业`
+                        : `<span>${bi.graduationYear}年${bi.graduationMonth}月毕业</span>`}
+                </p>
+                <p class="flex items-center sm:justify-end gap-1.5"><i class="fa-solid fa-location-dot w-4 text-center"></i>
+                    ${isEditingBasicInfo
+                        ? `${field('graduationProvince',bi.graduationProvince,'省份','w-16')}<span class="opacity-40">-</span><input data-bi-key-exp="graduationCity" value="${em?.graduationCity||''}" class="bg-white/20 border-b border-white/60 text-white text-sm w-20 px-1 py-0.5 rounded focus:outline-none" placeholder="城市">`
+                        : `<span>常驻地: ${bi.graduationProvince} - ${em?.graduationCity||''}</span>`}
+                </p>
+                <p class="flex items-center sm:justify-end gap-1.5"><i class="fa-solid fa-id-card w-4 text-center"></i><span>ID: ${student_id||'N/A'}</span></p>
+            </div>
+        </div>
+        ${isEditingBasicInfo?`<div class="mt-5 bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-xs text-blue-100 flex items-center gap-2"><i class="fa-solid fa-circle-info"></i>直接修改各字段，点击「完成编辑」保存所有变更。</div>`:''}
+    </div>`;
+}
+
+// ====================================================================
+// 上传简历
+// ====================================================================
+function renderUploadSection() {
+    let content = '';
+    if (_resumeDataUrl) {
+        content = `<div class="flex items-center gap-5">
+            <img src="${_resumeDataUrl}" class="w-20 h-28 object-cover rounded-lg border border-gray-200 shadow flex-shrink-0">
+            <div class="text-left">
+                <p class="font-bold text-gray-700 text-sm">${_resumeFileName}</p>
+                <p class="text-xs text-gray-400 mt-0.5">图片已就绪</p>
+                <div class="flex gap-2 mt-3">
+                    <button id="btn-parse-resume" class="px-4 py-1.5 bg-gray-900 text-white text-sm font-bold rounded-lg hover:bg-black transition-colors flex items-center gap-2 shadow"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 解析简历</button>
+                    <button id="btn-cancel-upload" class="px-3 py-1.5 text-gray-500 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消</button>
+                </div>
+            </div>
+        </div>`;
+    } else {
+        content = `<input type="file" id="resume-file-input" accept="image/jpeg,image/png,image/webp" class="hidden">
+            <label for="resume-file-input" class="cursor-pointer flex flex-col items-center">
+                <i class="fa-solid fa-cloud-arrow-up text-4xl mb-3 text-gray-300 group-hover:text-blue-400 transition-colors"></i>
+                <p class="font-semibold text-gray-600">上传简历截图，AI 自动解析填充</p>
+                <p class="text-xs text-gray-400 mt-1">支持 JPG、PNG、WEBP，建议清晰截图</p>
+                <span class="mt-3 px-5 py-1.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-md shadow-blue-200">选择图片</span>
+            </label>
+            <div class="mt-3 text-right w-full pr-1">
+                <a href="#" id="btn-load-example" class="text-xs text-gray-400 hover:text-primary transition-colors underline underline-offset-2">看看示例？</a>
+            </div>`;
+    }
+    return `<div class="p-8 pb-0"><div id="upload-zone" class="group border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 transition-all cursor-pointer">${content}</div></div>`;
+}
+
+// ====================================================================
+// 技术方向
+// ====================================================================
+function renderDirectionInProfile() {
+    const currentDir = studentData.direction || '';
+    return `
+    <div class="p-8 pb-0">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 section-title">技术方向
+            <span class="text-xs font-normal text-gray-400 ml-2">单选 · 同步影响岗位匹配与技能推荐</span>
+        </h2>
+        <div class="flex flex-wrap gap-2">
+            ${DIRECTIONS.map(d=>`<button class="btn-profile-direction px-4 py-1.5 rounded-full border text-sm font-medium transition-all shadow-sm ${currentDir===d?'bg-primary text-white border-primary ring-2 ring-blue-200':'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary'}" data-val="${d}">${d}</button>`).join('')}
+        </div>
+    </div>`;
+}
+
+// ====================================================================
+// 个人自述
+// ====================================================================
+function renderSummary() {
+    return `
+    <div class="p-8 pb-0">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 section-title">个人自述</h2>
+        <textarea id="summary-input" class="w-full text-gray-700 text-sm leading-relaxed bg-blue-50/50 p-4 rounded-xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 min-h-[100px] resize-y" placeholder="请简述您的核心优势、学习态度等...">${studentData.summary||''}</textarea>
+    </div>`;
+}
+
+// ====================================================================
+// 技能模块
+// ====================================================================
+function renderSkillItem(skill, cat, i) {
+    const dots=[1,2,3,4].map(l=>`<div class="w-3.5 h-3.5 rounded-sm cursor-pointer transition-all btn-set-level ${skill.level>=l?'bg-primary shadow-inner scale-110':'bg-gray-200 hover:bg-blue-300'}" data-cat="${cat}" data-idx="${i}" data-level="${l}" title="Level ${l}"></div>`).join('');
+    return `<div class="inline-flex items-center bg-white border border-gray-200 shadow-sm rounded-lg px-3 py-2 mr-3 mb-3 hover:border-blue-300 transition-colors group">
+        <span class="text-sm font-bold text-gray-800 mr-4 min-w-[60px]">${skill.name}</span>
+        <div class="flex gap-1.5 mr-4">${dots}</div>
+        <i class="fa-solid fa-times text-gray-300 hover:text-red-500 cursor-pointer text-sm btn-del-skill transition-colors" data-cat="${cat}" data-idx="${i}" title="删除"></i>
+    </div>`;
+}
+
+function renderSkillsModule() {
+    const ts=studentData.techStack||[], tc=studentData.techCapabilities||[], dt=studentData.devTools||[];
+    const recGroups=DIRECTION_CAPABILITY_MAP[studentData.direction]||[];
+    return `
+    <div class="p-8 pb-4">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 section-title">专业技能构建 <span class="text-xs font-normal text-gray-400 ml-2">1格=了解 2格=熟悉 3格=掌握 4格=熟练</span></h2>
+        <div class="bg-gray-50 p-6 rounded-xl border border-gray-100 space-y-8">
+            <div>
+                <div class="flex items-center mb-3"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mr-3"><i class="fa-solid fa-layer-group"></i></div><h3 class="text-md font-bold text-gray-800">技术栈 <span class="text-xs font-normal text-gray-500 ml-2">语言、框架、数据库、云平台......</span></h3></div>
+                <div class="flex flex-wrap pl-11">${ts.map((s,i)=>renderSkillItem(s,'techStack',i)).join('')}<input type="text" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-48 focus:outline-none focus:border-primary shadow-sm input-add-skill mb-3" data-cat="techStack" placeholder="+ 新增技术 (回车)"></div>
+            </div>
+            <div class="w-full h-px bg-gray-200"></div>
+            <div>
+                <div class="flex items-center mb-3"><div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mr-3"><i class="fa-solid fa-brain"></i></div><h3 class="text-md font-bold text-gray-800">技术能力特征 <span class="text-xs font-normal text-gray-500 ml-2">工程思维与解决方案</span></h3></div>
+                <div class="pl-11">
+                    ${recGroups.length>0?`<div class="bg-blue-50 border border-blue-100 text-blue-700 px-3 py-1.5 rounded text-xs font-medium mb-4 inline-block"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>基于「${studentData.direction}」方向，建议补充：${recGroups.join('、')}</div>`:''}
+                    <div class="flex flex-wrap mb-2">${tc.map((s,i)=>renderSkillItem(s,'techCapabilities',i)).join('')}</div>
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 mb-3 shadow-sm">
+                        <p class="text-xs font-bold text-gray-500 mb-3">快捷添加能力库：</p>
+                        <div class="flex flex-col gap-2.5">
+                            ${Object.entries(CAPABILITY_GROUPS).map(([g,skills])=>`
+                                <div class="flex flex-wrap gap-2 items-center">
+                                    <span class="text-xs font-bold ${recGroups.includes(g)?'text-primary bg-blue-50 px-2 py-0.5 rounded':'text-gray-600'} w-20 text-right mr-2">${g}</span>
+                                    ${skills.map(s=>{const ex=tc.find(x=>x.name===s);return`<button class="text-xs px-2.5 py-1 rounded border transition-colors btn-quick-cap ${ex?'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed':'bg-white text-gray-700 border-gray-300 hover:bg-primary hover:text-white hover:border-primary shadow-sm'}" data-name="${s}" ${ex?'disabled':''}>${ex?'<i class="fa-solid fa-check mr-1"></i>':''}${s}</button>`;}).join('')}
+                                </div>`).join('')}
+                        </div>
+                    </div>
+                    <input type="text" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-48 focus:outline-none focus:border-primary shadow-sm input-add-skill" data-cat="techCapabilities" placeholder="+ 自定义能力 (回车)">
+                </div>
+            </div>
+            <div class="w-full h-px bg-gray-200"></div>
+            <div>
+                <div class="flex items-center mb-3"><div class="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center mr-3"><i class="fa-solid fa-toolbox"></i></div><h3 class="text-md font-bold text-gray-800">开发与协作工具</h3></div>
+                <div class="flex flex-wrap pl-11">${dt.map((s,i)=>renderSkillItem(s,'devTools',i)).join('')}<input type="text" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-48 focus:outline-none focus:border-primary shadow-sm input-add-skill mb-3" data-cat="devTools" placeholder="+ 新增工具 (回车)"></div>
+            </div>
+        </div>
+    </div>`;
+}
+
+// ====================================================================
+// 软素质 & 发展潜力
+// ====================================================================
+function renderSoftDimCard(dim, result) {
+    const level = result?.level || 0;
+    const dotRow = [1,2,3,4].map(l=>`<span class="inline-block w-3 h-3 rounded-sm ${level>=l?LEVEL_DOT_CLS[level]:'bg-gray-200'}"></span>`).join('');
+    return `
+    <div class="bg-white border border-gray-200 rounded-xl p-4 hover:border-blue-200 hover:shadow-sm transition-all">
+        <div class="flex items-start justify-between gap-3">
+            <div class="flex-grow min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                    <span class="font-bold text-gray-800 text-sm">${dim.key}</span>
+                    ${level>0?`<span class="text-xs px-2 py-0.5 rounded-full border font-semibold ${LEVEL_BADGE_CLS[level]}">L${level} ${LEVEL_LABELS[level]}</span>`:`<span class="text-[11px] text-gray-300 italic">待 AI 评估</span>`}
+                </div>
+                <p class="text-xs text-gray-400">${dim.desc}</p>
+                ${result?.reasoning?`<p class="text-xs text-gray-600 mt-2.5 bg-gray-50 p-2.5 rounded-lg border border-gray-100 leading-relaxed">${result.reasoning}</p>`:''}
+            </div>
+            <div class="flex gap-0.5 flex-shrink-0 mt-1">${dotRow}</div>
+        </div>
+    </div>`;
+}
+
+function renderSoftQualitySection() {
+    const result=aiResults.softQuality, loading=aiState.loadingSQ, err=aiState.errSQ;
+    return `
+    <div class="p-8 pb-4">
+        <div class="flex items-start justify-between mb-2 gap-4">
+            <div><h2 class="text-xl font-bold text-gray-800 section-title">职业素养</h2><p class="text-xs text-gray-400 ml-4 mt-1">由 AI 根据经历推断 · Level 1-4</p></div>
+            <button id="btn-eval-soft-quality" class="flex-shrink-0 flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl shadow transition-all ${loading?'bg-gray-300 cursor-not-allowed text-gray-500':'bg-gray-900 hover:bg-black text-white'}" ${loading?'disabled':''}>
+                ${loading?'<i class="fa-solid fa-spinner fa-spin"></i> 评估中...':`<i class="fa-solid fa-robot"></i> ${result?'重新评估':'AI 评估'}`}
+            </button>
+        </div>
+        ${err?`<div class="text-red-600 text-xs mb-4 p-3 bg-red-50 border border-red-100 rounded-lg"><i class="fa-solid fa-circle-exclamation mr-1"></i>${err}</div>`:''}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${SOFT_QUALITY_DIMS.map(dim=>{const r=result?.find(d=>d.name===dim.key);return renderSoftDimCard(dim,r);}).join('')}
+        </div>
+        ${!result&&!loading?`<p class="mt-3 text-center text-xs text-gray-400 py-2"><i class="fa-solid fa-circle-info mr-1"></i>先完善经历描述，再点击「AI 评估」获取分析</p>`:''}
+    </div>`;
+}
+
+function renderGrowthPotentialSection() {
+    const result=aiResults.growthPotential, loading=aiState.loadingGP, err=aiState.errGP;
+    return `
+    <div class="p-8 pt-0 pb-4">
+        <div class="flex items-start justify-between mb-2 gap-4">
+            <div><h2 class="text-xl font-bold text-gray-800 section-title">发展潜力</h2><p class="text-xs text-gray-400 ml-4 mt-1">由 AI 根据经历推断 · Level 1-4</p></div>
+            <button id="btn-eval-growth-potential" class="flex-shrink-0 flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl shadow transition-all ${loading?'bg-gray-300 cursor-not-allowed text-gray-500':'bg-gray-900 hover:bg-black text-white'}" ${loading?'disabled':''}>
+                ${loading?'<i class="fa-solid fa-spinner fa-spin"></i> 评估中...':`<i class="fa-solid fa-robot"></i> ${result?'重新评估':'AI 评估'}`}
+            </button>
+        </div>
+        ${err?`<div class="text-red-600 text-xs mb-4 p-3 bg-red-50 border border-red-100 rounded-lg"><i class="fa-solid fa-circle-exclamation mr-1"></i>${err}</div>`:''}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${GROWTH_POTENTIAL_DIMS.map(dim=>{const r=result?.find(d=>d.name===dim.key);return renderSoftDimCard(dim,r);}).join('')}
+        </div>
+        ${!result&&!loading?`<p class="mt-3 text-center text-xs text-gray-400 py-2"><i class="fa-solid fa-circle-info mr-1"></i>先完善经历描述，再点击「AI 评估」获取分析</p>`:''}
+    </div>`;
+}
+
+// ====================================================================
+// 经历卡片
+// ====================================================================
+function getExpDisplay(item, type) {
+    switch(type) {
+        case 'internship':   return {title:item.companyName||'未填写公司',sub:item.positionName||'',desc:item.jobDesc||'',date:formatDateRange(item.startDate,item.endDate)};
+        case 'projects':     return {title:item.projectName||'未填写项目名',sub:item.roleName||'',desc:item.jobDesc||'',date:formatDateRange(item.startDate,item.endDate)};
+        case 'competition':  return {title:item.competitionName||'未填写竞赛',sub:item.award||'',desc:item.roleName||'',date:item.date||''};
+        case 'research':     return {title:item.labName||'未填写实验室',sub:item.direction||'',desc:`角色：${item.roleName||''}`,date:formatDateRange(item.startDate,item.endDate)};
+        case 'campus':       return {title:item.orgName||'未填写组织',sub:item.position||'',desc:item.duty||'',date:formatDateRange(item.startDate,item.endDate)};
+        case 'learning':     return {title:item.skill||'未填写技能',sub:item.type==='course'?'课程学习':item.type==='self_study'?'自主学习':'实战学习',desc:item.notes||'',date:item.semester||formatDateRange(item.startDate,item.endDate)};
+        case 'certificates': return {title:item.name||'未填写证书',sub:item.level||'',desc:item.note||'',date:item.date||''};
+        default: return {title:'经历',sub:'',desc:'',date:''};
+    }
+}
+function renderExpCard(item, type, index) {
+    const {title,sub,desc,date}=getExpDisplay(item,type), tags=item.tags||[];
+    return `
+    <div class="exp-card bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-blue-200 transition-all">
+        <div class="flex items-start gap-3">
+            <div class="flex-grow min-w-0">
+                <div class="flex flex-wrap items-start gap-2">
+                    <span class="font-bold text-gray-900 text-base leading-tight">${title}</span>
+                    ${sub?`<span class="text-xs font-semibold text-primary bg-blue-50 px-2 py-0.5 rounded border border-blue-100">${sub}</span>`:''}
+                </div>
+                ${date?`<p class="text-xs text-gray-400 mt-1 font-medium flex items-center gap-1"><i class="fa-regular fa-calendar text-[10px]"></i>${date}</p>`:''}
+                ${desc?`<p class="text-gray-600 text-sm mt-2 leading-relaxed line-clamp-2">${desc}</p>`:''}
+                ${tags.length>0?`<div class="flex flex-wrap gap-1.5 mt-3">${tags.slice(0,6).map(t=>`<span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded border border-gray-200">${t}</span>`).join('')}${tags.length>6?`<span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-400 rounded">+${tags.length-6}</span>`:''}</div>`:''}
+            </div>
+            <div class="exp-card-actions flex items-center gap-1 flex-shrink-0">
+                <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-blue-50 text-gray-400 hover:text-primary transition-colors btn-edit-exp" data-type="${type}" data-idx="${index}"><i class="fa-solid fa-pen text-xs"></i></button>
+                <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors btn-del-exp" data-type="${type}" data-idx="${index}"><i class="fa-solid fa-trash text-xs"></i></button>
+            </div>
+        </div>
+    </div>`;
+}
+function renderExpSection(type, title, icon, dataArr, emptyMsg) {
+    const isEmpty=!dataArr||dataArr.length===0;
+    return `
+    <div class="p-8 pt-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-xl font-bold text-gray-800 section-title">${title}</h2>
+            <button class="btn-add-exp flex items-center gap-1.5 text-xs font-semibold text-primary bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition-colors" data-type="${type}"><i class="fa-solid fa-plus text-[10px]"></i> 添加</button>
+        </div>
+        ${isEmpty
+            ? `<div class="text-center py-8 text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 cursor-pointer btn-add-exp" data-type="${type}"><i class="fa-solid ${icon} text-3xl mb-2 text-gray-300"></i><p class="text-sm">${emptyMsg}，点击添加</p></div>`
+            : `<div class="space-y-3">${dataArr.map((item,i)=>renderExpCard(item,type,i)).join('')}</div>`}
+    </div>`;
+}
+function renderCertificates() {
+    const certs=studentData.basicInfo?.certificates||[];
+    return `
+    <div class="p-8 pt-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-xl font-bold text-gray-800 section-title">获得证书</h2>
+            <button class="btn-add-exp flex items-center gap-1.5 text-xs font-semibold text-primary bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition-colors" data-type="certificates"><i class="fa-solid fa-plus text-[10px]"></i> 添加</button>
+        </div>
+        ${certs.length===0
+            ? `<div class="text-center py-6 text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 cursor-pointer btn-add-exp" data-type="certificates"><i class="fa-solid fa-certificate text-3xl mb-2 text-gray-300"></i><p class="text-sm">暂无证书，点击添加</p></div>`
+            : `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${certs.map((c,i)=>renderExpCard(c,'certificates',i)).join('')}</div>`}
+    </div>`;
+}
+
+// ====================================================================
+// AI 模块（独立页）
+// ====================================================================
+function renderAIModule() {
+    let resCHtml='', resSHtml='', resIHtml='';
+
+    if (aiResults.completeness) {
+        const r=aiResults.completeness;
+        resCHtml=`<div class="flex flex-col md:flex-row gap-8 items-center mt-4">
+            <div class="relative w-36 h-36 flex-shrink-0">
+                <svg class="w-full h-full transform -rotate-90 drop-shadow-md"><circle cx="72" cy="72" r="60" stroke="#f3f4f6" stroke-width="12" fill="none"/><circle cx="72" cy="72" r="60" stroke="${r.totalScore>=80?'#22c55e':r.totalScore>=60?'#f59e0b':'#ef4444'}" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="${2*Math.PI*60}" stroke-dashoffset="${2*Math.PI*60*(1-r.totalScore/100)}"/></svg>
+                <div class="absolute inset-0 flex items-center justify-center flex-col"><span class="text-4xl font-black text-gray-800">${r.totalScore}</span><span class="text-xs font-bold text-gray-400 tracking-widest mt-1">SCORE</span></div>
+            </div>
+            <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 w-full">
+                ${(r.dimensions||[]).map(d=>`<div><div class="flex justify-between text-sm mb-1.5"><span class="font-bold text-gray-700">${d.label}</span><span class="${d.score<60?'text-red-500':'text-green-600'} font-bold text-xs bg-gray-50 px-2 py-0.5 rounded">${d.score}分</span></div><div class="w-full bg-gray-100 rounded-full h-2 mb-1.5 overflow-hidden"><div class="${d.score<60?'bg-red-400':'bg-primary'} h-full rounded-full" style="width:${d.score}%"></div></div><p class="text-[11px] text-gray-500 leading-tight">${d.comment||''}</p></div>`).join('')}
+            </div>
+        </div>
+        <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-blue-900 p-4 rounded-xl text-sm flex items-start gap-3 shadow-sm">
+            <div class="bg-blue-500 text-white rounded-full p-1.5 flex-shrink-0 mt-0.5"><i class="fa-solid fa-lightbulb text-xs px-0.5"></i></div>
+            <div><span class="font-black block mb-1">最优先补充建议：</span><span class="text-gray-700 font-medium">${r.topSuggestion||''}</span></div>
+        </div>`;
+    }
+
+    if (aiResults.skillcheck) {
+        const r = aiResults.skillcheck;
+        const changes = r.changes || [];
+        const pending = changes.filter(item => !item._applied);
+
+        const OP_META = {
+            delete: { label:'删除', icon:'fa-trash-can',    bg:'bg-red-50/70',   border:'border-red-200',   badge:'bg-red-100 text-red-700 border-red-200',     dot:'bg-red-400'    },
+            update: { label:'调整', icon:'fa-pen',           bg:'bg-amber-50/70', border:'border-amber-200', badge:'bg-amber-100 text-amber-700 border-amber-200', dot:'bg-amber-400'  },
+            add:    { label:'新增', icon:'fa-plus',          bg:'bg-green-50/70', border:'border-green-200', badge:'bg-green-100 text-green-700 border-green-200', dot:'bg-green-500'  },
+        };
+        const CAT_LABEL = { techStack:'技术栈', techCapabilities:'技术能力', devTools:'工具' };
+        const levelDots = (l, cc='bg-primary') => [1,2,3,4].map(i=>`<span class="inline-block w-2 h-2 rounded-sm ${(l||0)>=i?cc:'bg-gray-200'}"></span>`).join('');
+
+        if (pending.length === 0) {
+            resSHtml = `<div class="mt-4 flex flex-col items-center gap-2 py-10 text-center bg-green-50 rounded-xl border border-green-200">
+                <i class="fa-solid fa-circle-check text-3xl text-green-500"></i>
+                <p class="font-bold text-green-700 text-sm mt-1">所有变更已应用</p>
+                <p class="text-xs text-gray-400">可重新核查获取最新建议</p>
+            </div>`;
+        } else {
+            const opCounts = { delete:0, update:0, add:0 };
+            pending.forEach(ch => { if (opCounts[ch.op]!==undefined) opCounts[ch.op]++; });
+            const statsHtml = [
+                opCounts.delete>0 ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200"><i class="fa-solid fa-trash-can mr-1"></i>删除 ${opCounts.delete}</span>` : '',
+                opCounts.update>0 ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200"><i class="fa-solid fa-pen mr-1"></i>调整 ${opCounts.update}</span>` : '',
+                opCounts.add>0    ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200"><i class="fa-solid fa-plus mr-1"></i>新增 ${opCounts.add}</span>` : '',
+            ].filter(Boolean).join('');
+
+            const rows = pending.map((ch, idx) => {
+                const m = OP_META[ch.op] || OP_META.update;
+                const cur = studentData[ch.category]?.find(s => s.name === ch.name);
+                const alreadyAdded = ch.op === 'add' && cur;
+                return `<label class="flex items-start gap-3 p-3.5 rounded-xl border ${m.border} ${m.bg} cursor-pointer select-none group transition-opacity ${alreadyAdded?'opacity-40 cursor-not-allowed':'hover:brightness-95'}">
+                    <input type="checkbox" class="sc-check mt-0.5 w-4 h-4 rounded accent-primary flex-shrink-0" data-idx="${idx}" ${alreadyAdded?'disabled':'checked'}>
+                    <div class="flex-grow min-w-0">
+                        <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+                            <span class="text-[11px] font-black px-2 py-0.5 rounded-full border ${m.badge}"><i class="fa-solid ${m.icon} mr-1 text-[9px]"></i>${m.label}</span>
+                            <span class="font-bold text-gray-800 text-sm">${ch.name}</span>
+                            <span class="text-[11px] text-gray-400 bg-white/80 border border-gray-200 px-1.5 py-0.5 rounded">${CAT_LABEL[ch.category]||ch.category}</span>
+                            ${ch.op==='update'&&cur?`<div class="flex items-center gap-1 text-[11px] text-gray-500 bg-white/80 px-2 py-0.5 rounded border border-gray-200">${levelDots(cur.level,'bg-gray-400')}<i class="fa-solid fa-arrow-right mx-1 text-gray-300 text-[9px]"></i>${levelDots(ch.level,'bg-primary')}<span class="ml-1 text-primary font-bold">L${ch.level}</span></div>`:''}
+                            ${ch.op==='add'?`<div class="flex items-center gap-1 bg-white/80 px-2 py-0.5 rounded border border-gray-200">${levelDots(ch.level||1,'bg-green-500')}<span class="text-[11px] text-green-700 font-bold ml-1">L${ch.level||1}</span></div>`:''}
+                            ${alreadyAdded?`<span class="text-[11px] text-gray-400 italic">已存在</span>`:''}
+                        </div>
+                        <p class="text-xs text-gray-500 leading-relaxed">${ch.reasoning||''}</p>
+                    </div>
+                </label>`;
+            }).join('');
+
+            const summary = r.summary ? `<p class="text-xs text-gray-500 italic mt-2 px-1"><i class="fa-solid fa-comment-dots mr-1 text-blue-300"></i>${r.summary}</p>` : '';
+
+            resSHtml = `<div class="mt-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-sm font-bold text-gray-700">${pending.length} 条变更建议</span>
+                        ${statsHtml}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-sc-toggle-all" class="text-xs text-gray-500 hover:text-primary px-3 py-1.5 border border-gray-200 rounded-lg hover:border-primary transition-colors font-medium flex items-center gap-1.5"><i class="fa-solid fa-check-double text-[10px]"></i>全选/取消</button>
+                        <button id="btn-sc-apply" class="text-xs bg-primary hover:bg-blue-700 text-white font-bold px-4 py-1.5 rounded-lg shadow-md transition-colors flex items-center gap-1.5"><i class="fa-solid fa-bolt"></i> 一键应用选中</button>
+                    </div>
+                </div>
+                <div id="sc-changes-list" class="flex flex-col gap-2">${rows}</div>
+                ${summary}
+            </div>`;
+        }
+    }
+
+    if (aiResults.infer) {
+        const r=aiResults.infer;
+        resIHtml=`<div class="mt-4 flex flex-col gap-3">${!r.inferences?.length?'<p class="text-xs text-gray-500 italic p-4 text-center">无推断结果，请先完善经历描述。</p>':r.inferences.map(item=>{
+            const ls=studentData[item.category]?.find(s=>s.name===item.skillName);
+            if (!ls) return '';
+            const lv=ls.level||1, diff=(item.inferredLevel||1)-lv;
+            let statusHtml='', canApply=false;
+            if (diff===0) statusHtml=`<span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded font-bold"><i class="fa-solid fa-check mr-1"></i>一致</span>`;
+            else if (diff>0) { statusHtml=`<span class="text-orange-600 text-xs font-black bg-orange-100 border border-orange-200 px-2 py-1 rounded"><i class="fa-solid fa-arrow-up mr-1"></i>可能低估</span>`; canApply=true; }
+            else { statusHtml=`<span class="text-red-600 text-xs font-black bg-red-100 border border-red-200 px-2 py-1 rounded"><i class="fa-solid fa-arrow-down mr-1"></i>可能虚报</span>`; canApply=true; }
+            const dots=(v,cc)=>[1,2,3,4].map(l=>`<span class="inline-block w-2.5 h-2.5 rounded-sm mx-[1px] ${v>=l?cc:'bg-gray-200'}"></span>`).join('');
+            return `<div class="flex flex-col bg-white border ${diff!==0?'border-blue-200 shadow-md':'border-gray-200 opacity-80'} p-4 rounded-xl">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="flex items-center gap-6 flex-grow">
+                        <span class="font-black text-gray-800 text-sm w-32 truncate">${item.skillName}</span>
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-3"><span class="text-[10px] text-gray-500 w-10 text-right">当前</span><div class="flex">${dots(lv,'bg-gray-400')}</div></div>
+                            <div class="flex items-center gap-3"><span class="text-[10px] font-bold text-primary w-10 text-right">推断</span><div class="flex">${dots(item.inferredLevel||1,'bg-primary')}</div></div>
+                        </div>
+                        <div class="w-24 text-center ml-2">${statusHtml}</div>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto justify-end">
+                        <button class="text-xs text-gray-500 hover:text-primary hover:bg-blue-50 px-3 py-1.5 rounded transition-all btn-toggle-reasoning font-medium"><i class="fa-solid fa-eye mr-1"></i>理由</button>
+                        ${canApply?`<button class="text-xs bg-primary hover:bg-blue-700 text-white font-bold px-4 py-1.5 rounded-lg shadow transition-colors btn-ai-apply-level" data-cat="${item.category}" data-name="${item.skillName}" data-level="${item.inferredLevel}">一键采纳</button>`:`<button class="text-xs bg-gray-100 text-gray-400 font-bold px-4 py-1.5 rounded-lg border border-gray-200 cursor-not-allowed" disabled>已最新</button>`}
+                    </div>
+                </div>
+                <div class="hidden mt-4 pt-3 border-t border-dashed border-gray-200 text-xs text-gray-700 leading-relaxed bg-blue-50/30 p-3 rounded-lg">${item.reasoning||''}</div>
+            </div>`;
+        }).join('')}</div>`;
+    }
+
+    return `
+    <div class="p-8 pb-8 bg-gradient-to-b from-blue-50/50 to-white border-t border-b border-gray-100">
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200"><i class="fa-solid fa-robot text-2xl"></i></div>
+            <div><h2 class="text-2xl font-black text-gray-900">AI 画像智能评估</h2><p class="text-sm text-gray-500 mt-1">规则层 + LLM质量层 · 结果自动存储</p></div>
+        </div>
+        <div class="space-y-6">
+            ${[['completeness','画像完整度分析','规则层(字段完整度) + LLM质量层修正，结果稳定可解释。','生成评估报告','fa-chart-pie',aiState.loadingC,aiState.errC,resCHtml,'btn-ai-completeness'],
+               ['skillcheck','技能声明核查','交叉比对技能与经历，找出过度声明或遗漏。','开始交叉核查','fa-user-shield',aiState.loadingS,aiState.errS,resSHtml,'btn-ai-skillcheck'],
+               ['infer','掌握深度智能推断','通过经历推算真实 Skill Level，技能名完全匹配。','深度推断 Level','fa-brain',aiState.loadingI,aiState.errI,resIHtml,'btn-ai-infer']
+              ].map(([key,title,desc,btnText,icon,loading,err,result,btnId])=>`
+            <div class="bg-white p-6 rounded-2xl border ${aiResults[key]?'border-green-200 shadow-md':'border-gray-200 shadow-sm'} transition-all">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
+                    <div><h3 class="text-lg font-bold text-gray-800 flex items-center"><i class="fa-solid ${icon} text-blue-500 mr-2"></i>${title}</h3><p class="text-xs text-gray-400 mt-1">${desc}</p></div>
+                    <button id="${btnId}" class="${loading?'bg-gray-300 cursor-not-allowed':'bg-gray-900 hover:bg-black shadow-lg'} text-white px-5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2" ${loading?'disabled':''}>
+                        ${loading?'<i class="fa-solid fa-spinner fa-spin"></i> 处理中...':`<i class="fa-solid ${icon}"></i> ${btnText}`}
+                    </button>
+                </div>
+                ${err?`<div class="text-red-600 text-xs mt-4 p-3 bg-red-50 border border-red-100 rounded-lg"><i class="fa-solid fa-circle-exclamation mr-1"></i>${err}</div>`:''}
+                ${result}
+            </div>`).join('')}
+        </div>
+    </div>`;
+}
+
+// ====================================================================
+// renderApp
+// ====================================================================
+function renderApp() {
+    document.getElementById('app').innerHTML = `
+        ${renderHeader()}
+        ${renderUploadSection()}
+        ${renderDirectionInProfile()}
+        ${renderSummary()}
+        ${renderSkillsModule()}
+        ${renderSoftQualitySection()}
+        ${renderGrowthPotentialSection()}
+        ${renderExpSection('internship','实习经历','fa-building',studentData.experiences?.internship,'暂无实习经历')}
+        ${renderExpSection('projects','项目经历','fa-code-branch',studentData.experiences?.projects,'暂无项目经历')}
+        ${renderExpSection('competition','荣誉竞赛','fa-trophy',studentData.experiences?.competition,'暂无竞赛记录')}
+        ${renderExpSection('research','科研经历','fa-flask',studentData.experiences?.research,'暂无科研经历')}
+        ${renderExpSection('campus','校园经历','fa-users',studentData.experiences?.campus,'暂无校园经历')}
+        ${renderExpSection('learning','学习轨迹','fa-book-open',studentData.experiences?.learning,'暂无学习记录')}
+        ${renderCertificates()}
+    `;
+}
+
+// ====================================================================
+// 人岗匹配页
+// ====================================================================
+function renderMatchingIntentPanel() {
+    const currentDir=studentData.direction||'', domains=studentData.domains||[], pref=studentData.preference;
+    return `
+    <div class="mb-6">
+        <p class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-compass text-primary"></i>技术方向 <span class="text-xs font-normal text-gray-400">单选 · 与「我的画像」共用</span></p>
+        <div class="flex flex-wrap gap-2">${DIRECTIONS.map(d=>`<button class="px-4 py-1.5 rounded-full border text-sm font-medium transition-all shadow-sm btn-direction ${currentDir===d?'bg-primary text-white border-primary ring-2 ring-blue-200':'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary'}" data-val="${d}">${d}</button>`).join('')}</div>
+    </div>
+    <div class="w-full h-px bg-gray-100 my-5"></div>
+    <div class="mb-6">
+        <p class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-layer-group text-primary"></i>感兴趣的业务领域 <span class="text-xs font-normal text-gray-400">多选</span></p>
+        <div class="flex flex-wrap gap-2 items-center">
+            ${DOMAINS_QUICK.map(d=>`<button class="px-3 py-1 rounded-full border text-sm transition-colors btn-domain ${domains.includes(d)?'bg-blue-100 text-primary border-blue-200 font-bold':'bg-white text-gray-500 border-gray-300 hover:bg-gray-100'}" data-val="${d}">${d}</button>`).join('')}
+            <div class="w-px h-6 bg-gray-300 mx-1"></div>
+            ${domains.filter(d=>!DOMAINS_QUICK.includes(d)).map(d=>`<span class="px-3 py-1 rounded-full bg-blue-100 text-primary border border-blue-200 text-sm flex items-center font-bold">${d}<i class="fa-solid fa-times ml-2 cursor-pointer text-blue-400 hover:text-blue-700 btn-del-domain" data-val="${d}"></i></span>`).join('')}
+            <input type="text" id="add-domain-input" class="border border-gray-300 rounded-full px-3 py-1 text-sm w-32 focus:outline-none focus:border-primary shadow-inner" placeholder="+ 回车新增">
+        </div>
+    </div>
+    <div class="w-full h-px bg-gray-100 my-5"></div>
+    <div>
+        <p class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-sliders text-primary"></i>求职偏好</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <p class="text-gray-500 mb-2 font-medium text-xs"><i class="fa-solid fa-city text-blue-400 mr-1"></i>意向城市</p>
+                <div class="flex flex-wrap gap-1 items-center">${(pref.preferredCities||[]).map(c=>`<span class="px-2 py-0.5 bg-white text-gray-700 rounded text-xs flex items-center border border-gray-200 shadow-sm">${c}<i class="fa-solid fa-times ml-1.5 cursor-pointer text-gray-400 hover:text-red-500 btn-del-city" data-val="${c}"></i></span>`).join('')}<input type="text" id="add-city-input" class="border border-gray-300 rounded px-2 py-0.5 text-xs w-16 focus:outline-none focus:border-primary mt-1" placeholder="+ 城市"></div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <p class="text-gray-500 mb-2 font-medium text-xs"><i class="fa-solid fa-sack-dollar text-green-500 mr-1"></i>期望薪资</p>
+                <div class="flex items-center bg-white rounded-lg p-1.5 border border-gray-200 shadow-sm">
+                    <input type="number" id="salary-min" value="${pref.expectedSalaryMin}" class="bg-transparent w-11 text-center text-sm focus:outline-none text-primary font-bold">
+                    <span class="mx-1 text-gray-300 text-xs">—</span>
+                    <input type="number" id="salary-max" value="${pref.expectedSalaryMax}" class="bg-transparent w-11 text-center text-sm focus:outline-none text-primary font-bold">
+                    <span class="ml-1 text-[10px] text-gray-400">k/月</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col justify-between">
+                <p class="text-gray-500 mb-2 font-medium text-xs"><i class="fa-solid fa-plane-departure text-purple-400 mr-1"></i>接受出差</p>
+                <button class="btn-toggle-travel w-full py-1.5 rounded-lg text-xs font-bold transition-colors border ${pref.willingToTravel?'bg-purple-50 text-purple-700 border-purple-200':'bg-white text-gray-500 border-gray-200'}">${pref.willingToTravel?'<i class="fa-solid fa-check mr-1"></i>是':'否'}</button>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col justify-between">
+                <p class="text-gray-500 mb-2 font-medium text-xs"><i class="fa-solid fa-map-location-dot text-orange-400 mr-1"></i>接受异地</p>
+                <button class="btn-toggle-relocate w-full py-1.5 rounded-lg text-xs font-bold transition-colors border ${pref.willingToRelocate?'bg-orange-50 text-orange-700 border-orange-200':'bg-white text-gray-500 border-gray-200'}">${pref.willingToRelocate?'<i class="fa-solid fa-check mr-1"></i>是':'否'}</button>
+            </div>
+        </div>
+    </div>`;
+}
+
+// ====================================================================
+// 经历弹窗
+// ====================================================================
+function openExpModal(type, index) {
+    modalState={type,index};
+    document.getElementById('exp-modal-inner').innerHTML=renderExpModalContent(type,index);
+    document.getElementById('exp-modal').classList.remove('hidden');
+    setupModalEvents();
+}
+function closeExpModal() { document.getElementById('exp-modal').classList.add('hidden'); modalState={type:null,index:null}; }
+function toggleCurrentDate() {
+    const input=document.getElementById('modal-end-date'), btn=document.getElementById('btn-current'), on=btn.classList.contains('bg-primary');
+    if (on) { btn.classList.remove('bg-primary','text-white','border-primary'); btn.classList.add('bg-white','text-gray-500','border-gray-300'); if(input) input.disabled=false; }
+    else { btn.classList.add('bg-primary','text-white','border-primary'); btn.classList.remove('bg-white','text-gray-500','border-gray-300'); if(input){input.disabled=true;input.value='';} }
+}
+function addCustomModalTag(tag) {
+    tag=tag.trim(); if(!tag) return;
+    const container=document.getElementById('modal-custom-tags-container');
+    if (!container||container.querySelector(`[data-tag="${tag}"]`)) return;
+    const span=document.createElement('span');
+    span.className='custom-tag text-xs px-2.5 py-1 rounded-full bg-blue-50 text-primary border border-blue-200 flex items-center gap-1';
+    span.dataset.tag=tag;
+    span.innerHTML=`${tag}<i class="fa-solid fa-times cursor-pointer text-blue-300 hover:text-primary btn-del-custom-tag ml-1" data-tag="${tag}"></i>`;
+    container.appendChild(span);
+}
+function renderExpModalContent(type, index) {
+    const isNew=index===null||index===undefined;
+    let item={};
+    if (!isNew) item=type==='certificates'?(studentData.basicInfo?.certificates?.[index]||{}):(studentData.experiences?.[type]?.[index]||{});
+    const presets=EXP_TAG_PRESETS[type]||[], activeTags=item.tags||[];
+    const IC="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary";
+    const LC="block text-xs font-bold text-gray-600 mb-1.5", TA=`${IC} min-h-[90px] resize-y`;
+    const isCompetition=type==='competition';
+    let fields='';
+    switch(type) {
+        case 'internship':   fields=`<div class="grid grid-cols-2 gap-4 mb-4"><div><label class="${LC}">公司名称</label><input id="modal-company" class="${IC}" value="${item.companyName||''}"></div><div><label class="${LC}">职位名称</label><input id="modal-position" class="${IC}" value="${item.positionName||''}"></div></div><div class="mb-4"><label class="${LC}">工作描述</label><textarea id="modal-desc" class="${TA}">${item.jobDesc||''}</textarea></div>`; break;
+        case 'projects':     fields=`<div class="grid grid-cols-2 gap-4 mb-4"><div><label class="${LC}">项目名称</label><input id="modal-project" class="${IC}" value="${item.projectName||''}"></div><div><label class="${LC}">担任角色</label><input id="modal-role" class="${IC}" value="${item.roleName||''}"></div></div><div class="mb-4"><label class="${LC}">项目描述</label><textarea id="modal-desc" class="${TA}">${item.jobDesc||''}</textarea></div>`; break;
+        case 'competition':  fields=`<div class="grid grid-cols-2 gap-4 mb-4"><div><label class="${LC}">竞赛名称</label><input id="modal-competition" class="${IC}" value="${item.competitionName||''}"></div><div><label class="${LC}">获得奖项</label><input id="modal-award" class="${IC}" value="${item.award||''}"></div></div><div class="mb-4"><label class="${LC}">参赛角色</label><input id="modal-role" class="${IC}" value="${item.roleName||''}"></div>`; break;
+        case 'research':     fields=`<div class="grid grid-cols-2 gap-4 mb-4"><div><label class="${LC}">实验室名称</label><input id="modal-lab" class="${IC}" value="${item.labName||''}"></div><div><label class="${LC}">担任角色</label><input id="modal-role" class="${IC}" value="${item.roleName||''}"></div></div><div class="mb-4"><label class="${LC}">研究方向</label><input id="modal-direction" class="${IC}" value="${item.direction||''}"></div>`; break;
+        case 'campus':       fields=`<div class="grid grid-cols-2 gap-4 mb-4"><div><label class="${LC}">组织名称</label><input id="modal-org" class="${IC}" value="${item.orgName||''}"></div><div><label class="${LC}">担任职务</label><input id="modal-position" class="${IC}" value="${item.position||''}"></div></div><div class="mb-4"><label class="${LC}">主要职责</label><textarea id="modal-desc" class="${TA}">${item.duty||''}</textarea></div>`; break;
+        case 'learning':     fields=`<div class="grid grid-cols-2 gap-4 mb-4"><div><label class="${LC}">技能/课程名称</label><input id="modal-skill" class="${IC}" value="${item.skill||''}"></div><div><label class="${LC}">学习类型</label><select id="modal-learning-type" class="${IC}"><option value="self_study" ${(item.type||'')==='self_study'?'selected':''}>自主学习</option><option value="course" ${item.type==='course'?'selected':''}>课程学习</option><option value="self_study_with_project" ${item.type==='self_study_with_project'?'selected':''}>实战学习</option></select></div></div><div class="mb-4"><label class="${LC}">学期</label><select id="modal-semester" class="${IC}"><option value="">-- 留空 --</option>${['大一上','大一下','大二上','大二下','大三上','大三下','大四上','大四下'].map(s=>`<option value="${s}" ${item.semester===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="mb-4"><label class="${LC}">学习内容</label><textarea id="modal-desc" class="${TA}">${item.notes||''}</textarea></div>`; break;
+        case 'certificates': fields=`<div class="grid grid-cols-2 gap-4 mb-4"><div><label class="${LC}">证书名称</label><input id="modal-cert-name" class="${IC}" value="${item.name||''}"></div><div><label class="${LC}">级别</label><input id="modal-cert-level" class="${IC}" value="${item.level||''}"></div></div><div class="mb-4"><label class="${LC}">备注</label><input id="modal-desc" class="${IC}" value="${item.note||''}"></div>`; break;
+    }
+    const isToday=!isNew&&(item.endDate==='至今');
+    return `
+    <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-gray-900">${isNew?'添加':'编辑'}${EXP_TYPE_NAMES[type]||'经历'}</h3>
+        <button onclick="closeExpModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400"><i class="fa-solid fa-times"></i></button>
+    </div>
+    ${fields}
+    ${type!=='certificates'?`
+    <div class="grid grid-cols-2 gap-4 mb-4">
+        <div><label class="${LC}">${isCompetition?'比赛时间':'开始时间'}</label><input type="month" id="modal-start-date" value="${item.startDate||item.date||''}" class="${IC}"></div>
+        ${!isCompetition?`<div><label class="${LC}">结束时间</label><div class="flex gap-2"><input type="month" id="modal-end-date" value="${isToday?'':(item.endDate||'')}" class="flex-grow border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" ${isToday?'disabled':''}><button id="btn-current" onclick="toggleCurrentDate()" class="flex-shrink-0 px-3 py-2 text-xs rounded-lg border font-medium ${isToday?'bg-primary text-white border-primary':'bg-white text-gray-500 border-gray-300'}">至今</button></div></div>`:''}
+    </div>`:`<div class="mb-4"><label class="${LC}">获得日期</label><input type="month" id="modal-start-date" value="${item.date||''}" class="${IC}"></div>`}
+    <div class="mb-6">
+        <label class="${LC}">标签</label>
+        <div class="flex flex-wrap gap-2 mb-3">${presets.map(tag=>`<button class="modal-tag-btn text-xs px-2.5 py-1 rounded-full border transition-colors ${activeTags.includes(tag)?'tag-active bg-primary text-white border-primary':'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary'}" data-tag="${tag}">${tag}</button>`).join('')}</div>
+        <input type="text" id="modal-custom-tag-input" class="${IC}" placeholder="自定义标签，回车添加">
+        <div id="modal-custom-tags-container" class="flex flex-wrap gap-1.5 mt-2">
+            ${activeTags.filter(t=>!presets.includes(t)).map(t=>`<span class="custom-tag text-xs px-2.5 py-1 rounded-full bg-blue-50 text-primary border border-blue-200 flex items-center gap-1" data-tag="${t}">${t}<i class="fa-solid fa-times cursor-pointer text-blue-300 hover:text-primary btn-del-custom-tag ml-1" data-tag="${t}"></i></span>`).join('')}
+        </div>
+    </div>
+    <div class="flex gap-3 pt-4 border-t border-gray-100">
+        <button onclick="closeExpModal()" class="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-50">取消</button>
+        <button onclick="saveExpModal()" class="flex-[2] py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-200">保存</button>
+    </div>`;
+}
+function setupModalEvents() {
+    const modal=document.getElementById('exp-modal'); if(!modal) return;
+    modal.querySelectorAll('.modal-tag-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            btn.classList.toggle('tag-active');btn.classList.toggle('bg-primary');btn.classList.toggle('text-white');
+            btn.classList.toggle('border-primary');btn.classList.toggle('bg-white');btn.classList.toggle('text-gray-600');btn.classList.toggle('border-gray-300');
+        });
+    });
+    const ci=document.getElementById('modal-custom-tag-input');
+    if (ci) ci.addEventListener('keypress',e=>{if(e.key==='Enter'){addCustomModalTag(ci.value);ci.value='';}});
+    const cc=document.getElementById('modal-custom-tags-container');
+    if (cc) cc.addEventListener('click',e=>{if(e.target.classList.contains('btn-del-custom-tag')) e.target.closest('.custom-tag').remove();});
+}
+function readModalFormData(type) {
+    const get=id=>(document.getElementById(id)?.value||'').trim();
+    const isToday=document.getElementById('btn-current')?.classList.contains('bg-primary');
+    const presetTags=[...document.querySelectorAll('.modal-tag-btn.tag-active')].map(b=>b.dataset.tag);
+    const customTags=[...document.querySelectorAll('#modal-custom-tags-container .custom-tag[data-tag]')].map(s=>s.dataset.tag);
+    const allTags=[...new Set([...presetTags,...customTags])];
+    const base={startDate:get('modal-start-date'),endDate:isToday?'至今':get('modal-end-date'),tags:allTags};
+    switch(type) {
+        case 'internship':   return {...base,companyName:get('modal-company'),positionName:get('modal-position'),jobDesc:get('modal-desc')};
+        case 'projects':     return {...base,projectName:get('modal-project'),roleName:get('modal-role'),jobDesc:get('modal-desc')};
+        case 'competition':  return {competitionName:get('modal-competition'),award:get('modal-award'),roleName:get('modal-role'),date:get('modal-start-date'),startDate:'',endDate:'',tags:allTags};
+        case 'research':     return {...base,labName:get('modal-lab'),direction:get('modal-direction'),roleName:get('modal-role')};
+        case 'campus':       return {...base,orgName:get('modal-org'),position:get('modal-position'),duty:get('modal-desc')};
+        case 'learning':     return {...base,type:get('modal-learning-type'),skill:get('modal-skill'),semester:get('modal-semester'),notes:get('modal-desc')};
+        case 'certificates': return {name:get('modal-cert-name'),level:get('modal-cert-level'),note:get('modal-desc'),date:get('modal-start-date'),tags:allTags};
+        default: return base;
+    }
+}
+function saveExpModal() {
+    const {type,index}=modalState, data=readModalFormData(type);
+    if (type==='certificates') {
+        if (!studentData.basicInfo.certificates) studentData.basicInfo.certificates=[];
+        if (index===null||index===undefined) studentData.basicInfo.certificates.push(data);
+        else studentData.basicInfo.certificates[index]=data;
+    } else {
+        if (!studentData.experiences[type]) studentData.experiences[type]=[];
+        if (index===null||index===undefined) {data.experience_id=`${type.slice(0,3).toUpperCase()}_${Date.now()}`;studentData.experiences[type].push(data);}
+        else {const eid=studentData.experiences[type][index]?.experience_id||`${type.slice(0,3).toUpperCase()}_${Date.now()}`;studentData.experiences[type][index]={...data,experience_id:eid};}
+    }
+    saveData();closeExpModal();renderApp();
+}
+
+// ====================================================================
+// Vision AI
+// ====================================================================
+async function handleResumeFileSelected(file) {
+    if (!file) return;
+    _resumeFileName=file.name;
+    const reader=new FileReader();
+    reader.onload=e=>{_resumeDataUrl=e.target.result;renderApp();};
+    reader.readAsDataURL(file);
+}
+async function callVisionAI(base64DataUrl) {
+    const apiKey=localStorage.getItem('ltcraft_api_key');
+    if (!apiKey) throw new Error("请先在设置中填写 API Key");
+    const prompt=`你是专业简历结构化提取专家。仅输出纯JSON，格式如下（无markdown）：
+{"basicInfo":{"name":"","schoolName":"","schoolMajor":"","educationLevel":"本科","graduationYear":0,"graduationMonth":0,"graduationProvince":"","certificates":[]},"summary":"","direction":"","domains":[],"techStack":[{"name":"","level":1}],"techCapabilities":[{"name":"","level":1}],"devTools":[{"name":"","level":1}],"explicitMetrics":{"graduationCity":"","schoolTags":[]},"experiences":{"internship":[],"projects":[],"competition":[],"research":[],"campus":[],"learning":[]}}
+日期格式YYYY-MM。Level:1=了解,2=熟悉,3=掌握,4=熟练。`;
+    const res=await fetch('https://ai.ltcraft.cn/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model:'claude-haiku-4-5-20251001',messages:[{role:'user',content:[{type:'text',text:prompt},{type:'image_url',image_url:{url:base64DataUrl}}]}],max_tokens:4000})});
+    if (!res.ok) {const err=await res.text();throw new Error(`API失败(${res.status}): ${err}`);}
+    const json=await res.json();
+    let text=json.choices[0].message.content;
+    text=text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    return JSON.parse(text);
+}
+function applyExtractedData(data) {
+    if (data.basicInfo) {
+        const bi=data.basicInfo;
+        ['name','schoolName','schoolMajor','educationLevel','graduationYear','graduationMonth','graduationProvince'].forEach(k=>{if(bi[k]) studentData.basicInfo[k]=bi[k];});
+        if (bi.certificates?.length) studentData.basicInfo.certificates=bi.certificates;
+    }
+    if (data.summary) studentData.summary=data.summary;
+    if (data.direction&&DIRECTIONS.includes(data.direction)) studentData.direction=data.direction;
+    if (data.domains?.length) studentData.domains=[...new Set([...studentData.domains,...data.domains])];
+    ['techStack','techCapabilities','devTools'].forEach(k=>{if(data[k]?.length) data[k].forEach(n=>{if(!studentData[k].find(e=>e.name===n.name)) studentData[k].push(n);});});
+    if (data.explicitMetrics) Object.assign(studentData.explicitMetrics,data.explicitMetrics);
+    ['internship','projects','competition','research','campus','learning'].forEach(type=>{
+        if (!data.experiences?.[type]?.length) return;
+        if (!studentData.experiences[type]) studentData.experiences[type]=[];
+        data.experiences[type].forEach((item,i)=>{item.experience_id=`${type.slice(0,3).toUpperCase()}_${Date.now()}_${i}`;studentData.experiences[type].push(item);});
+    });
+    saveData();
+}
+
+// ====================================================================
+// callAI 通用
+// ====================================================================
+async function callAI(instructions, inputStr) {
+    const apiKey=localStorage.getItem('ltcraft_api_key');
+    if (!apiKey) throw new Error("API_KEY_MISSING");
+    const res=await fetch('https://ai.ltcraft.cn/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model:'claude-haiku-4-5-20251001',messages:[{role:'system',content:instructions},{role:'user',content:inputStr}]})});
+    if (!res.ok) {const e=await res.text();throw new Error(`API失败(HTTP ${res.status}): ${e}`);}
+    const json=await res.json();
+    let text=json.choices[0].message.content;
+    text=text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    return JSON.parse(text);
+}
+
+// ====================================================================
+// 事件绑定（#app）
+// ====================================================================
+function setupEvents() {
+    const app=document.getElementById('app');
+
+    app.addEventListener('click', async e => {
+        if (e.target.closest('#btn-toggle-edit-basic')) {
+            if (isEditingBasicInfo) {
+                document.querySelectorAll('[data-bi-key]').forEach(el=>{const k=el.dataset.biKey,v=el.tagName==='SELECT'?el.value:el.value.trim();studentData.basicInfo[k]=(k==='graduationYear'||k==='graduationMonth')?(parseInt(v)||0):v;});
+                document.querySelectorAll('[data-bi-key-exp]').forEach(el=>{if(!studentData.explicitMetrics)studentData.explicitMetrics={};studentData.explicitMetrics[el.dataset.biKeyExp]=el.value.trim();});
+                saveData();
+            }
+            isEditingBasicInfo=!isEditingBasicInfo; renderApp(); return;
+        }
+        if (e.target.classList.contains('btn-toggle-school-tag')) {
+            const tag=e.target.dataset.tag;
+            if (!studentData.explicitMetrics) studentData.explicitMetrics={};
+            const tags=studentData.explicitMetrics.schoolTags||[];
+            studentData.explicitMetrics.schoolTags=tags.includes(tag)?tags.filter(t=>t!==tag):[...tags,tag];
+            const on=studentData.explicitMetrics.schoolTags.includes(tag);
+            e.target.className=e.target.className.replace(/bg-white text-primary border-white font-bold/g,'').replace(/bg-white\/15 text-white\/70 border-white\/30 hover:bg-white\/25/g,'');
+            if (on) e.target.classList.add('bg-white','text-primary','border-white','font-bold');
+            else e.target.classList.add('bg-white/15','text-white/70','border-white/30','hover:bg-white/25');
+            return;
+        }
+        if (e.target.classList.contains('btn-profile-direction')) {
+            studentData.direction=e.target.getAttribute('data-val'); saveData(); renderApp(); return;
+        }
+        if (e.target.closest('#btn-load-example')) {
+            e.preventDefault();
+            studentData=JSON.parse(JSON.stringify(defaultData));
+            saveData(); renderApp();
+            showToast('示例数据已填充！','success'); return;
+        }
+        if (e.target.classList.contains('btn-set-level')) {
+            const cat=e.target.getAttribute('data-cat'),idx=parseInt(e.target.getAttribute('data-idx'));
+            studentData[cat][idx].level=parseInt(e.target.getAttribute('data-level')); saveData(); renderApp();
+        }
+        if (e.target.classList.contains('btn-del-skill')) {
+            const cat=e.target.getAttribute('data-cat'); studentData[cat].splice(parseInt(e.target.getAttribute('data-idx')),1); saveData(); renderApp();
+        }
+        if (e.target.classList.contains('btn-quick-cap')) {
+            if (e.target.disabled) return;
+            studentData.techCapabilities.push({name:e.target.getAttribute('data-name'),level:1}); saveData(); renderApp();
+        }
+        if (e.target.closest('.btn-edit-exp')) { const btn=e.target.closest('.btn-edit-exp'); openExpModal(btn.dataset.type,parseInt(btn.dataset.idx)); return; }
+        if (e.target.closest('.btn-del-exp')) {
+            const btn=e.target.closest('.btn-del-exp'),type=btn.dataset.type,idx=parseInt(btn.dataset.idx);
+            if (!confirm('确认删除此条经历？')) return;
+            if (type==='certificates') studentData.basicInfo.certificates.splice(idx,1);
+            else studentData.experiences[type].splice(idx,1);
+            saveData(); renderApp(); return;
+        }
+        if (e.target.closest('.btn-add-exp')) { const btn=e.target.closest('.btn-add-exp'); openExpModal(btn.dataset.type,null); return; }
+        if (e.target.closest('#upload-zone')&&!e.target.closest('#resume-file-input')&&!e.target.closest('#btn-parse-resume')&&!e.target.closest('#btn-cancel-upload')&&!e.target.closest('#btn-load-example')&&!_resumeDataUrl) {
+            document.getElementById('resume-file-input')?.click(); return;
+        }
+        if (e.target.closest('#btn-cancel-upload')) { _resumeDataUrl=null;_resumeFileName='';renderApp(); return; }
+        if (e.target.closest('#btn-parse-resume')) {
+            if (!_resumeDataUrl) return;
+            if (!localStorage.getItem('ltcraft_api_key')) { showToast('请先在设置中填写 API Key','error'); return; }
+            const parseBtn=document.getElementById('btn-parse-resume');
+            if (parseBtn) {parseBtn.disabled=true;parseBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> AI 解析中...';}
+            try { const result=await callVisionAI(_resumeDataUrl); applyExtractedData(result); _resumeDataUrl=null;_resumeFileName=''; renderApp(); showToast('简历解析成功！','success'); }
+            catch(err) { showToast('解析失败：'+err.message,'error'); if(parseBtn){parseBtn.disabled=false;parseBtn.innerHTML='<i class="fa-solid fa-wand-magic-sparkles"></i> AI 解析简历';} }
+            return;
+        }
+        if (e.target.closest('#btn-eval-soft-quality')) {
+            if (!localStorage.getItem('ltcraft_api_key')) return alert('请先设置 API Key');
+            aiState.loadingSQ=true;aiState.errSQ='';renderApp();
+            const p=`职业发展评估专家。Level:1=信号不足,2=初步信号,3=较明确佐证,4=强力佐证。
+维度：沟通表达(班干部/汇报/文档)、团队协作(角色明确的配合)、责任心(完成度/量化结果)、执行力(从想法到落地)、职业意识(方向认知/主动准备)。
+仅输出JSON：{"dimensions":[{"name":"沟通表达","level":1,"reasoning":""},{"name":"团队协作","level":1,"reasoning":""},{"name":"责任心","level":1,"reasoning":""},{"name":"执行力","level":1,"reasoning":""},{"name":"职业意识","level":1,"reasoning":""}]}`;
+            try {const r=await callAI(p,`<profile>\n${JSON.stringify(studentData)}\n</profile>`);aiResults.softQuality=r.dimensions;saveAIResults();}
+            catch(err){aiState.errSQ=err.message;} finally{aiState.loadingSQ=false;renderApp();}
+            return;
+        }
+        if (e.target.closest('#btn-eval-growth-potential')) {
+            if (!localStorage.getItem('ltcraft_api_key')) return alert('请先设置 API Key');
+            aiState.loadingGP=true;aiState.errGP='';renderApp();
+            const p=`职业发展评估专家。Level:1=信号不足,2=初步信号,3=较明确佐证,4=强力佐证。
+维度：学习能力(自学记录/学习落地周期)、创新能力(个人项目/竞赛/开源)、抗压能力(高强度下稳定输出)、迁移能力(跨领域经历复用)、目标清晰度(方向收敛vs广撒网)。
+仅输出JSON：{"dimensions":[{"name":"学习能力","level":1,"reasoning":""},{"name":"创新能力","level":1,"reasoning":""},{"name":"抗压能力","level":1,"reasoning":""},{"name":"迁移能力","level":1,"reasoning":""},{"name":"目标清晰度","level":1,"reasoning":""}]}`;
+            try {const r=await callAI(p,`<profile>\n${JSON.stringify(studentData)}\n</profile>`);aiResults.growthPotential=r.dimensions;saveAIResults();}
+            catch(err){aiState.errGP=err.message;} finally{aiState.loadingGP=false;renderApp();}
+            return;
+        }
+    });
+
+    app.addEventListener('keypress', e=>{
+        if (e.key==='Enter'&&e.target.classList.contains('input-add-skill')&&e.target.value.trim()) {
+            const cat=e.target.getAttribute('data-cat'),name=e.target.value.trim();
+            if (!studentData[cat].find(s=>s.name===name)) {studentData[cat].push({name,level:1});saveData();renderApp();}
+        }
+    });
+    app.addEventListener('change', e=>{
+        if (e.target.id==='summary-input') {studentData.summary=e.target.value;saveData();}
+        if (e.target.id==='resume-file-input') handleResumeFileSelected(e.target.files[0]);
+    });
+    app.addEventListener('dragover',e=>{if(!_resumeDataUrl){e.preventDefault();document.getElementById('upload-zone')?.classList.add('drag-over');}});
+    app.addEventListener('dragleave',()=>document.getElementById('upload-zone')?.classList.remove('drag-over'));
+    app.addEventListener('drop',e=>{if(!_resumeDataUrl){e.preventDefault();document.getElementById('upload-zone')?.classList.remove('drag-over');const f=e.dataTransfer?.files?.[0];if(f&&f.type.startsWith('image/')) handleResumeFileSelected(f);}});
+}
+
+// ====================================================================
+// 设置面板
+// ====================================================================
+function setupSettings() {
+    const btn=document.getElementById('settings-btn'), popover=document.getElementById('settings-popover'),
+          input=document.getElementById('api-key-input'), saveBtn=document.getElementById('save-api-key');
+    input.value=localStorage.getItem('ltcraft_api_key')||'';
+    btn.addEventListener('click',e=>{e.stopPropagation();popover.classList.toggle('hidden');if(!popover.classList.contains('hidden')) input.focus();});
+    popover.addEventListener('click',e=>e.stopPropagation());
+    document.addEventListener('click',()=>{if(!popover.classList.contains('hidden')) popover.classList.add('hidden');});
+    saveBtn.addEventListener('click',()=>{
+        localStorage.setItem('ltcraft_api_key',input.value.trim());
+        const orig=saveBtn.innerText;saveBtn.innerText='已保存！';saveBtn.classList.replace('bg-primary','bg-green-500');
+        setTimeout(()=>{popover.classList.add('hidden');saveBtn.innerText=orig;saveBtn.classList.replace('bg-green-500','bg-primary');},800);
+    });
+    document.getElementById('btn-clear-all-data')?.addEventListener('click',()=>{
+        if (!confirm('确认清空所有画像数据？（包括姓名、技能、经历、AI评估结果）\n操作后 8 秒内可撤销。')) return;
+        localStorage.setItem('student_profile_backup', JSON.stringify(studentData));
+        localStorage.setItem('student_ai_eval_backup', JSON.stringify(aiResults));
+        studentData = createEmptyData();
+        aiResults   = {completeness:null,skillcheck:null,infer:null,softQuality:null,growthPotential:null};
+        saveData(); saveAIResults();
+        popover.classList.add('hidden');
+        renderApp();
+        const el=document.getElementById('app-toast');
+        el.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-2xl text-sm font-bold flex items-center gap-3 bg-orange-600 text-white';
+        el.innerHTML=`<i class="fa-solid fa-trash-can"></i><span>所有数据已清空</span><button onclick="window._undoClearProfile()" class="bg-white/20 hover:bg-white/30 border border-white/30 px-3 py-1 rounded-lg text-xs font-bold transition-colors flex items-center gap-1"><i class="fa-solid fa-rotate-left text-[10px]"></i> 撤销</button>`;
+        el.classList.remove('hidden');
+        if (window._clearToastTimer) clearTimeout(window._clearToastTimer);
+        window._clearToastTimer=setTimeout(()=>el.classList.add('hidden'),8000);
+    });
+}
+
+// ====================================================================
+// 弹窗遮罩
+// ====================================================================
+document.getElementById('exp-modal')?.addEventListener('click',e=>{if(e.target===document.getElementById('exp-modal')) closeExpModal();});
+
+// ====================================================================
+// 页面路由
+// ====================================================================
+function setupPageRouter() {
+    const pages=['profile','matching','ai-eval','report'];
+    const tabs=['overview','jd-profile','match-result','career-path'];
+
+    function renderAndBindMatchingIntent() {
+        const c=document.getElementById('matching-intent-content'); if(!c) return;
+        c.innerHTML=renderMatchingIntentPanel();
+        c.addEventListener('click',ev=>{
+            if (ev.target.classList.contains('btn-direction')) {studentData.direction=ev.target.getAttribute('data-val');saveData();c.innerHTML=renderMatchingIntentPanel();renderAndBindMatchingIntent();}
+            if (ev.target.classList.contains('btn-domain')) {const v=ev.target.getAttribute('data-val'),d=studentData.domains||[];studentData.domains=d.includes(v)?d.filter(x=>x!==v):[...d,v];saveData();c.innerHTML=renderMatchingIntentPanel();renderAndBindMatchingIntent();}
+            if (ev.target.classList.contains('btn-del-domain')) {studentData.domains=(studentData.domains||[]).filter(d=>d!==ev.target.getAttribute('data-val'));saveData();c.innerHTML=renderMatchingIntentPanel();renderAndBindMatchingIntent();}
+            if (ev.target.classList.contains('btn-del-city')) {studentData.preference.preferredCities=(studentData.preference.preferredCities||[]).filter(x=>x!==ev.target.getAttribute('data-val'));saveData();c.innerHTML=renderMatchingIntentPanel();renderAndBindMatchingIntent();}
+            if (ev.target.classList.contains('btn-toggle-travel')) {studentData.preference.willingToTravel=!studentData.preference.willingToTravel;saveData();c.innerHTML=renderMatchingIntentPanel();renderAndBindMatchingIntent();}
+            if (ev.target.classList.contains('btn-toggle-relocate')) {studentData.preference.willingToRelocate=!studentData.preference.willingToRelocate;saveData();c.innerHTML=renderMatchingIntentPanel();renderAndBindMatchingIntent();}
+        });
+        c.addEventListener('keypress',ev=>{
+            if (ev.key==='Enter') {
+                if (ev.target.id==='add-domain-input'&&ev.target.value.trim()) {studentData.domains=studentData.domains||[];if(!studentData.domains.includes(ev.target.value.trim())){studentData.domains.push(ev.target.value.trim());saveData();c.innerHTML=renderMatchingIntentPanel();renderAndBindMatchingIntent();}}
+                if (ev.target.id==='add-city-input'&&ev.target.value.trim()) {studentData.preference.preferredCities=studentData.preference.preferredCities||[];if(!studentData.preference.preferredCities.includes(ev.target.value.trim())){studentData.preference.preferredCities.push(ev.target.value.trim());saveData();c.innerHTML=renderMatchingIntentPanel();renderAndBindMatchingIntent();}}
+            }
+        });
+        c.addEventListener('change',ev=>{
+            if (ev.target.id==='salary-min'){studentData.preference.expectedSalaryMin=parseInt(ev.target.value)||0;saveData();}
+            if (ev.target.id==='salary-max'){studentData.preference.expectedSalaryMax=parseInt(ev.target.value)||0;saveData();}
+        });
+    }
+
+    document.querySelectorAll('.sidebar-nav-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            const page=btn.dataset.page;
+            document.querySelectorAll('.sidebar-nav-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            pages.forEach(p=>{const el=document.getElementById(`page-${p}`);if(el)el.classList.toggle('hidden',p!==page);if(p===page&&el){el.classList.remove('page-content');void el.offsetWidth;el.classList.add('page-content');}});
+            document.getElementById('top-nav').classList.toggle('hidden',page!=='matching');
+            if (page==='matching') renderAndBindMatchingIntent();
+            if (page==='ai-eval') {
+                const aiContent = document.getElementById('ai-eval-content');
+                aiContent.innerHTML = renderAIModule();
+                // Reset bound flag so listener re-attaches on fresh DOM
+                aiContent._evBound = false;
+                setupAIEvalEvents();
+            }
+        });
+    });
+    document.querySelectorAll('.top-nav-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            document.querySelectorAll('.top-nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+            tabs.forEach(t=>{const el=document.getElementById(`tab-${t}`);if(el)el.classList.toggle('hidden',t!==btn.dataset.tab);});
+        });
+    });
+    document.getElementById('btn-save-sidebar')?.addEventListener('click',()=>{
+        saveData();
+        const btn=document.getElementById('btn-save-sidebar'),orig=btn.innerHTML;
+        btn.innerHTML='<i class="fa-solid fa-check w-4 text-center"></i><span>已保存</span>';btn.classList.add('text-green-600');
+        setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('text-green-600');},1500);
+    });
+}
+
+// ====================================================================
+// AI 评估页事件 —— FIX: rerender 只更新 innerHTML，不重绑 listener
+// ====================================================================
+function setupAIEvalEvents() {
+    const container = document.getElementById('ai-eval-content');
+    if (!container || container._evBound) return;
+    container._evBound = true;
+
+    // rerender: 只刷新内容，不重置 _evBound，不重新绑定
+    const rerender = () => {
+        container.innerHTML = renderAIModule();
+    };
+
+    container.addEventListener('click', async e => {
+
+        // ── 理由展开/收起 ──
+        const reasoningBtn = e.target.closest('.btn-toggle-reasoning');
+        if (reasoningBtn) {
+            const card = reasoningBtn.closest('.flex-col');
+            const detail = card?.querySelector('.hidden, [class*="mt-4"][class*="pt-3"]');
+            if (detail) detail.classList.toggle('hidden');
+            return;
+        }
+
+        // ── Level 推断：一键采纳 ──
+        const applyBtn = e.target.closest('.btn-ai-apply-level');
+        if (applyBtn) {
+            const cat = applyBtn.dataset.cat, name = applyBtn.dataset.name, level = parseInt(applyBtn.dataset.level);
+            const sk = studentData[cat]?.find(s => s.name === name);
+            if (sk) { sk.level = level; saveData(); rerender(); showToast(`已采纳：${name} → L${level}`); }
+            return;
+        }
+
+        // ── 技能核查：全选/取消 ──
+        if (e.target.closest('#btn-sc-toggle-all')) {
+            const checks = container.querySelectorAll('.sc-check:not(:disabled)');
+            const allChecked = [...checks].every(cb => cb.checked);
+            checks.forEach(cb => { cb.checked = !allChecked; });
+            return;
+        }
+
+        // ── 技能核查：一键应用选中 ──
+        if (e.target.closest('#btn-sc-apply')) {
+            const checks = container.querySelectorAll('.sc-check:checked:not(:disabled)');
+            const allChanges = aiResults.skillcheck?.changes || [];
+            const pending = allChanges.filter(item => !item._applied);
+            let applied = 0;
+            checks.forEach(cb => {
+                const idx = parseInt(cb.dataset.idx);
+                const ch = pending[idx];
+                if (!ch) return;
+                const cat = ch.category;
+                if (ch.op === 'delete') {
+                    if (studentData[cat]) studentData[cat] = studentData[cat].filter(s => s.name !== ch.name);
+                } else if (ch.op === 'update') {
+                    const sk = studentData[cat]?.find(s => s.name === ch.name);
+                    if (sk) sk.level = ch.level;
+                } else if (ch.op === 'add') {
+                    if (!studentData[cat]) studentData[cat] = [];
+                    if (!studentData[cat].find(s => s.name === ch.name))
+                        studentData[cat].push({ name: ch.name, level: ch.level || 1 });
+                }
+                ch._applied = true;
+                applied++;
+            });
+            if (applied > 0) {
+                saveData(); saveAIResults();
+                showToast(`已应用 ${applied} 条变更`, 'success');
+                rerender();
+            }
+            return;
+        }
+
+        // ── 完整度 ──
+        if (e.target.closest('#btn-ai-completeness')) {
+            if (!localStorage.getItem('ltcraft_api_key')) return alert('请先设置 API Key');
+            aiState.loadingC = true; aiState.errC = ''; rerender();
+            const baseScores = calcBaseScores(studentData);
+            const labelMap = { basicInfo:'基本信息', summary:'个人自述', skills:'专业技能', experiences:'经历丰富度', preference:'求职偏好', direction:'方向与领域' };
+            const prompt = `你是就业指导顾问，负责对学生画像进行质量层评估。
+系统规则层已计算各维度字段完整度基础分（0-100，越高越完整）：
+basicInfo: ${baseScores.basicInfo} | summary: ${baseScores.summary} | skills: ${baseScores.skills}
+experiences: ${baseScores.experiences} | preference: ${baseScores.preference} | direction: ${baseScores.direction}
+
+Delta范围（你必须严格在此范围内输出，不得超出）：
+- direction 和 skills：-60 到 +10（方向与经历严重不匹配时 direction delta 给 -55 至 -60）
+- basicInfo / summary / experiences：-30 到 +10
+- preference：-20 到 +10
+
+质量层重点判断：
+1. 方向与经历是否匹配（不匹配则 direction delta 应大幅为负）
+2. 自述是否有实质内容（非套话）→ summary delta
+3. 经历描述是否具体（有数字/成果）→ experiences delta
+4. 技能声明是否有经历佐证 → skills delta
+5. 求职偏好完整性 → preference delta
+
+仅输出JSON，不含任何解释文字：
+{"dimensions":[{"name":"basicInfo","delta":0,"comment":""},{"name":"summary","delta":0,"comment":""},{"name":"skills","delta":0,"comment":""},{"name":"experiences","delta":0,"comment":""},{"name":"preference","delta":0,"comment":""},{"name":"direction","delta":0,"comment":""}],"topSuggestion":"不超过30字"}`;
+            try {
+                const r = await callAI(prompt, `<profile>\n${JSON.stringify(studentData)}\n</profile>`);
+                const finalDimensions = Object.entries(baseScores).map(([name, base]) => {
+                    const llmDim = r.dimensions?.find(d => d.name === name) || { delta: 0, comment: '' };
+                    const range = DELTA_RANGE[name] || { min: -30, max: 10 };
+                    const clampedDelta = Math.min(range.max, Math.max(range.min, llmDim.delta || 0));
+                    const noise = Math.floor(Math.random() * 5) + 1;
+                    const score = Math.min(100, Math.max(0, base + clampedDelta + noise));
+                    return { name, label: labelMap[name], score, baseScore: base, comment: llmDim.comment || '' };
+                });
+                const totalScore = Math.round(finalDimensions.reduce((s, d) => s + d.score, 0) / finalDimensions.length);
+                aiResults.completeness = { totalScore, dimensions: finalDimensions, topSuggestion: r.topSuggestion || '' };
+                saveAIResults();
+            } catch(err) { aiState.errC = err.message; }
+            finally { aiState.loadingC = false; rerender(); }
+            return;
+        }
+
+        // ── 技能核查 ──
+        if (e.target.closest('#btn-ai-skillcheck')) {
+            if (!localStorage.getItem('ltcraft_api_key')) return alert('请先设置 API Key');
+            aiState.loadingS = true; aiState.errS = ''; rerender();
+            const techNames = studentData.techStack.map(s => s.name).join('、') || '无';
+            const capNames  = studentData.techCapabilities.map(s => s.name).join('、') || '无';
+            const toolNames = studentData.devTools.map(s => s.name).join('、') || '无';
+            const p = `你是资深技术面试官，审核学生简历的技能声明与经历一致性，输出一份可直接应用的「技能变更清单」。
+
+变更类型（op字段）定义：
+- "delete"：该技能在所有经历中完全找不到任何实战痕迹，建议删除（level填0）
+- "update"：该技能有经历佐证但 level 明显偏高，建议降级（level填建议等级1-4）
+- "add"：经历描述中多次出现但尚未填写的技能，建议补充（level填推断等级1-4）
+
+规则：
+1. delete/update 操作的 name 必须与以下当前技能列表完全一致，不得改写
+2. 优先输出高置信度变更，最多10条
+3. reasoning 必须引用具体经历内容作为依据
+
+当前技能列表（delete/update 时 name 必须取自此处）：
+techStack: ${techNames}
+techCapabilities: ${capNames}
+devTools: ${toolNames}
+
+仅输出JSON，不含任何额外文字：
+{"changes":[{"op":"delete|update|add","category":"techStack|techCapabilities|devTools","name":"","level":0,"reasoning":""}],"summary":"一句话总结核查结论，不超过30字"}`;
+            try {
+                const r = await callAI(p, `<profile>\n${JSON.stringify(studentData)}\n</profile>`);
+                if (!Array.isArray(r.changes)) r.changes = [];
+                aiResults.skillcheck = r;
+                saveAIResults();
+            } catch(err) { aiState.errS = err.message; }
+            finally { aiState.loadingS = false; rerender(); }
+            return;
+        }
+
+        // ── Level 推断 ──
+        if (e.target.closest('#btn-ai-infer')) {
+            if (!localStorage.getItem('ltcraft_api_key')) return alert('请先设置 API Key');
+            aiState.loadingI = true; aiState.errI = ''; rerender();
+            const techNames = studentData.techStack.map(s => s.name).join('、') || '无';
+            const capNames  = studentData.techCapabilities.map(s => s.name).join('、') || '无';
+            const toolNames = studentData.devTools.map(s => s.name).join('、') || '无';
+            const p = `你是技术评估专家，根据学生经历推断技能真实掌握程度。
+
+【重要】仅对以下列表中的技能进行推断，skillName 必须与列表中名称完全一致，不得改写：
+techStack: ${techNames}
+techCapabilities: ${capNames}
+devTools: ${toolNames}
+
+Level 规则（完整版）：
+L1 = 仅有学习记录，无任何实战项目
+L2 = 有小型个人项目 / 省级以下赛事 / self_study_with_project 类型学习 / 课程项目
+L3 = 实习 1-6 个月内有使用 / 参与团队项目有贡献 / 省级以上赛事
+L4 = 实习超 6 个月 / 主导核心模块 / 有量化成果（如"降低加载时间X%"）/ 多个项目交叉印证
+
+仅输出JSON：{"inferences":[{"skillName":"","category":"techStack|techCapabilities|devTools","inferredLevel":1,"currentLevel":1,"sourceExperienceIds":[],"reasoning":""}]}`;
+            try { aiResults.infer = await callAI(p, `<profile>\n${JSON.stringify(studentData)}\n</profile>`); saveAIResults(); }
+            catch(err) { aiState.errI = err.message; }
+            finally { aiState.loadingI = false; rerender(); }
+            return;
+        }
+    });
+}
+
+// ====================================================================
+// 初始化
+// ====================================================================
+document.addEventListener('DOMContentLoaded',()=>{
+    renderApp();
+    setupEvents();
+    setupSettings();
+    setupPageRouter();
+});
+</script>
+</body>
+</html>

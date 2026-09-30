@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS专业竞赛 价值梯度指南 | Competition Tier List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 核心调色板 */
+            --bg-base: #050507;
+            --bg-surface: rgba(20, 20, 25, 0.4);
+            --bg-surface-hover: rgba(30, 30, 40, 0.6);
+            --border-dim: rgba(255, 255, 255, 0.06);
+            --border-glow: rgba(255, 255, 255, 0.15);
+            
+            /* 文字颜色 */
+            --text-primary: #ffffff;
+            --text-secondary: #a0a5b5;
+            --text-tertiary: #6b7080;
+
+            /* 梯度专属色彩 (霓虹/赛博风) */
+            --tier-0-main: #ff2a5f;
+            --tier-0-glow: rgba(255, 42, 95, 0.4);
+            --tier-0-grad: linear-gradient(135deg, #ff2a5f, #ff7e40);
+            
+            --tier-1-main: #ffb800;
+            --tier-1-glow: rgba(255, 184, 0, 0.4);
+            --tier-1-grad: linear-gradient(135deg, #ffb800, #ffde59);
+            
+            --tier-2-main: #00e5ff;
+            --tier-2-glow: rgba(0, 229, 255, 0.4);
+            --tier-2-grad: linear-gradient(135deg, #00e5ff, #0077ff);
+            
+            --tier-3-main: #4d7cff;
+            --tier-3-glow: rgba(77, 124, 255, 0.4);
+            --tier-3-grad: linear-gradient(135deg, #4d7cff, #9b51e0);
+            
+            --tier-4-main: #6c7693;
+            --tier-4-glow: rgba(108, 118, 147, 0.4);
+            --tier-4-grad: linear-gradient(135deg, #6c7693, #43495e);
+
+            /* 字体 */
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+
+            /* 动画缓动 */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 动态背景纹理 */
+        .bg-fx {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 0%, rgba(255, 42, 95, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 100%, rgba(0, 229, 255, 0.05) 0%, transparent 40%);
+        }
+
+        .bg-fx::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        header {
+            text-align: center;
+            padding: 80px 20px 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .sup-title {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #A0A5B5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .desc {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 核心容器 */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 24px 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /* 梯度行 */
+        .tier-row {
+            display: flex;
+            gap: 32px;
+            align-items: stretch;
+            position: relative;
+        }
+
+        /* 左侧发光标签 */
+        .tier-label-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .tier-label {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 12px var(--current-glow));
+        }
+
+        /* 右侧卡片网格 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            flex-grow: 1;
+        }
+
+        /* 单个卡片 (毛玻璃风格) */
+        .card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-dim);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.4s var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 卡片发光边框效果 */
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            padding: 1px;
+            background: var(--current-grad);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s var(--ease-out-expo);
+        }
+
+        /* 卡片内部背景辉光 */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--current-glow), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-4px) scale(1.01);
+            background: var(--bg-surface-hover);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), 0 0 20px var(--current-glow);
+        }
+
+        .card:hover::before,
+        .card:hover::after {
+            opacity: 1;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-name {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .card-tag {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        /* 各个梯度的具体颜色映射 */
+        .tier-0 { --current-main: var(--tier-0-main); --current-glow: var(--tier-0-glow); --current-grad: var(--tier-0-grad); }
+        .tier-1 { --current-main: var(--tier-1-main); --current-glow: var(--tier-1-glow); --current-grad: var(--tier-1-grad); }
+        .tier-2 { --current-main: var(--tier-2-main); --current-glow: var(--tier-2-glow); --current-grad: var(--tier-2-grad); }
+        .tier-3 { --current-main: var(--tier-3-main); --current-glow: var(--tier-3-glow); --current-grad: var(--tier-3-grad); }
+        .tier-4 { --current-main: var(--tier-4-main); --current-glow: var(--tier-4-glow); --current-grad: var(--tier-4-grad); }
+
+        .tier-0 .tier-label { background-image: var(--tier-0-grad); }
+        .tier-1 .tier-label { background-image: var(--tier-1-grad); }
+        .tier-2 .tier-label { background-image: var(--tier-2-grad); }
+        .tier-3 .tier-label { background-image: var(--tier-3-grad); }
+        .tier-4 .tier-label { background-image: var(--tier-4-grad); }
+
+        /* 模态框 (Modal) 样式 */
+        dialog {
+            margin: auto;
+            border: none;
+            background: transparent;
+            max-width: 600px;
+            width: 90%;
+            padding: 0;
+            overflow: visible;
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        dialog[open]::backdrop {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #101218;
+            border: 1px solid var(--border-dim);
+            border-top: 2px solid var(--modal-accent, #fff);
+            border-radius: 20px;
+            padding: 40px;
+            color: var(--text-primary);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+            transition: all 0.4s var(--ease-out-expo);
+        }
+
+        dialog[open] .modal-content {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+
+        .modal-tier-badge {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--modal-accent, #fff);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .modal-name {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            padding-right: 40px;
+        }
+
+        .modal-body {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .modal-body b {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* 针对不同屏幕的响应式设计 */
+        @media (max-width: 768px) {
+            .tier-row {
+                flex-direction: column;
+                gap: 16px;
+                background: rgba(255,255,255,0.01);
+                padding: 24px;
+                border-radius: 20px;
+                border: 1px solid var(--border-dim);
+            }
+            .tier-label-wrapper {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .tier-label {
+                writing-mode: horizontal-tb;
+                transform: none;
+                font-size: 2.5rem;
+            }
+            .modal-content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-fx"></div>
+
+    <header>
+        <span class="sup-title">Computer Science</span>
+        <h1>竞赛价值梯度指南</h1>
+        <p class="desc">基于保研加分、顶级大厂就业认可度、技术含金量及对 CS 专业学生的实际收益综合评估，拒绝无意义的内卷。</p>
+    </header>
+
+    <main class="container" id="tier-container">
+        <!-- 内容将由 JS 动态生成 -->
+    </main>
+
+    <dialog id="detail-modal">
+        <div class="modal-content" id="modal-inner">
+            <button class="close-btn" onclick="closeModal()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <span class="modal-tier-badge" id="modal-badge">T0</span>
+            <h2 class="modal-name" id="modal-name"></h2>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </dialog>
+
+<script>
+// 结构化数据，方便扩展和管理
+const tierData = [
+    {
+        tier: "T0",
+        desc: "God Tier / 核心硬通货",
+        items: [
+            { id: '互联网+', name: '中国国际大学生创新大赛（原互联网+）', tag: '教育部A类 · 排名 #1', body: `<b>教育部定位 A 类，官方榜单排名 #1。</b>保研加分几乎全国所有 985/211 都认可，权重最高。就业层面知名度极高，大厂 HR 基本都认。获国家级金/银奖难度极大，省奖相对容易但效果有限。<br><br><b>对 CS 方向：</b>科技赛道直接可以做 AI/软件项目，落地感强，适合有实际项目积累的人。<br><br><b>策略建议：</b>国家级金银奖才真正有效，冲刺难度高但回报最大；省级铜奖意义有限，不要为了凑奖去水。` },
+            { id: '挑战杯大挑', name: '挑战杯 · 全国大学生课外学术科技作品竞赛', tag: '教育部A类 · 排名 #2', body: `<b>被誉为中国大学生学术奥林匹克，A 类，排名 #2。</b>学术型导向，科研属性更重，对保研帮助极大——很多导师把挑战杯一等奖看作硬通货。每两年一届，竞争烈度极高。<br><br><b>对 CS 方向：</b>算法优化、智能系统、AI 应用类作品直接适配。获奖作品质量要求高，需要真实技术深度，不能靠 PPT 包装。<br><br><b>策略建议：</b>和互联网+ 并列为最值得投入的两个赛，二选一或都冲视个人项目情况。` },
+            { id: '数学建模', name: '全国大学生数学建模竞赛', tag: '教育部A类 · 排名 #5', body: `<b>世界规模最大的数学建模赛，A 类，排名 #5。</b>含金量极高，保研加分认可度仅次于互联网+/挑战杯，很多学校对国一有专项加分。<br><br><b>对 CS 方向：</b>数学建模能力是 AI/算法岗的核心基础——建模思维、数据分析、数值优化全面覆盖。国奖（一/二等）在大厂简历上非常加分，面试官认。<br><br><b>策略建议：</b>CS 方向含金量最高的跨学科赛，强烈推荐。三人组队，72 小时封闭赛。` }
+        ]
+    },
+    {
+        tier: "T1",
+        desc: "Top Tier / 高优推荐",
+        items: [
+            { id: '挑战杯创业', name: '挑战杯 · 中国大学生创业计划大赛', tag: '教育部A类 · 排名 #3', body: `<b>A 类，排名 #3，与大挑交替举办。</b>偏商业化，侧重创业计划书和商业逻辑，技术深度要求低于大挑。<br><br><b>对 CS 方向：</b>适合有产品化意愿的同学，体现技术落地和商业化思维。保研加分认可，但在纯技术岗就业场景中弱于大挑和数模。<br><br><b>策略建议：</b>有互联网+/大挑计划的前提下可以同步参加，独立投入回报略低于 T0 三个赛。` },
+            { id: '电子设计', name: '全国大学生电子设计竞赛', tag: '教育部A类 · 排名 #6', body: `<b>A 类，排名 #6。</b>嵌入式、物联网、硬件控制类最权威的国内赛，保研加分认可，企业（尤其是 IC/嵌入式/IoT 方向）很买账。<br><br><b>对 CS 方向：</b>需要写嵌入式程序和底层控制逻辑，CS 嵌入式/物联网方向高度适配。纯软件/互联网岗面试中影响力有限，但背景加分存在。<br><br><b>策略建议：</b>对嵌入式/硬件感兴趣的 CS 同学首选，纯应用层方向性价比低于数模。` },
+            { id: '信息安全', name: '全国大学生信息安全与对抗技术竞赛', tag: '纯CS网安 · 行业高认可', body: `<b>2023 年新增至教育部认可目录，纯 CS 网安方向。</b>内容涵盖网络攻防、漏洞挖掘、密码学、安全编程。行业认可度极高——安全公司（奇安信、腾讯安全等）视该赛获奖为强信号。<br><br><b>对 CS 方向：</b>如果走安全/渗透测试/逆向方向，等同于 T0。一般应用/算法岗则保研加分效果不如 T0 三个赛显著。<br><br><b>策略建议：</b>网安方向必参，非网安方向可以参加但优先级低于 T0。` }
+        ]
+    },
+    {
+        tier: "T2",
+        desc: "Mid Tier / 按需选择",
+        items: [
+            { id: '智能汽车', name: '全国大学生智能汽车竞赛', tag: '排名 #11 · 算法实战', body: `<b>A 类，排名 #11。</b>路径规划、传感器融合、嵌入式控制，软硬件深度结合。保研认可，自动驾驶/机器人相关企业（华为、Momenta、地平线等）会注意。<br><br><b>对 CS 方向：</b>算法实战性强，代码量大，是能锻炼真实工程能力的赛事。但进入决赛门槛高，适合有电子/嵌入式基础的 CS 同学。<br><br><b>策略建议：</b>对 AI/自动驾驶感兴趣的同学性价比高，纯 Web/后端方向性价比低。` },
+            { id: 'RoboMaster', name: '全国大学生机器人大赛 (RoboMaster)', tag: '企业高度认可', body: `<b>大疆主办，行业知名度极高。</b>软件算法侧（视觉识别、决策树、ROS）需要扎实 CS 能力，企业（大疆、字节、腾讯机器人等）对参赛经历高度认可，简历亮点很强。<br><br><b>对 CS 方向：</b>虽非教育部 A 类赛，但就业层面的品牌效应有时超过 T2 其他赛。团队规模大，协作真实，项目经历含金量高。<br><br><b>策略建议：</b>就业导向强的同学可以重点考虑，保研加分效果不稳定（各校认定不同）。` },
+            { id: '电子商务', name: '全国大学生电子商务挑战赛', tag: '含软件开发赛道', body: `<b>A 类，排名 #12。</b>电商平台设计、数据分析系统、营销软件开发。保研认可，有软件开发赛道适配 CS。<br><br><b>对 CS 方向：</b>偏产品+技术结合，适合有全栈开发能力的同学。在纯算法岗面试场景中影响力弱，但对产品/技术双向岗有加分。<br><br><b>策略建议：</b>有兴趣做完整产品项目的 CS 同学可参加，不建议仅为保研加分而投入太多时间。` },
+            { id: '服务外包', name: '中国大学生服务外包大赛', tag: '企业真实项目', body: `<b>教育部+商务部联合主办，以企业真实外包项目为题。</b>核心是软件工程、系统设计、项目管理。知名度低于名字里没有"计算机"字样导致的误解——实质上是纯软件开发赛。<br><br><b>对 CS 方向：</b>企业真题开发经历，对就业的实际帮助大于保研。工程能力锻炼价值高，但官方机构认可度在保研中不如 A 类前几名。<br><br><b>策略建议：</b>以就业为目标的 CS 同学可参加，保研导向慎重权衡时间投入。` }
+        ]
+    },
+    {
+        tier: "T3",
+        desc: "Low Tier / 边缘加分",
+        items: [
+            { id: '大唐杯', name: '大唐杯 5G大赛', tag: '通信方向', body: `<b>工信部背景，5G/通信方向。</b>知名度在通信行业圈内尚可，但认可范围窄——主要在运营商、设备商有效。<br><br><b>策略建议：</b>走通信/网络方向则有价值，互联网方向意义不大。` },
+            { id: '集成电路', name: '全国集成电路创新创业大赛', tag: '底层软硬件', body: `<b>芯片设计赛道，底层驱动软件+硬件仿真。</b>国家重点扶持，对芯片/EDA方向就业有直接价值。<br><br><b>策略建议：</b>有意向走体系结构/芯片方向的 CS 同学可参加，其余方向不必投入。` },
+            { id: '大创年会', name: '国创计划年会展示', tag: '含金量波动大', body: `<b>依赖所在项目的级别。</b>本质是对已有项目的成果展示，不是独立竞赛。<br><br><b>策略建议：</b>申请大创项目本身是值得的，但不要把年会展示本身当作核心竞赛目标。` }
+        ]
+    },
+    {
+        tier: "T4",
+        desc: "Avoid / 无效投入",
+        items: [
+            { id: '机械工程创意', name: '大学生机械工程创新创意大赛', tag: 'CS关联极弱', body: `<b>主体仍是机械工程设计。</b>对 CS 学生无显著加分价值。<br><br><b>策略建议：</b>保研和就业层面对 CS 学院几乎无加分，性价比极低，不建议参加。` },
+            { id: '工业设计', name: '全国大学生工业设计大赛', tag: 'CS边缘', body: `<b>工业设计为核心。</b>交互/UI 设计有边缘关联，但算法/后端/系统类无任何加分。<br><br><b>策略建议：</b>除非方向是人机交互 (HCI)，否则不建议参加。` },
+            { id: '力学竞赛', name: '全国周培源力学竞赛', tag: '完全无关', body: `<b>工程力学/物理建模赛。</b>对 CS 无保研加分、无就业加分。<br><br><b>策略建议：</b>CS 学生绝对避开，纯粹浪费时间。` }
+        ]
+    }
+];
+
+// 初始化渲染
+function renderTiers() {
+    const container = document.getElementById('tier-container');
+    
+    tierData.forEach((tierGroup, index) => {
+        const tierClass = `tier-${index}`;
+        
+        // 创建行
+        const row = document.createElement('div');
+        row.className = `tier-row ${tierClass}`;
+        
+        // 创建标签
+        const labelWrapper = document.createElement('div');
+        labelWrapper.className = 'tier-label-wrapper';
+        labelWrapper.innerHTML = `<div class="tier-label">${tierGroup.tier}</div>`;
+        
+        // 创建卡片网格
+        const grid = document.createElement('div');
+        grid.className = 'cards-grid';
+        
+        tierGroup.items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            // 存储数据供点击使用
+            card.dataset.tier = tierGroup.tier;
+            card.dataset.name = item.name;
+            card.dataset.body = item.body;
+            card.dataset.colorClass = tierClass;
+            
+            card.innerHTML = `
+                <div class="card-content">
+                    <div class="card-name">${item.name}</div>
+                    <div class="card-tag">${item.tag}</div>
+                </div>
+            `;
+            
+            // 鼠标移动光效跟随
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+            
+            // 点击打开详情
+            card.addEventListener('click', () => openModal(item.name, item.body, tierGroup.tier, tierClass));
+            
+            grid.appendChild(card);
+        });
+        
+        row.appendChild(labelWrapper);
+        row.appendChild(grid);
+        container.appendChild(row);
+    });
+}
+
+// Modal 逻辑
+const modal = document.getElementById('detail-modal');
+const modalInner = document.getElementById('modal-inner');
+
+function openModal(name, body, tierStr, colorClass) {
+    document.getElementById('modal-name').textContent = name;
+    document.getElementById('modal-body').innerHTML = body;
+    document.getElementById('modal-badge').textContent = tierStr;
+    
+    // 获取对应层级的颜色变量并应用到模态框
+    const dummy = document.createElement('div');
+    dummy.className = colorClass;
+    document.body.appendChild(dummy);
+    const mainColor = getComputedStyle(dummy).getPropertyValue('--current-main');
+    document.body.removeChild(dummy);
+    
+    modalInner.style.setProperty('--modal-accent', mainColor);
+    
+    modal.showModal();
+    // 阻止背景滚动
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    modal.close();
+    document.body.style.overflow = 'auto';
+}
+
+// 点击背景关闭 Modal
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        closeModal();
+    }
+});
+
+// 运行渲染
+renderTiers();
+
+</script>
+</body>
+</html>

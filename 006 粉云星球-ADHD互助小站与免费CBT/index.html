@@ -1,0 +1,661 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script data-aiworks-event-tracking-bridge="1" data-aiworks-event-tracking-sha256="sha256-EoPGuFoq/s3r6h+3VAlMJ15toAPmybAFkhWE58QcZqI=" data-aiworks-event-tracking-ticket="1415893551417154773">(()=>{try{const current=document.currentScript,ticket=current&&current.dataset.aiworksEventTrackingTicket,placeholder='__'+'AIWORKS_EVENT_TRACKING_TICKET'+'__';if(!ticket||ticket===placeholder)return;let sent=false;const send=data=>{if(sent)return false;let body;try{body=JSON.stringify({...data,deploy_uuid:ticket})}catch{return false}if(new TextEncoder().encode(body).byteLength>1048576)return false;sent=true;fetch("https://tracking.aiworks.site/api/v1/event_tracking",{method:'POST',headers:{'content-type':'application/json'},body,credentials:'omit',referrerPolicy:'no-referrer',keepalive:true}).catch(()=>{});return true};if(self===top){const pageShow=()=>send({member_id:null,member_hash_id:null,client_id:null,element_type:'Page',log_type:'Show',view_url:location.href,is_iframe_show:0,client_timestamp:Date.now(),p_platform:'desktopweb'});if(document.readyState==='complete')queueMicrotask(pageShow);else addEventListener('load',pageShow,{once:true});return}const allowed=origin=>{try{const url=new URL(origin),host=url.hostname.toLowerCase();return url.protocol==='https:'&&(host==='zhihu.com'||host.endsWith('.zhihu.com'))}catch{return false}};const receive=event=>{if(sent||event.source!==parent||!allowed(event.origin))return;const data=event.data;if(!data||Array.isArray(data)||Object.prototype.toString.call(data)!=='[object Object]')return;if(send(data))removeEventListener('message',receive)};addEventListener('message',receive)}catch{}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>粉云的星球 · ADHD互助小站（免费CBT）</title>
+<link rel="icon" type="image/png" href="assets/icon.png">
+<style>
+:root{
+  --pink:#FFD6E0; --pink-deep:#FF8FAB;
+  --blue:#CDE7FF; --blue-deep:#7FB8FF;
+  --yellow:#FFF3B0; --yellow-deep:#FFC94D;
+  --green:#C8F7DC; --green-deep:#6BCB77;
+  --purple:#E5D4FF; --purple-deep:#B388EB;
+  --bg:#FFF9F5; --text:#5A4A4A; --text-soft:#9B8B8B;
+  --card:#FFFFFF; --shadow:0 6px 20px rgba(255,143,171,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,sans-serif;
+  background:var(--bg); color:var(--text); min-height:100vh;
+  padding-bottom:90px; line-height:1.6;
+}
+/* ===== 顶部 ===== */
+.header{
+  padding:20px 20px 10px; text-align:center;
+}
+.header h1{font-size:22px; font-weight:700; letter-spacing:1px}
+.header p{font-size:13px; color:var(--text-soft); margin-top:4px}
+.moon{font-size:28px}
+/* ===== 容器 ===== */
+.container{max-width:480px; margin:0 auto; padding:10px 16px}
+.view{display:none; animation:fadeIn .3s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:translateY(0)}}
+/* ===== 卡片 ===== */
+.card{
+  background:var(--card); border-radius:20px; padding:18px;
+  box-shadow:var(--shadow); margin-bottom:14px;
+}
+.card h2{font-size:16px; margin-bottom:10px; display:flex; align-items:center; gap:6px}
+.card h2 .dot{width:8px;height:8px;border-radius:50%}
+/* ===== 首页快捷入口 ===== */
+.grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
+.tile{
+  border-radius:20px; padding:18px 14px; cursor:pointer;
+  text-align:center; transition:transform .15s; border:none; font-family:inherit;
+}
+.tile:active{transform:scale(.95)}
+.tile .emoji{font-size:32px; display:block; margin-bottom:6px}
+.tile .t{font-size:14px; font-weight:600}
+.tile .d{font-size:11px; opacity:.7; margin-top:2px}
+.tile.pink{background:var(--pink)} .tile.blue{background:var(--blue)}
+.tile.yellow{background:var(--yellow)} .tile.green{background:var(--green)}
+.tile.purple{background:var(--purple)}
+/* ===== 心情打卡 ===== */
+.mood-row{display:flex; justify-content:space-around; margin-top:8px}
+.mood-btn{
+  background:none; border:none; font-size:30px; cursor:pointer;
+  padding:6px; border-radius:14px; transition:all .15s; font-family:inherit;
+}
+.mood-btn.sel{background:var(--yellow); transform:scale(1.15)}
+/* ===== 底部导航 ===== */
+.nav{
+  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  background:#fff; border-radius:24px 24px 0 0;
+  box-shadow:0 -4px 20px rgba(0,0,0,.06);
+  display:flex; justify-content:space-around; padding:10px 0 calc(10px + env(safe-area-inset-bottom));
+  max-width:480px; margin:0 auto;
+}
+.nav button{
+  background:none; border:none; cursor:pointer; font-family:inherit;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  font-size:11px; color:var(--text-soft); padding:4px 10px;
+}
+.nav button .ico{font-size:22px}
+.nav button.sel{color:var(--pink-deep); font-weight:600}
+/* ===== 通用按钮 ===== */
+.btn{
+  display:block; width:100%; padding:12px; border:none; border-radius:14px;
+  background:var(--pink-deep); color:#fff; font-size:15px; font-weight:600;
+  cursor:pointer; font-family:inherit; margin-top:10px; transition:transform .1s;
+}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--pink); color:var(--pink-deep)}
+.btn.blue{background:var(--blue-deep)}
+.btn.green{background:var(--green-deep)}
+.btn:disabled{opacity:.5}
+/* ===== 表单 ===== */
+.field{margin-bottom:12px}
+.field label{display:block; font-size:13px; margin-bottom:4px; color:var(--text-soft)}
+.field input, .field textarea, .field select{
+  width:100%; padding:10px 12px; border:2px solid #f0e6e0; border-radius:12px;
+  font-size:15px; font-family:inherit; background:#fffdfb; resize:vertical;
+}
+@media (max-width:640px){
+  .field input, .field textarea, .field select{ font-size:16px; }
+}
+.field input:focus, .field textarea:focus{outline:none; border-color:var(--pink-deep)}
+/* ===== 番茄钟 ===== */
+.timer-box{text-align:center; padding:10px 0}
+.timer-num{font-size:56px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--pink-deep)}
+.timer-label{font-size:13px; color:var(--text-soft)}
+.timer-controls{display:flex; gap:10px; margin-top:14px}
+.timer-controls .btn{margin-top:0}
+/* ===== 科普卡片 ===== */
+.fact-card{
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  border-radius:18px; padding:16px; margin-bottom:12px; color:#4a3a6a;
+}
+.fact-card .tag{
+  display:inline-block; background:rgba(255,255,255,.6); padding:2px 10px;
+  border-radius:10px; font-size:11px; margin-bottom:8px;
+}
+.fact-card h3{font-size:15px; margin-bottom:6px}
+.fact-card p{font-size:13px; line-height:1.7}
+/* ===== 白噪音 ===== */
+.sound-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.sound-item{
+  border-radius:18px; padding:16px 12px; text-align:center; cursor:pointer;
+  border:3px solid transparent; transition:all .15s; background:#fff;
+  box-shadow:var(--shadow);
+}
+.sound-item.playing{border-color:var(--pink-deep); background:var(--pink)}
+.sound-item .ico{font-size:30px; display:block; margin-bottom:4px}
+.sound-item .name{font-size:13px; font-weight:600}
+.sound-item .sub{font-size:11px; color:var(--text-soft)}
+.vol-wrap{margin-top:14px}
+.vol-wrap label{font-size:13px; display:block; margin-bottom:6px}
+.vol-wrap input[type=range]{width:100%; accent-color:var(--pink-deep)}
+.stop-bar{
+  margin-top:14px; padding:12px; border-radius:14px; background:#fff0f3;
+  text-align:center; font-size:13px; color:var(--pink-deep); display:none;
+}
+.stop-bar.show{display:block}
+/* ===== 思维记录列表 ===== */
+.thought-item{
+  background:#fff8f5; border-radius:14px; padding:12px; margin-bottom:8px;
+  font-size:13px; border-left:4px solid var(--pink);
+}
+.thought-item .ts{font-size:11px; color:var(--text-soft)}
+.thought-item .at{color:var(--pink-deep); font-weight:600}
+.empty{text-align:center; color:var(--text-soft); font-size:13px; padding:20px}
+/* ===== toast ===== */
+.toast{
+  position:fixed; top:20px; left:50%; transform:translateX(-50%);
+  background:var(--text); color:#fff; padding:10px 20px; border-radius:20px;
+  font-size:13px; z-index:999; opacity:0; transition:opacity .3s; pointer-events:none;
+}
+.toast.show{opacity:1}
+/* ===== 标签 ===== */
+.tag-row{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0}
+.tag-chip{
+  background:var(--blue); padding:4px 10px; border-radius:10px;
+  font-size:12px; cursor:pointer; border:none; font-family:inherit;
+}
+.tag-chip.sel{background:var(--blue-deep); color:#fff}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="assets/icon.png" alt="粉云的星球" style="width:72px;height:72px;border-radius:18px;box-shadow:0 6px 16px rgba(255,143,171,.25)">
+  <h1 style="margin-top:8px">粉云的星球</h1>
+  <p>ADHD 互助小站 · 免费 CBT</p>
+</div>
+
+<div class="container">
+
+<!-- ===== 视图：首页 ===== -->
+<div class="view active" id="view-home">
+  <div class="card">
+    <h2><span class="dot" style="background:var(--yellow-deep)"></span>今天感觉怎么样？</h2>
+    <div class="mood-row" id="moodRow">
+      <button class="mood-btn" data-mood="😣">😣</button>
+      <button class="mood-btn" data-mood="😔">😔</button>
+      <button class="mood-btn" data-mood="😐">😐</button>
+      <button class="mood-btn" data-mood="🙂">🙂</button>
+      <button class="mood-btn" data-mood="🤗">🤗</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <button class="tile pink" onclick="go('cbt')">
+      <span class="emoji">💭</span>
+      <div class="t">CBT 练习</div>
+      <div class="d">思维记录 · 番茄钟</div>
+    </button>
+    <button class="tile blue" onclick="go('sound')">
+      <span class="emoji">🎧</span>
+      <div class="t">白噪音</div>
+      <div class="d">专注 · 放松 · 助眠</div>
+    </button>
+    <button class="tile yellow" onclick="go('learn')">
+      <span class="emoji">📚</span>
+      <div class="t">ADHD 科普</div>
+      <div class="d">了解自己的大脑</div>
+    </button>
+    <button class="tile green" onclick="go('history')">
+      <span class="emoji">📖</span>
+      <div class="t">我的记录</div>
+      <div class="d">回看心情与练习</div>
+    </button>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2><span class="dot" style="background:var(--green-deep)"></span>今日小提醒</h2>
+    <p style="font-size:13px; color:var(--text-soft)">
+      注意力不集中不是你的错，这只是大脑的「运行方式」不同。<br>
+      慢慢来，你已经做得很好了。🌱
+    </p>
+  </div>
+
+  <div class="card" style="cursor:pointer; display:flex; align-items:center; gap:10px; background:linear-gradient(135deg,#f3e8ff,#dbeafe)" onclick="go('about')">
+    <span style="font-size:26px">🔬</span>
+    <div>
+      <div style="font-size:14px;font-weight:600">关于本项目 · 科学季</div>
+      <div style="font-size:12px;color:var(--text-soft)">循证、互助、无广告——这个小站是怎么来的</div>
+    </div>
+    <span style="margin-left:auto;color:var(--text-soft)">›</span>
+  </div>
+</div>
+
+<!-- ===== 视图：CBT 练习 ===== -->
+<div class="view" id="view-cbt">
+  <div class="card">
+    <h2><span class="dot" style="background:var(--pink-deep)"></span>思维记录表</h2>
+    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px">
+      当你陷入负面情绪时，写下情境、自动想法，再找一个更平衡的视角。
+    </p>
+    <div class="field">
+      <label>发生了什么？</label>
+      <textarea id="t-situation" rows="2" placeholder="例如：作业写到一半又刷起了手机…"></textarea>
+    </div>
+    <div class="field">
+      <label>我脑子里冒出的想法是？</label>
+      <textarea id="t-thought" rows="2" placeholder="例如：我真是个废物，什么都做不完"></textarea>
+    </div>
+    <div class="field">
+      <label>情绪强度（0-100）</label>
+      <input type="range" id="t-intensity" min="0" max="100" value="50" style="accent-color:var(--pink-deep)">
+      <span id="t-intensity-val" style="font-size:12px">50</span>
+    </div>
+    <div class="field">
+      <label>更平衡的想法是？</label>
+      <textarea id="t-balanced" rows="2" placeholder="例如：我只是需要休息一下，重新开始就好"></textarea>
+    </div>
+    <button class="btn" onclick="saveThought()">保存这条记录</button>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot" style="background:var(--yellow-deep)"></span>专注番茄钟</h2>
+    <div class="timer-box">
+      <div class="timer-num" id="tomatoNum">25:00</div>
+      <div class="timer-label" id="tomatoLabel">专注 25 分钟</div>
+    </div>
+    <div class="timer-controls">
+      <button class="btn" id="tomatoStart" onclick="toggleTomato()">开始专注</button>
+      <button class="btn ghost" onclick="resetTomato()">重置</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot" style="background:var(--green-deep)"></span>接地练习（5-4-3-2-1）</h2>
+    <p style="font-size:13px;color:var(--text-soft)">焦虑时，说出你能感受到的：</p>
+    <div style="margin-top:8px; font-size:13px; line-height:2">
+      🔴 5 个<b>看到</b>的东西<br>
+      🟡 4 个<b>听到</b>的声音<br>
+      🟢 3 个<b>触摸到</b>的物体<br>
+      🔵 2 种<b>闻到</b>的气味<br>
+      🟣 1 个<b>尝到</b>的味道
+    </div>
+  </div>
+</div>
+
+<!-- ===== 视图：白噪音 ===== -->
+<div class="view" id="view-sound">
+  <div class="card">
+    <h2><span class="dot" style="background:var(--blue-deep)"></span>选择背景音</h2>
+    <div class="sound-grid" id="soundGrid">
+      <div class="sound-item" data-sound="white">
+        <span class="ico">🌫️</span>
+        <div class="name">白噪音</div>
+        <div class="sub">均匀沙沙声</div>
+      </div>
+      <div class="sound-item" data-sound="pink">
+        <span class="ico">🌷</span>
+        <div class="name">粉噪音</div>
+        <div class="sub">更柔和温润</div>
+      </div>
+      <div class="sound-item" data-sound="brown">
+        <span class="ico">🏔️</span>
+        <div class="name">棕噪音</div>
+        <div class="sub">低沉如远雷</div>
+      </div>
+      <div class="sound-item" data-sound="rain">
+        <span class="ico">🌧️</span>
+        <div class="name">下雨声</div>
+        <div class="sub">温柔的雨声</div>
+      </div>
+      <div class="sound-item" data-sound="wave">
+        <span class="ico">🌊</span>
+        <div class="name">海浪声</div>
+        <div class="sub">呼吸般起伏</div>
+      </div>
+      <div class="sound-item" data-sound="fan">
+        <span class="ico">🌀</span>
+        <div class="name">风扇声</div>
+        <div class="sub">稳定嗡鸣</div>
+      </div>
+    </div>
+    <div class="vol-wrap">
+      <label>音量</label>
+      <input type="range" id="volSlider" min="0" max="100" value="40">
+    </div>
+    <div class="stop-bar" id="stopBar">
+      正在播放：<b id="nowPlayingName">-</b>
+      <button class="btn" style="margin-top:8px" onclick="stopSound()">停止播放</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 视图：科普 ===== -->
+<div class="view" id="view-learn">
+  <div class="fact-card">
+    <span class="tag">什么是 ADHD</span>
+    <h3>注意力缺陷多动障碍</h3>
+    <p>ADHD 是一种神经发育差异，不是「懒」或「不努力」。患者大脑的多巴胺调节方式不同，导致注意力、冲动控制和执行功能上的挑战。</p>
+  </div>
+  <div class="fact-card" style="background:linear-gradient(135deg,var(--yellow),var(--pink))">
+    <span class="tag">大脑机制</span>
+    <h3>为什么会「拖延」？</h3>
+    <p>ADHD 大脑对「未来奖励」不敏感，却对「即时刺激」非常敏感。所以刷手机立刻爽，而写作业的回报要很久以后——这是神经化学差异，不是意志力问题。</p>
+  </div>
+  <div class="fact-card" style="background:linear-gradient(135deg,var(--green),var(--blue))">
+    <span class="tag">CBT 怎么做</span>
+    <h3>认知行为疗法如何帮助</h3>
+    <p>CBT 帮助你识别「我永远做不好」这类自动负面想法，用更平衡的视角替代它。配合外部结构（清单、定时器、环境设计），可以大幅减少内在混乱。</p>
+  </div>
+  <div class="fact-card" style="background:linear-gradient(135deg,var(--purple),var(--pink))">
+    <span class="tag">实用技巧</span>
+    <h3>几个立即可用的小办法</h3>
+    <p>① 把大任务拆成 15 分钟就能启动的小步；② 用手机白噪音屏蔽环境干扰；③ 任务一开始就告诉自己「只做 5 分钟」；④ 完成就给自己一个即时小奖励。</p>
+  </div>
+  <div class="fact-card" style="background:linear-gradient(135deg,var(--blue),var(--green))">
+    <span class="tag">重要提醒</span>
+    <h3>这个 App 不能替代专业帮助</h3>
+    <p>本应用仅作日常自助辅助。如果你被诊断或怀疑 ADHD，请前往正规医院精神科/心理科就诊，由医生判断是否需要药物或专业治疗。</p>
+  </div>
+</div>
+
+<!-- ===== 视图：我的记录 ===== -->
+<div class="view" id="view-history">
+  <div class="card">
+    <h2><span class="dot" style="background:var(--pink-deep)"></span>最近的思维记录</h2>
+    <div id="thoughtList"></div>
+  </div>
+  <div class="card">
+    <h2><span class="dot" style="background:var(--yellow-deep)"></span>最近的心情</h2>
+    <div id="moodList"></div>
+  </div>
+</div>
+
+<!-- ===== 视图：关于本项目 ===== -->
+<div class="view" id="view-about">
+  <div class="card" style="background:linear-gradient(135deg,#f3e8ff,#dbeafe)">
+    <h2 style="font-size:17px">🔬 关于本项目 · 科学季</h2>
+    <p style="font-size:13px;color:var(--text-soft);margin-top:6px">
+      这个小站的起点，是一位 ADHD 母亲的提问：「国内为什么没有一个认真做 ADHD 认知行为疗法（CBT）的自助网站？」
+    </p>
+    <p style="font-size:13px;color:var(--text-soft);margin-top:8px">
+      我们想认真对待「认真」这两个字。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot" style="background:var(--blue-deep)"></span>循证，而非玄学</h2>
+    <p style="font-size:13px;line-height:1.8">
+      CBT 是目前 ADHD 非药物干预中研究证据最充分的方法之一。它的基本假设是：想法、情绪与行为互相影响；通过记录自动思维、检验证据、建立平衡视角，可以切实改善情绪与执行功能。
+    </p>
+    <p style="font-size:13px;line-height:1.8;margin-top:6px">
+      本应用里的每一个练习——思维记录表、番茄钟、5-4-3-2-1 接地技术——都来自临床心理学的标准方法，而不是某个人的「心灵感悟」。这里没有量子疗愈、频率共振，或任何听起来厉害却无法检验的东西。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot" style="background:var(--yellow-deep)"></span>ADHD 是神经发育差异</h2>
+    <p style="font-size:13px;line-height:1.8">
+      它有明确的神经科学基础：多巴胺与去甲肾上腺素的调节差异、前额叶执行功能网络的工作方式不同。「拖延」不是懒，「分心」不是不努力。理解机制，是改变的第一步。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot" style="background:var(--green-deep)"></span>互助，是一种科学事实</h2>
+    <p style="font-size:13px;line-height:1.8">
+      克鲁泡特金不仅是无政府主义思想家，也是一位地理学家与博物学家。他在《互助论》中用大量动物学与人类学观察指出：合作，而非单纯的竞争，才是物种存续与演化的重要因素。
+    </p>
+    <p style="font-size:13px;line-height:1.8;margin-top:6px">
+      这个小站是这一观点的微小实践：一个人把自己验证有用的工具公开出来——免费、无广告、不追踪，任何人都可以拿去用、转给需要的人。你的所有记录只存在自己的浏览器里，不上传、不变现。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot" style="background:var(--pink-deep)"></span>它的边界</h2>
+    <p style="font-size:13px;line-height:1.8">
+      本应用是日常自助工具，不能替代精神科诊断与专业治疗。如果你正被 ADHD 困扰，请前往正规医院就诊。科学精神也包括：诚实地承认自己能做什么、不能做什么。
+    </p>
+  </div>
+
+  <p style="text-align:center;font-size:12px;color:var(--text-soft);padding:6px 0 14px">
+    —— 一个 ADHD 左派女程序员，写于科学季
+  </p>
+
+  <button class="btn ghost" onclick="go('home')">返回首页</button>
+</div>
+
+<!-- VIEWS_INSERT_POINT -->
+
+</div>
+
+<!-- ===== 底部导航 ===== -->
+<div class="nav">
+  <button class="sel" data-nav="home" onclick="go('home')">
+    <span class="ico">🏠</span>首页
+  </button>
+  <button data-nav="cbt" onclick="go('cbt')">
+    <span class="ico">💭</span>CBT
+  </button>
+  <button data-nav="sound" onclick="go('sound')">
+    <span class="ico">🎧</span>白噪音
+  </button>
+  <button data-nav="learn" onclick="go('learn')">
+    <span class="ico">📚</span>科普
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 路由 =====
+function go(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>{
+    b.classList.toggle('sel', b.dataset.nav===name);
+  });
+  window.scrollTo(0,0);
+  if(name==='sound') renderNowPlaying();
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+// ===== 心情打卡 =====
+document.querySelectorAll('.mood-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.mood-btn').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel');
+    const rec=JSON.parse(localStorage.getItem('moodLog')||'[]');
+    rec.push({mood:b.dataset.mood, time:new Date().toISOString()});
+    localStorage.setItem('moodLog',JSON.stringify(rec.slice(-50)));
+    toast('已记录今天的心情 '+b.dataset.mood);
+  });
+});
+
+// ===== 思维记录 =====
+const intensitySlider = document.getElementById('t-intensity');
+intensitySlider.addEventListener('input', e=>{
+  document.getElementById('t-intensity-val').textContent = e.target.value;
+});
+function saveThought(){
+  const s=document.getElementById('t-situation').value.trim();
+  const t=document.getElementById('t-thought').value.trim();
+  const b=document.getElementById('t-balanced').value.trim();
+  const i=document.getElementById('t-intensity').value;
+  if(!s||!t){ toast('先写一下情境和想法吧～'); return; }
+  const rec=JSON.parse(localStorage.getItem('thoughtLog')||'[]');
+  rec.push({situation:s, thought:t, balanced:b, intensity:i, time:new Date().toISOString()});
+  localStorage.setItem('thoughtLog',JSON.stringify(rec.slice(-100)));
+  document.getElementById('t-situation').value='';
+  document.getElementById('t-thought').value='';
+  document.getElementById('t-balanced').value='';
+  toast('保存成功，你做得很好 🌱');
+}
+
+// ===== 番茄钟 =====
+let tomatoSec=25*60, tomatoTimer=null, tomatoRunning=false;
+function renderTomato(){
+  const m=String(Math.floor(tomatoSec/60)).padStart(2,'0');
+  const s=String(tomatoSec%60).padStart(2,'0');
+  document.getElementById('tomatoNum').textContent=`${m}:${s}`;
+}
+function toggleTomato(){
+  if(tomatoRunning){
+    clearInterval(tomatoTimer); tomatoRunning=false;
+    document.getElementById('tomatoStart').textContent='继续';
+  }else{
+    tomatoTimer=setInterval(()=>{
+      tomatoSec--;
+      if(tomatoSec<=0){
+        clearInterval(tomatoTimer); tomatoRunning=false;
+        tomatoSec=25*60; renderTomato();
+        document.getElementById('tomatoStart').textContent='开始专注';
+        toast('太棒了！完成一个专注番茄 🎉');
+        beep();
+      }else{ renderTomato(); }
+    },1000);
+    tomatoRunning=true;
+    document.getElementById('tomatoStart').textContent='暂停';
+  }
+}
+function resetTomato(){
+  clearInterval(tomatoTimer); tomatoRunning=false;
+  tomatoSec=25*60; renderTomato();
+  document.getElementById('tomatoStart').textContent='开始专注';
+}
+function beep(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(); const g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value=880; g.gain.value=0.1;
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.5);
+    o.stop(ctx.currentTime+0.5);
+  }catch(e){}
+}
+
+// ===== 白噪音：Web Audio API =====
+let audioCtx=null, noiseNodes=null, currentSound=null;
+function ensureCtx(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+}
+function makeNoiseBuffer(type){
+  const len=audioCtx.sampleRate*2;
+  const buf=audioCtx.createBuffer(1,len,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);
+  if(type==='white'){
+    for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+  }else if(type==='pink'){
+    let b0=0,b1=0,b2=0;
+    for(let i=0;i<len;i++){
+      const w=Math.random()*2-1;
+      b0=0.99765*b0+w*0.099;
+      b1=0.96300*b1+w*0.2965;
+      b2=0.57000*b2+w*1.0526;
+      d[i]=(b0+b1+b2+w*0.1848)*0.18;
+    }
+  }else{ // brown
+    let last=0;
+    for(let i=0;i<len;i++){
+      const w=Math.random()*2-1;
+      last=(last+0.02*w)/1.02;
+      d[i]=last*3.5;
+    }
+  }
+  return buf;
+}
+function startSound(type){
+  ensureCtx();
+  stopSound(false);
+  const src=audioCtx.createBufferSource();
+  src.buffer=makeNoiseBuffer(type==='rain'||type==='wave'||type==='fan' ? 'white' : type);
+  src.loop=true;
+  const gain=audioCtx.createGain();
+  gain.gain.value = document.getElementById('volSlider').value/100 * (type==='brown'?0.5:0.35);
+  // 滤波模拟不同音色
+  let node=src;
+  if(type==='rain'||type==='wave'){
+    const f=audioCtx.createBiquadFilter();
+    f.type='lowpass'; f.frequency.value = type==='rain'? 2500:1200;
+    node.connect(f); node=f;
+  }else if(type==='fan'){
+    const f=audioCtx.createBiquadFilter();
+    f.type='bandpass'; f.frequency.value=200; f.Q.value=0.5;
+    node.connect(f); node=f;
+  }
+  node.connect(gain); gain.connect(audioCtx.destination);
+  src.start();
+  // 海浪 LFO
+  let lfo=null;
+  if(type==='wave'){
+    lfo=audioCtx.createOscillator();
+    const lfoGain=audioCtx.createGain();
+    lfo.frequency.value=0.1; lfoGain.gain.value=gain.gain.value*0.6;
+    lfo.connect(lfoGain); lfoGain.connect(gain.gain);
+    lfo.start();
+  }
+  noiseNodes={src,gain,lfo};
+  currentSound=type;
+  document.querySelectorAll('.sound-item').forEach(el=>{
+    el.classList.toggle('playing', el.dataset.sound===type);
+  });
+  document.getElementById('stopBar').classList.add('show');
+  const names={white:'白噪音',pink:'粉噪音',brown:'棕噪音',rain:'下雨声',wave:'海浪声',fan:'风扇声'};
+  document.getElementById('nowPlayingName').textContent=names[type];
+}
+function stopSound(showToast=true){
+  if(noiseNodes){
+    try{
+      noiseNodes.src.stop();
+      if(noiseNodes.lfo) noiseNodes.lfo.stop();
+    }catch(e){}
+    noiseNodes=null;
+  }
+  currentSound=null;
+  document.querySelectorAll('.sound-item').forEach(el=>el.classList.remove('playing'));
+  document.getElementById('stopBar').classList.remove('show');
+  if(showToast) toast('已停止播放');
+}
+document.querySelectorAll('.sound-item').forEach(el=>{
+  el.addEventListener('click',()=>{
+    if(currentSound===el.dataset.sound){ stopSound(); }
+    else startSound(el.dataset.sound);
+  });
+});
+document.getElementById('volSlider').addEventListener('input',e=>{
+  if(noiseNodes) noiseNodes.gain.gain.value = e.target.value/100 * (currentSound==='brown'?0.5:0.35);
+});
+function renderNowPlaying(){
+  // 切回白噪音页时保持 UI 同步
+}
+
+// ===== 历史记录 =====
+function renderHistory(){
+  const thoughts=JSON.parse(localStorage.getItem('thoughtLog')||'[]').reverse();
+  const tl=document.getElementById('thoughtList');
+  if(!thoughts.length){ tl.innerHTML='<div class="empty">还没有记录，去写第一条吧～</div>'; }
+  else{
+    tl.innerHTML=thoughts.slice(0,10).map(t=>`
+      <div class="thought-item">
+        <div class="ts">${new Date(t.time).toLocaleString('zh-CN')}</div>
+        <div style="margin-top:4px">情境：${escapeHtml(t.situation)}</div>
+        <div style="margin-top:2px">想法：<span class="at">${escapeHtml(t.thought)}</span></div>
+        ${t.balanced?`<div style="margin-top:2px;color:var(--green-deep)">平衡视角：${escapeHtml(t.balanced)}</div>`:''}
+      </div>`).join('');
+  }
+  const moods=JSON.parse(localStorage.getItem('moodLog')||'[]').reverse();
+  const ml=document.getElementById('moodList');
+  if(!moods.length){ ml.innerHTML='<div class="empty">还没有心情记录</div>'; }
+  else{
+    ml.innerHTML='<div style="font-size:24px;letter-spacing:4px">'+
+      moods.slice(0,20).map(m=>m.mood).join(' ')+'</div>';
+  }
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+go('home');
+// 监听 hash 变化时如果在 history 视图则刷新
+const _go=go;
+go=function(name){
+  _go(name);
+  if(name==='history') renderHistory();
+};
+</script>
+</body>
+</html>

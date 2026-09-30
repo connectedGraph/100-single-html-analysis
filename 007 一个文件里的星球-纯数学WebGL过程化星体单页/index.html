@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>一个文件里的星球</title>
+<meta name="description" content="一个 HTML 文件、零图片、零依赖：山川、海洋、云层、大气、夜里的灯火、星环与月亮，全部由数学实时算出。">
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;color:#e3e9f4;font-family:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",Georgia,serif}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+#c.drag{cursor:grabbing}
+.ui{position:fixed;pointer-events:none;user-select:none;text-shadow:0 1px 14px rgba(0,0,0,.9),0 0 2px rgba(0,0,0,.7);transition:opacity 1.6s ease;animation:in 2.4s ease both}
+body.idle .ui{opacity:0}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#title{left:max(30px,env(safe-area-inset-left));top:max(28px,env(safe-area-inset-top))}
+#title h1{margin:0;font-weight:400;font-size:clamp(20px,2.4vw,30px);letter-spacing:.34em}
+#title p{margin:10px 0 0;max-width:34em;font-size:12.5px;line-height:1.85;letter-spacing:.06em;opacity:.62}
+#hint{left:max(30px,env(safe-area-inset-left));bottom:max(26px,env(safe-area-inset-bottom));font-size:12px;letter-spacing:.14em;opacity:.55;line-height:2}
+#hint i{font-style:normal;opacity:.5;margin:0 .6em}
+#no{right:max(30px,env(safe-area-inset-right));bottom:max(26px,env(safe-area-inset-bottom));text-align:right;font-size:12px;letter-spacing:.16em;opacity:.75}
+#no b{display:block;font-weight:400;font-size:26px;letter-spacing:.12em;font-variant-numeric:tabular-nums;margin-bottom:4px}
+#nogl{display:none;position:fixed;inset:0;place-items:center;text-align:center;padding:2em;line-height:2}
+@media (max-width:640px){#title p{display:none}#hint{display:none}#no b{font-size:20px}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="ui" id="title"><h1>一个文件里的星球</h1><p>这个页面只有一个文件，没有一张图片。<br>山川、海洋、云、大气、夜里的灯火、星环与月亮，都是此刻在你的显卡上由几行数学算出来的。</p></div>
+<div class="ui" id="hint">拖动 旋转<i>·</i>滚轮 / 双指 远近<i>·</i>空格 换一颗<i>·</i>← → 上一颗 / 下一颗<i>·</i>S 存成图片</div>
+<div class="ui" id="no"><b>No. <span id="num">00000</span></b><span id="type"></span></div>
+<div id="nogl">你的浏览器不支持 WebGL，换一个浏览器再来看这颗星球。</div>
+
+<script id="fs" type="x-shader/x-fragment">
+precision highp float;
+uniform vec2  u_res;
+uniform float u_time;
+uniform vec2  u_rot;
+uniform float u_zoom;
+uniform float u_seed;
+uniform vec4  u_p0;   /* sea level, cloud cover, axial tilt, has ring */
+uniform vec2  u_p1;   /* desert, alien */
+
+float SEA, COV, TILT, DESERT, ALIEN; bool RING;
+
+float hash3(vec3 p){ p = fract(p*0.3183099 + 0.1); p *= 17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+float noise(vec3 x){
+  vec3 i = floor(x), f = fract(x); f = f*f*(3.0-2.0*f);
+  return mix(mix(mix(hash3(i),                 hash3(i+vec3(1.,0.,0.)), f.x),
+                 mix(hash3(i+vec3(0.,1.,0.)),  hash3(i+vec3(1.,1.,0.)), f.x), f.y),
+             mix(mix(hash3(i+vec3(0.,0.,1.)),  hash3(i+vec3(1.,0.,1.)), f.x),
+                 mix(hash3(i+vec3(0.,1.,1.)),  hash3(i+vec3(1.,1.,1.)), f.x), f.y), f.z);
+}
+const mat3 M3 = mat3(0.00,0.80,0.60, -0.80,0.36,-0.48, -0.60,-0.48,0.64);
+float fbm3(vec3 p){ float s=0.,a=.5; for(int i=0;i<3;i++){ s+=a*noise(p); p=M3*p*2.02; a*=.5; } return s; }
+float fbm4(vec3 p){ float s=0.,a=.5; for(int i=0;i<4;i++){ s+=a*noise(p); p=M3*p*2.02; a*=.5; } return s; }
+float fbm5(vec3 p){ float s=0.,a=.5; for(int i=0;i<5;i++){ s+=a*noise(p); p=M3*p*2.02; a*=.5; } return s; }
+float fbm6(vec3 p){ float s=0.,a=.5; for(int i=0;i<6;i++){ s+=a*noise(p); p=M3*p*2.02; a*=.5; } return s; }
+mat3 rotY(float a){ float c=cos(a),s=sin(a); return mat3(c,0.,-s, 0.,1.,0., s,0.,c); }
+mat3 rotX(float a){ float c=cos(a),s=sin(a); return mat3(1.,0.,0., 0.,c,s, 0.,-s,c); }
+
+/* ---------- the world ---------- */
+float terrain(vec3 q){
+  vec3 s = q*1.7 + vec3(u_seed*0.37, u_seed*0.11, u_seed*0.53);
+  vec3 w = vec3(fbm3(s+vec3(0.,0.,3.7)), fbm3(s+vec3(5.2,1.3,0.)), fbm3(s+vec3(1.1,4.4,7.2)));
+  float h = fbm6(s + 0.55*(w-0.5));
+  float r = 1.0 - abs(2.0*fbm4(s*2.3+vec3(13.1,7.7,2.9))-1.0);
+  return h + 0.22*r*r*smoothstep(0.42,0.6,h);
+}
+float clouds(vec3 q){
+  vec3 s = q*2.4 + vec3(u_time*0.012, 0.0, u_time*0.004) + vec3(u_seed*0.71+31.0, 0.0, u_seed*0.29);
+  return smoothstep(COV, COV+0.2, fbm5(s));
+}
+float ringDens(float r){
+  float x = (r-1.5)/0.9; if(x<0.0||x>1.0) return 0.0;
+  float n1 = noise(vec3(r*28.0, u_seed*0.3, 1.5));
+  float n2 = noise(vec3(r*110.0, 2.5, u_seed*0.7));
+  float env = smoothstep(0.0,0.06,x)*(1.0-smoothstep(0.8,1.0,x));
+  return env*smoothstep(0.3,0.62,n1)*(0.45+0.55*n2);
+}
+vec3 landColor(float h, vec3 p, out float cold){
+  float e = h - SEA;
+  vec3 sand   = mix(vec3(0.76,0.70,0.50), vec3(0.42,0.34,0.50), ALIEN);
+  vec3 grass  = mix(mix(vec3(0.20,0.45,0.15), vec3(0.62,0.40,0.22), DESERT), vec3(0.32,0.12,0.48), ALIEN);
+  vec3 forest = mix(mix(vec3(0.06,0.27,0.09), vec3(0.45,0.25,0.13), DESERT), vec3(0.14,0.05,0.30), ALIEN);
+  vec3 rock   = mix(vec3(0.45,0.40,0.36), vec3(0.50,0.30,0.28), DESERT);
+  vec3 snow   = vec3(0.95,0.95,0.97);
+  float v = noise(p*9.0+u_seed)*0.6 + noise(p*35.0)*0.4;
+  vec3 c = mix(sand, grass, smoothstep(0.0,0.025,e));
+  c = mix(c, forest, smoothstep(0.03,0.13,e + (v-0.5)*0.08));
+  c = mix(c, rock,   smoothstep(0.14,0.24,e + (v-0.5)*0.06));
+  c = mix(c, snow,   smoothstep(0.30,0.36,e - 0.15*DESERT));
+  cold = smoothstep(0.70,0.92, abs(p.y) + e*(1.0-0.8*DESERT-0.4*ALIEN) + (v-0.5)*0.15);
+  c = mix(c, snow, cold);
+  return c*(0.85+0.3*v);
+}
+vec3 oceanColor(float h, vec3 p, out float cold){
+  vec3 deep = mix(vec3(0.01,0.06,0.20), vec3(0.0,0.16,0.20), ALIEN);
+  vec3 shal = mix(vec3(0.04,0.32,0.45), vec3(0.08,0.48,0.42), ALIEN);
+  vec3 c = mix(deep, shal, smoothstep(SEA-0.10, SEA, h));
+  cold = smoothstep(0.84,0.94, abs(p.y) + 0.05*noise(p*12.0+u_seed));
+  return mix(c, vec3(0.9,0.93,0.97), cold);
+}
+vec3 sky(vec3 rd, vec3 sun){
+  vec3 col = vec3(0.0);
+  for(int k=0;k<2;k++){
+    float sc = k==0 ? 260.0 : 110.0;
+    vec3 p = rd*sc; vec3 g = floor(p); vec3 f = fract(p);
+    vec3 o = vec3(hash3(g+1.3), hash3(g+2.7), hash3(g+4.1))*0.7+0.15;
+    float h = hash3(g);
+    float dd = length(f-o);
+    float thr = k==0 ? 0.985 : 0.995;
+    float s = smoothstep(thr,1.0,h)*(1.0-smoothstep(0.0,0.28,dd));
+    s *= 0.75 + 0.25*sin(u_time*(1.5+2.0*h) + h*40.0);
+    vec3 tint = mix(vec3(0.75,0.82,1.0), vec3(1.0,0.85,0.7), hash3(g+9.9));
+    col += s*tint*(k==0 ? 0.9 : 1.6);
+  }
+  float band = exp(-9.0*abs(rd.y*0.85+rd.x*0.25+rd.z*0.1));
+  float mw = fbm4(rd*3.5+vec3(7.0,1.0,3.0));
+  col += vec3(0.18,0.22,0.36)*mw*mw*band*0.4;
+  float sd = max(dot(rd,sun),0.0);
+  col += vec3(1.0,0.96,0.88)*pow(sd,3000.0)*10.0 + vec3(1.0,0.78,0.55)*pow(sd,60.0)*0.35 + vec3(1.0,0.65,0.4)*pow(sd,10.0)*0.06;
+  return col;
+}
+
+void main(){
+  SEA=u_p0.x; COV=u_p0.y; TILT=u_p0.z; RING=u_p0.w>0.5; DESERT=u_p1.x; ALIEN=u_p1.y;
+  vec2 uv = (gl_FragCoord.xy*2.0 - u_res)/u_res.y;
+
+  /* camera (world frame) */
+  vec3 ro = u_zoom*vec3(sin(u_rot.x)*cos(u_rot.y), sin(u_rot.y), cos(u_rot.x)*cos(u_rot.y));
+  vec3 fw = normalize(-ro);
+  vec3 rt = normalize(cross(fw, vec3(0.,1.,0.)));
+  vec3 up = cross(rt, fw);
+  vec3 rd = normalize(fw*2.2 + uv.x*rt + uv.y*up);
+
+  float sa = u_time*0.03 + 2.2;
+  vec3 sunW = normalize(vec3(cos(sa), 0.3, sin(sa)));
+  float ma = u_time*0.09 + 1.0;
+  vec3 moonW = 3.6*vec3(cos(ma), 0.18*sin(ma*0.9+1.0), sin(ma));
+
+  /* planet frame: spin around tilted axis */
+  mat3 R = rotY(-u_time*0.05)*rotX(-TILT);
+  vec3 pro = R*ro, prd = R*rd, psun = R*sunW, mc = R*moonW;
+
+  float b = dot(pro,prd), c = dot(pro,pro)-1.0, d = b*b-c;
+  bool ground = d>0.0;
+  float t = ground ? -b-sqrt(max(d,0.0)) : 1e9;
+
+  bool moon=false; float tm=1e9;
+  { vec3 oc=pro-mc; float bm=dot(oc,prd), cm=dot(oc,oc)-0.04, dm=bm*bm-cm;
+    if(dm>0.0){ float tt=-bm-sqrt(dm); if(tt>0.0){ moon=true; tm=tt; } } }
+
+  bool ring=false; float tr=1e9, rdens=0.0;
+  if(RING && abs(prd.y)>1e-5){ float tt=-pro.y/prd.y;
+    if(tt>0.0){ rdens=ringDens(length((pro+prd*tt).xz)); if(rdens>0.002){ ring=true; tr=tt; } } }
+
+  vec3 col;
+  if(ground){
+    vec3 p = pro+prd*t; vec3 n = p;
+    float h = terrain(p);
+    bool land = h>SEA;
+    float cold; vec3 alb;
+    if(land) alb=landColor(h,p,cold); else alb=oceanColor(h,p,cold);
+    vec3 sn = n;
+    if(land){
+      float eps=0.003;
+      vec3 tx = normalize(cross(n, abs(n.y)<0.95 ? vec3(0.,1.,0.) : vec3(1.,0.,0.)));
+      vec3 ty = cross(n, tx);
+      float hx = terrain(normalize(p+tx*eps)), hy = terrain(normalize(p+ty*eps));
+      sn = normalize(n - 0.065*((hx-h)*tx + (hy-h)*ty)/eps);
+    } else {
+      sn = normalize(n + 0.004*(vec3(noise(p*60.0+u_time*0.3), noise(p*60.0+7.0-u_time*0.2), noise(p*60.0+3.0))-0.5)*(1.0-cold));
+    }
+    float dif0 = dot(n,psun);
+    float dif = max(dot(sn,psun),0.0)*smoothstep(-0.03,0.06,dif0);
+    vec3 sunCol = mix(vec3(1.0,0.42,0.18), vec3(1.0,0.97,0.92), smoothstep(-0.05,0.28,dif0));
+    float sh = 1.0-0.55*clouds(normalize(p+psun*0.06));
+    if(RING && abs(psun.y)>1e-3){ float tp=-p.y/psun.y; if(tp>0.0) sh*=1.0-0.85*ringDens(length((p+psun*tp).xz)); }
+    col = alb*(dif*sunCol*sh*1.2 + vec3(0.004,0.005,0.011));
+    vec3 hv = normalize(psun-prd);
+    float specP = land ? 24.0 : 160.0;
+    float specK = land ? 0.05 : mix(0.8,0.12,cold);
+    col += pow(max(dot(sn,hv),0.0),specP)*specK*sunCol*sh*smoothstep(0.0,0.1,dif0);
+    float night = 1.0-smoothstep(-0.06,0.08,dif0);
+    if(land && night>0.001){
+      float e=h-SEA; float low=smoothstep(0.0,0.012,e)*(1.0-smoothstep(0.05,0.13,e));
+      float cl=fbm3(p*10.0+u_seed*1.7); float dots=noise(p*150.0);
+      float L=low*smoothstep(0.5,0.66,cl)*smoothstep(0.5,0.72,dots)*(1.0-cold)*(1.0-0.75*DESERT);
+      vec3 lc=mix(vec3(1.0,0.72,0.38), vec3(0.35,1.0,0.8), ALIEN);
+      col += L*night*lc*1.5;
+    }
+  } else col = sky(rd, sunW);
+
+  /* cloud shell */
+  float rc=1.02; float c2=dot(pro,pro)-rc*rc; float d2=b*b-c2;
+  if(d2>0.0){ float t2=-b-sqrt(d2); if(t2>0.0){ vec3 pc=(pro+prd*t2)/rc; float cd=clouds(pc);
+    if(cd>0.001){
+      float cdif=dot(pc,psun);
+      vec3 ccol = mix(vec3(1.0,0.45,0.25), vec3(1.0), smoothstep(-0.05,0.3,cdif))*(max(cdif,0.0)*(1.0-0.4*cd)*1.15) + vec3(0.006,0.008,0.016);
+      float a = cd*0.9; if(!ground) a *= 0.6;
+      col = mix(col, ccol, a); } } }
+
+  /* atmosphere: 6-sample integration of an exponential shell */
+  float ra=1.14; float c3=dot(pro,pro)-ra*ra; float d3=b*b-c3;
+  float ta=1e9; float atten=0.0; vec3 glow=vec3(0.0);
+  if(d3>0.0){ float sq=sqrt(d3); ta=max(-b-sq,0.0); float tb = ground ? t : -b+sq;
+    if(tb>ta){ float st=(tb-ta)/6.0; float od=0.0, lit=0.0, sdm=0.0;
+      for(int i=0;i<6;i++){ vec3 sp=pro+prd*(ta+st*(float(i)+0.5)); float hh=length(sp)-1.0;
+        float de=exp(-max(hh,0.0)/0.05)*st; od+=de; float sl=dot(normalize(sp),psun);
+        lit+=de*smoothstep(-0.12,0.22,sl); sdm+=de*sl; }
+      sdm/=max(od,1e-5);
+      vec3 dayCol = mix(mix(vec3(0.32,0.58,1.0), vec3(0.55,0.62,0.95), DESERT), vec3(0.45,0.85,0.75), ALIEN);
+      vec3 scat = mix(vec3(1.0,0.38,0.12), dayCol, smoothstep(-0.15,0.25,sdm));
+      atten = 1.0-exp(-od*2.0);
+      glow = scat*(1.0-exp(-lit*1.5))*0.75; } }
+
+  vec3 ringCol=vec3(0.0);
+  if(ring){ vec3 rp=pro+prd*tr; float bb=dot(rp,psun); float cc=dot(rp,rp)-1.0;
+    float shd = (bb<0.0 && bb*bb-cc>0.0) ? 0.0 : 1.0;
+    float sunfac = clamp(abs(psun.y)*3.0, 0.06, 1.0);
+    if(sign(pro.y)!=sign(psun.y)) sunfac *= 0.35;
+    float rv = noise(vec3(length(rp.xz)*60.0, 4.5, u_seed*0.9));
+    ringCol = mix(vec3(0.86,0.80,0.70), vec3(0.80,0.66,0.52), rv)*(0.03 + shd*sunfac);
+    rdens *= 0.9; }
+  vec3 moonCol=vec3(0.0);
+  bool moonF = moon && tm<t; bool ringF = ring && tr<t;
+  if(moonF){ vec3 mp=pro+prd*tm; vec3 nm=(mp-mc)/0.2; float mdif=max(dot(nm,psun),0.0);
+    float malb=0.28+0.3*fbm4(nm*5.0+u_seed); float cr=noise(nm*14.0+3.0);
+    malb*=1.0-0.35*smoothstep(0.6,0.68,cr)+0.25*smoothstep(0.68,0.74,cr);
+    float bb=dot(mp,psun); float cc=dot(mp,mp)-1.0; if(bb<0.0 && bb*bb-cc>0.0) mdif*=0.02;
+    moonCol=vec3(malb)*(mdif*vec3(1.0,0.97,0.92)*1.15+vec3(0.018,0.02,0.026)); }
+  bool ringOverMoon = !moonF || tr<tm;
+
+  if(moonF && tm>=ta) col=moonCol;
+  if(ringF && tr>=ta && ringOverMoon) col=mix(col,ringCol,rdens);
+  col = col*(1.0-0.35*atten) + glow;
+  if(moonF && tm<ta) col=moonCol;
+  if(ringF && tr<ta && ringOverMoon) col=mix(col,ringCol,rdens);
+
+  col = 1.0-exp(-col*1.4);
+  col = pow(col, vec3(1.0/2.2));
+  vec2 q = gl_FragCoord.xy/u_res;
+  col *= 0.78+0.22*pow(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.15);
+  gl_FragColor = vec4(col,1.0);
+}
+</script>
+
+<script>
+(function(){
+var cv=document.getElementById('c'), numEl=document.getElementById('num'), typeEl=document.getElementById('type');
+var gl=cv.getContext('webgl',{antialias:false,alpha:false,depth:false,stencil:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});
+if(!gl){document.getElementById('nogl').style.display='grid';return;}
+function sh(type,src){var s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);
+  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){console.error(gl.getShaderInfoLog(s));throw new Error('shader compile failed');}return s;}
+var prog=gl.createProgram();
+gl.attachShader(prog,sh(gl.VERTEX_SHADER,'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}'));
+gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,document.getElementById('fs').textContent));
+gl.linkProgram(prog);
+if(!gl.getProgramParameter(prog,gl.LINK_STATUS)){console.error(gl.getProgramInfoLog(prog));throw new Error('link failed');}
+gl.useProgram(prog);
+var buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+var loc=gl.getAttribLocation(prog,'a');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+var U={};['u_res','u_time','u_rot','u_zoom','u_seed','u_p0','u_p1'].forEach(function(n){U[n]=gl.getUniformLocation(prog,n);});
+
+var scale=Math.min(window.devicePixelRatio||1,1.5);
+function resize(){cv.width=Math.max(1,Math.floor(innerWidth*scale));cv.height=Math.max(1,Math.floor(innerHeight*scale));gl.viewport(0,0,cv.width,cv.height);}
+addEventListener('resize',resize);resize();
+
+/* ---- the seed decides everything ---- */
+var seed=0, P={};
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function setSeed(n){
+  seed=((n%100000)+100000)%100000;
+  var r=rng(seed*7919+13), pt=r();
+  P.desert = (pt>0.55&&pt<0.77)?1:0; P.alien = pt>=0.77?1:0;
+  P.sea  = P.desert?0.34:0.44+0.14*r();
+  P.cov  = P.desert?0.66:0.49+0.13*r();
+  P.tilt = (r()-0.5)*0.9;
+  P.ring = r()>0.6?1:0;
+  numEl.textContent=String(seed).padStart(5,'0');
+  typeEl.textContent=(P.alien?'异星世界':P.desert?'荒漠世界':'海洋世界')+(P.ring?' · 有环':'')+(seed===0?' · 起点':'');
+  try{history.replaceState(null,'','#'+seed);}catch(e){location.hash=seed;}
+}
+var h0=parseInt(location.hash.slice(1),10);
+setSeed(isFinite(h0)?h0:Math.floor(Math.random()*100000));
+addEventListener('hashchange',function(){var h=parseInt(location.hash.slice(1),10);if(isFinite(h)&&h!==seed)setSeed(h);});
+
+/* ---- camera ---- */
+var yaw=0.7,pitch=0.22,zoom=3.3,tYaw=yaw,tPitch=pitch,tZoom=zoom;
+var pointers={},nP=0,lx=0,ly=0,pinchD=0;
+function clampZ(z){return Math.max(1.5,Math.min(9,z));}
+function pdist(){var a=[];for(var k in pointers)a.push(pointers[k]);return Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);}
+cv.addEventListener('pointerdown',function(e){cv.setPointerCapture(e.pointerId);pointers[e.pointerId]=[e.clientX,e.clientY];nP++;
+  if(nP===1){lx=e.clientX;ly=e.clientY;cv.classList.add('drag');}else if(nP===2){pinchD=pdist();}wake();});
+cv.addEventListener('pointermove',function(e){wake();if(!pointers[e.pointerId])return;pointers[e.pointerId]=[e.clientX,e.clientY];
+  if(nP===1){tYaw-=(e.clientX-lx)*0.005;tPitch+=(e.clientY-ly)*0.005;tPitch=Math.max(-1.35,Math.min(1.35,tPitch));lx=e.clientX;ly=e.clientY;}
+  else if(nP===2){var d=pdist();if(pinchD>0)tZoom=clampZ(tZoom*pinchD/d);pinchD=d;}});
+function endP(e){if(!pointers[e.pointerId])return;delete pointers[e.pointerId];nP--;
+  if(nP<=0){nP=0;cv.classList.remove('drag');}else if(nP===1){for(var k in pointers){lx=pointers[k][0];ly=pointers[k][1];}}}
+cv.addEventListener('pointerup',endP);cv.addEventListener('pointercancel',endP);
+cv.addEventListener('wheel',function(e){e.preventDefault();tZoom=clampZ(tZoom*Math.exp(e.deltaY*0.0012));wake();},{passive:false});
+var wantSave=false;
+addEventListener('keydown',function(e){
+  if(e.code==='Space'){e.preventDefault();setSeed(Math.floor(Math.random()*100000));}
+  else if(e.key==='s'||e.key==='S'){wantSave=true;}
+  else if(e.key==='r'||e.key==='R'){tYaw=0.7;tPitch=0.22;tZoom=3.3;}
+  else if(e.key==='ArrowRight'){setSeed(seed+1);}
+  else if(e.key==='ArrowLeft'){setSeed(seed-1);}
+  wake();});
+
+/* ---- hide the words when you just want to watch ---- */
+var idleT;function wake(){document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(function(){document.body.classList.add('idle');},12000);}
+addEventListener('pointermove',wake);wake();
+
+/* ---- render ---- */
+var t0=parseFloat(new URLSearchParams(location.search).get('t'))||0;
+var last=performance.now(),ema=16;
+var cap=null;
+function draw(T){
+  gl.uniform2f(U.u_res,cv.width,cv.height);gl.uniform1f(U.u_time,T);
+  gl.uniform2f(U.u_rot,yaw,pitch);gl.uniform1f(U.u_zoom,zoom);gl.uniform1f(U.u_seed,seed*0.001);
+  gl.uniform4f(U.u_p0,P.sea,P.cov,P.tilt,P.ring);gl.uniform2f(U.u_p1,P.desert,P.alien);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+}
+/* deterministic frame control, used for recording: window.__planet({seed,t,yaw,pitch,zoom}) */
+window.__planet=function(o){cap=o||null;if(!o)return;if(o.seed!==undefined&&o.seed!==seed)setSeed(o.seed);
+  if(o.w){cv.width=o.w;cv.height=o.h;gl.viewport(0,0,o.w,o.h);}
+  yaw=tYaw=o.yaw;pitch=tPitch=o.pitch;zoom=tZoom=o.zoom;document.body.classList.remove('idle');clearTimeout(idleT);draw(o.t);};
+function frame(now){
+  var dt=now-last;last=now;ema=ema*0.95+Math.min(dt,100)*0.05;
+  if(!cap&&ema>30&&scale>0.6){scale*=0.85;resize();ema=16;}
+  if(!cap){yaw+=(tYaw-yaw)*0.1;pitch+=(tPitch-pitch)*0.1;zoom+=(tZoom-zoom)*0.1;}
+  draw(cap?cap.t:now*0.001+t0);
+  if(wantSave){wantSave=false;cv.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);
+    a.download='planet-'+String(seed).padStart(5,'0')+'.png';a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},5000);});}
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

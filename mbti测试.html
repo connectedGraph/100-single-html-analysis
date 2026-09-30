@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>大学生职业规划</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #FAF8F5; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; }
+    button, input { font-family: inherit; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #FAF8F5; }
+    ::-webkit-scrollbar-thumb { background: #EDE9E3; border-radius: 99px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const C = {
+  bg: "#FAF8F5", card: "#FFFFFF",
+  primary: "#7C9E87", primaryLight: "#EAF2EC",
+  secondary: "#C9A96E", secondaryLight: "#FBF3E4",
+  accent: "#E8858A", accentLight: "#FDECED",
+  text: "#3D3730", textSub: "#8A7F78", border: "#EDE9E3",
+};
+const cardStyle = {
+  background: C.card, borderRadius: "20px",
+  boxShadow: "0 2px 16px rgba(0,0,0,0.06)", border: `1px solid ${C.border}`,
+};
+
+const DIM_OPP = { E:"I", I:"E", S:"N", N:"S", T:"F", F:"T", J:"P", P:"J" };
+
+// ── MBTI 25题（翻译自日文 advancedQuestions，id 31-55）─
+const MBTI_Q = [
+  // E/I（6题）
+  { id:31, dim:"E", text:"构思想法时，你更喜欢？",
+    a:"和别人讨论，边聊边想清楚", b:"一个人静下来慢慢思考" },
+  { id:32, dim:"I", text:"休息日你更想做什么？",
+    a:"待在家里，好好充电放松", b:"出门活动，见朋友或参加活动" },
+  { id:33, dim:"E", text:"你对人际关系的偏好？",
+    a:"广泛交友，认识很多人", b:"深交少数几个真正懂我的人" },
+  { id:34, dim:"I", text:"和一群人聚会结束后，你通常感到？",
+    a:"有些疲惫，需要独处来恢复能量", b:"很有活力，意犹未尽想继续" },
+  { id:35, dim:"E", text:"和陌生人相处时，你通常？",
+    a:"很快打开话匣子，容易热络起来", b:"需要一点时间才能放松下来" },
+  { id:36, dim:"I", text:"在团队讨论中，你更倾向于？",
+    a:"多听多想，想清楚了再发言", b:"积极发言，在讨论中整理思路" },
+  // S/N（7题）
+  { id:37, dim:"S", text:"学习或工作时，你更重视？",
+    a:"过去的经验和实际数据", b:"未来的可能性和创新想法" },
+  { id:38, dim:"N", text:"执行任务时，你更喜欢？",
+    a:"探索自己的方式，不喜欢被步骤约束", b:"按照已有的步骤和规范来操作" },
+  { id:39, dim:"S", text:"你对哪类事物更感兴趣？",
+    a:"实用、可以落地实现的事情", b:"理论、概念性的思维探索" },
+  { id:40, dim:"N", text:"描述一件事时，你更习惯？",
+    a:"用比喻、联想或抽象的方式表达", b:"具体直接地说清楚细节" },
+  { id:41, dim:"S", text:"你更喜欢哪类阅读或学习内容？",
+    a:"实用指南、案例分析、操作手册", b:"理论探讨、哲学思考、未来预测" },
+  { id:42, dim:"N", text:"做计划时，你更关注？",
+    a:"各种可能的情景和不同方向", b:"当前可执行的具体步骤" },
+  { id:43, dim:"S", text:"比起比喻和抽象表达，你更偏好？",
+    a:"具体直接地说清楚细节和事实", b:"用联想或抽象方式来表达感觉" },
+  // T/F（6题）
+  { id:44, dim:"T", text:"被批评或指出问题时，你第一反应是？",
+    a:"分析内容对不对，内容正确就接受", b:"更在意对方的语气和表达方式" },
+  { id:45, dim:"F", text:"讨论问题时，你更重视？",
+    a:"大家是否都能接受和认同结果", b:"准确性和逻辑是否严密" },
+  { id:46, dim:"T", text:"做决定时，你更倾向于？",
+    a:"客观分析，用事实和逻辑来判断", b:"考虑感受，关注对他人的影响" },
+  { id:47, dim:"F", text:"你更欣赏哪种品质？",
+    a:"富有同情心，善解人意", b:"思维清晰，理性冷静" },
+  { id:48, dim:"T", text:"你认为评价一件事应该？",
+    a:"用客观标准，不受感情左右", b:"尊重当事人的价值观和感受" },
+  { id:49, dim:"F", text:"你更享受哪类对话？",
+    a:"分享感受、增进理解的聊天", b:"辩论分析、探讨对与错" },
+  // J/P（6题）
+  { id:50, dim:"J", text:"出行前，你通常会？",
+    a:"提前制定详细的计划和行程", b:"到了再随机应变，保持弹性" },
+  { id:51, dim:"P", text:"面对一件事，你更倾向于？",
+    a:"继续收集信息，保持开放和弹性", b:"尽快做出决定，把它收尾" },
+  { id:52, dim:"J", text:"日程有突然变动时，你通常感到？",
+    a:"有点不适，更喜欢按原计划进行", b:"没关系，灵活调整也挺好的" },
+  { id:53, dim:"P", text:"你的待办事项通常是？",
+    a:"大概记在脑子里，随机处理", b:"详细列出清单，一项一项打勾" },
+  { id:54, dim:"J", text:"工作或任务，你更倾向于？",
+    a:"提前做好，不想拖到最后一刻", b:"临近截止日期才进入最佳状态" },
+  { id:55, dim:"P", text:"你更享受哪种工作状态？",
+    a:"保持开放，随时迎接新变化", b:"一切安排妥当，踏实推进" },
+];
+
+// ── 93题深度题库（飘忽不定时使用）──────────────────
+const RAW_93 = [
+  { id:1,  text:"当你某日想去一个地方，你会____？", a:"事先计划好了，然后再去", b:"先去，然后随机应变", dimA:"J" },
+  { id:2,  text:"如果你是一位老师，你愿教____？", a:"注重实践的课程", b:"注重理论的课程", dimA:"S" },
+  { id:3,  text:"遇到问题时，你通常喜欢____？", a:"和别人讨论解决方法", b:"自己想办法解决", dimA:"E" },
+  { id:4,  text:"你认为____？", a:"很早就应该开始为聚会等做准备", b:"不必先做准备，去了以后见机行事", dimA:"J" },
+  { id:5,  text:"你通常和____相处得更好？", a:"喜欢想象的人", b:"注重现实的人", dimA:"N" },
+  { id:6,  text:"你更多时候是____？", a:"让情感驾驭理智", b:"让理智驾驭情感", dimA:"F" },
+  { id:7,  text:"和一群人在一起时，你常常更愿意____？", a:"加入到大家的谈话中去", b:"独自和熟识的人交谈", dimA:"E" },
+  { id:8,  text:"你最喜欢____做事情？", a:"按兴致", b:"按计划", dimA:"P" },
+  { id:9,  text:"你希望自己被看作是一个____？", a:"实干家", b:"发明家", dimA:"S" },
+  { id:10, text:"当别人问你一个问题时，你经常会____？", a:"马上就做回答", b:"先在脑子里想一想", dimA:"E" },
+  { id:11, text:"你喜欢与____打交道？", a:"常有出人意料想法的人", b:"按照常理行事的人", dimA:"N" },
+  { id:12, text:"按日程表办事____？", a:"正合你意", b:"束缚了你", dimA:"J" },
+  { id:13, text:"你觉得通常别人____？", a:"要花很长的时间才能和你相熟", b:"很快就能和你熟识", dimA:"I" },
+  { id:14, text:"为“如何过周末”定一个计划____？", a:"是有必要的", b:"完全没必要", dimA:"J" },
+  { id:15, text:"下列哪一个评价更适合你？", a:"性情中人", b:"理智的人", dimA:"F" },
+  { id:16, text:"更多的时候，你倾向于____？", a:"独处", b:"同他人在一起", dimA:"I" },
+  { id:17, text:"在日常工作中，你更喜欢____？", a:"在时间紧迫的情况下争分夺秒", b:"做好提前量，尽早把工作做完", dimA:"P" },
+  { id:18, text:"你更愿把____作为朋友？", a:"总能有新想法的人", b:"脚踏实地的人", dimA:"N" },
+  { id:19, text:"你是一个____？", a:"兴趣广泛，什么都想尝试的人", b:"专注投入某个兴趣的人", dimA:"E" },
+  { id:20, text:"当你有一项特别的工作要做时，你喜欢先____？", a:"察看到工作的全貌", b:"找出必须要做的环节", dimA:"N" },
+  { id:21, text:"你更接受____？", a:"以情动人", b:"以理服人", dimA:"F" },
+  { id:22, text:"当你为了消遣而阅读时，你____？", a:"欣赏作者奇特、独创的表达", b:"喜欢作者的表达直接、明确", dimA:"N" },
+  { id:23, text:"新认识你的人____了解到你的兴趣所在？", a:"马上就能", b:"只有真正和你熟悉以后才能", dimA:"E" },
+  { id:24, text:"在旅行时，你喜欢____？", a:"随兴致行事", b:"事先知道一天中该做的事", dimA:"P" },
+  { id:25, text:"做许多人都做的事时，你喜欢____？", a:"按惯例去做", b:"发明自己的新方法", dimA:"S" },
+  { id:26, text:"多数人说你是一个____？", a:"不爱吐露心事的人", b:"非常坦率的人", dimA:"I" },
+  { id:27, text:"你更容易倾向哪个词？", a:"看不见的", b:"看得见的", dimA:"N" },
+  { id:28, text:"你更容易倾向哪个词？", a:"计划", b:"随意", dimA:"J" },
+  { id:29, text:"你更容易倾向哪个词？", a:"温情", b:"坚定", dimA:"F" },
+  { id:30, text:"你更容易倾向哪个词？", a:"事实", b:"想法", dimA:"S" },
+  { id:31, text:"你更容易倾向哪个词？", a:"思维", b:"情感", dimA:"T" },
+  { id:32, text:"你更容易倾向哪个词？", a:"热忱", b:"平静", dimA:"E" },
+  { id:33, text:"你更容易倾向哪个词？", a:"说服", b:"打动", dimA:"T" },
+  { id:34, text:"你更容易倾向哪个词？", a:"陈述", b:"概念", dimA:"S" },
+  { id:35, text:"你更容易倾向哪个词？", a:"分析", b:"同情", dimA:"T" },
+  { id:36, text:"你更容易倾向哪个词？", a:"系统性", b:"随机性", dimA:"J" },
+  { id:37, text:"你更容易倾向哪个词？", a:"敏感", b:"精确", dimA:"F" },
+  { id:38, text:"你更容易倾向哪个词？", a:"缄默", b:"健谈", dimA:"I" },
+  { id:39, text:"你更容易倾向哪个词？", a:"常识性的", b:"理论性的", dimA:"S" },
+  { id:40, text:"你更容易倾向哪个词？", a:"侠肝义胆", b:"深谋远虑", dimA:"F" },
+  { id:41, text:"你更容易倾向哪个词？", a:"正式", b:"非正式", dimA:"J" },
+  { id:42, text:"你更容易倾向哪个词？", a:"沉静", b:"活跃", dimA:"I" },
+  { id:43, text:"你更容易倾向哪个词？", a:"利益", b:"祝福", dimA:"T" },
+  { id:44, text:"你更容易倾向哪个词？", a:"理论性", b:"确定性", dimA:"N" },
+  { id:45, text:"你更容易倾向哪个词？", a:"坚定的", b:"忠诚的", dimA:"T" },
+  { id:46, text:"你更容易倾向哪个词？", a:"理想", b:"现实", dimA:"N" },
+  { id:47, text:"你更容易倾向哪个词？", a:"雄心", b:"柔肠", dimA:"T" },
+  { id:48, text:"你更容易倾向哪个词？", a:"想象中的", b:"事实上的", dimA:"N" },
+  { id:49, text:"你更容易倾向哪个词？", a:"冷静的", b:"激情的", dimA:"T" },
+  { id:50, text:"你更容易倾向哪个词？", a:"制作", b:"创造", dimA:"S" },
+  { id:51, text:"你更容易倾向哪个词？", a:"热情的", b:"中立的", dimA:"E" },
+  { id:52, text:"你更容易倾向哪个词？", a:"明理的", b:"迷人的", dimA:"T" },
+  { id:53, text:"你更容易倾向哪个词？", a:"有同情心", b:"有逻辑头脑", dimA:"F" },
+  { id:54, text:"你更容易倾向哪个词？", a:"生产", b:"设计", dimA:"S" },
+  { id:55, text:"你更容易倾向哪个词？", a:"冲动", b:"决断", dimA:"P" },
+  { id:56, text:"你更容易倾向哪个词？", a:"公正的", b:"体谅的", dimA:"T" },
+  { id:57, text:"你更容易倾向哪个词？", a:"安静的", b:"爱交际的", dimA:"I" },
+  { id:58, text:"你更容易倾向哪个词？", a:"理性", b:"感性", dimA:"T" },
+  { id:59, text:"你更容易倾向哪个词？", a:"不受限制的", b:"安排好的", dimA:"P" },
+  { id:60, text:"你更容易倾向哪个词？", a:"具体", b:"抽象", dimA:"S" },
+  { id:61, text:"你更容易倾向哪个词？", a:"能干的", b:"细腻的", dimA:"T" },
+  { id:62, text:"你更容易倾向哪个词？", a:"开放", b:"私密", dimA:"E" },
+  { id:63, text:"你更容易倾向哪个词？", a:"建造", b:"发明", dimA:"S" },
+  { id:64, text:"你更容易倾向哪个词？", a:"有序的", b:"随便的", dimA:"J" },
+  { id:65, text:"你更容易倾向哪个词？", a:"想象", b:"现实", dimA:"N" },
+  { id:66, text:"你更容易倾向哪个词？", a:"好胜的", b:"好心的", dimA:"T" },
+  { id:67, text:"你更容易倾向哪个词？", a:"理论", b:"事实", dimA:"N" },
+  { id:68, text:"你更容易倾向哪个词？", a:"很少的朋友", b:"很多的朋友", dimA:"I" },
+  { id:69, text:"你更容易倾向哪个词？", a:"可能", b:"确知", dimA:"N" },
+  { id:70, text:"你更容易倾向哪个词？", a:"宽容的", b:"坚决的", dimA:"P" },
+  { id:71, text:"你更容易倾向哪个词？", a:"新异的", b:"已知的", dimA:"N" },
+  { id:72, text:"你更容易倾向哪个词？", a:"温柔", b:"力量", dimA:"F" },
+  { id:73, text:"你更容易倾向哪个词？", a:"实用", b:"创新", dimA:"S" },
+  { id:74, text:"和一群人在一起聚会通常会让你感到____？", a:"兴致勃勃", b:"筋疲力尽", dimA:"E" },
+  { id:75, text:"你在做一个决定时，更多地会____？", a:"权衡实际的得失", b:"考虑其他人的感受", dimA:"T" },
+  { id:76, text:"通常你更喜欢____？", a:"提前安排好该做什么", b:"到时候率性而为", dimA:"J" },
+  { id:77, text:"当你一个人在家时，你____？", a:"能够沉静在自己的思维中", b:"总觉得应该做点什么事情", dimA:"I" },
+  { id:78, text:"多数情况下，你____？", a:"随兴致做事", b:"按日程表做事", dimA:"P" },
+  { id:79, text:"你通常____？", a:"容易和大家打成一片", b:"独处的时候更多", dimA:"E" },
+  { id:80, text:"你做事更倾向于____？", a:"等到信息都全了再做计划", b:"提前很久就定好计划", dimA:"P" },
+  { id:81, text:"别人____交上朋友？", a:"容易和你", b:"较难和你", dimA:"E" },
+  { id:82, text:"你通常喜欢上____的课程？", a:"探讨理论和概念", b:"列举事实和图表", dimA:"N" },
+  { id:83, text:"在聚会时，你____？", a:"说的时候多", b:"听的时候多", dimA:"E" },
+  { id:84, text:"你觉得自己更倾向于是一个____？", a:"随意的人", b:"有秩序的人", dimA:"P" },
+  { id:85, text:"你____？", a:"只同那些兴趣相同的人才能长谈", b:"只要愿意，和任何人都可以长聊", dimA:"I" },
+  { id:86, text:"当你有一个报告需要在一个星期内交出时，你____？", a:"常留出足够的时间并能提早完成", b:"常常是在最后一刻及时赶出来", dimA:"J" },
+  { id:87, text:"哪一个对你来说是更高的评价？", a:"有好胜心的", b:"有同情心的", dimA:"T" },
+  { id:88, text:"你觉得按日程表办事____？", a:"虽有必要，但不喜欢", b:"有帮助的，非常喜欢", dimA:"P" },
+  { id:89, text:"你更愿在哪种老板手下工作？", a:"态度亲切，但有时会感情用事", b:"态度严厉，但始终按逻辑办事", dimA:"F" },
+  { id:90, text:"在完成一项大任务时，你常常是____？", a:"边做边考虑下一步", b:"事先想好每个步骤", dimA:"P" },
+  { id:91, text:"在社交场合，你通常觉得____？", a:"很难和不认识的人进行交谈", b:"很容易和多数人谈笑风生", dimA:"I" },
+  { id:92, text:"你常常是____？", a:"按已经有效的方法做事", b:"尝试一下有没有更好的办法", dimA:"S" },
+  { id:93, text:"你更喜欢按____做事情？", a:"当天的感觉", b:"已订好的日程表", dimA:"P" },
+];
+
+function getDeepQsByDim(dims) {
+  const result = [];
+  const seen = new Set();
+  dims.forEach(dimPair => {
+    const [d1, d2] = dimPair.split("");
+    const pool = RAW_93.filter(q => q.dimA === d1 || q.dimA === d2);
+    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 10);
+    shuffled.forEach(q => { if (!seen.has(q.id)) { seen.add(q.id); result.push(q); } });
+  });
+  return result;
+}
+
+// ── 霍兰德 24题 ──────────────────────────────────────
+const HOLLAND_Q = [
+  { id:1,  type:"R", text:"我喜欢动手修理或组装东西（如电器、模型）" },
+  { id:2,  type:"R", text:"我享受户外活动或体力劳动" },
+  { id:3,  type:"R", text:"我喜欢操作机械或工具" },
+  { id:4,  type:"R", text:"我对工程、建筑类工作感兴趣" },
+  { id:5,  type:"I", text:"我喜欢研究和解决复杂的问题" },
+  { id:6,  type:"I", text:"我对科学实验或数据分析感兴趣" },
+  { id:7,  type:"I", text:"我喜欢独立思考，寻找事物背后的规律" },
+  { id:8,  type:"I", text:"我享受阅读和学习新知识的过程" },
+  { id:9,  type:"A", text:"我喜欢绘画、音乐、写作等创意活动" },
+  { id:10, type:"A", text:"我重视自我表达和艺术创作" },
+  { id:11, type:"A", text:"我喜欢用独特的方式表达想法" },
+  { id:12, type:"A", text:"我对设计、摄影或表演感兴趣" },
+  { id:13, type:"S", text:"我喜欢帮助和关心他人" },
+  { id:14, type:"S", text:"我擅长倾听和理解别人的感受" },
+  { id:15, text:"我对教育、咨询或医疗类工作感兴趣", type:"S" },
+  { id:16, type:"S", text:"我享受团队合作和与人交流" },
+  { id:17, type:"E", text:"我喜欢领导和组织他人完成目标" },
+  { id:18, type:"E", text:"我对商业、管理类工作感兴趣" },
+  { id:19, type:"E", text:"我有说服他人的能力和欲望" },
+  { id:20, type:"E", text:"我享受竞争和追求成就的感觉" },
+  { id:21, type:"C", text:"我喜欢有条理地整理信息和数据" },
+  { id:22, type:"C", text:"我享受按规则和流程完成工作" },
+  { id:23, type:"C", text:"我对财务、会计或行政类工作感兴趣" },
+  { id:24, type:"C", text:"我注重细节，喜欢把事情做得精确" },
+];
+const HL_LABEL = { R:"实用型", I:"研究型", A:"艺术型", S:"社会型", E:"企业型", C:"传统型" };
+const OPT_LABELS = ["完全不符合","不太符合","一般","比较符合","非常符合"];
+
+// ── DeepSeek API ──────────────────────────────────────
+const LS_KEY = "career_planner_api_key";
+function getStoredKey() { try { return localStorage.getItem(LS_KEY) || ""; } catch { return ""; } }
+function storeKey(k)    { try { localStorage.setItem(LS_KEY, k); } catch {} }
+
+async function callAI(apiKey, system, user) {
+  const res = await fetch("https://api.deepseek.com/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "deepseek-chat",
+      messages: [
+        { role: "system", content: system },
+        { role: "user",   content: user },
+      ],
+      max_tokens: 1000,
+    }),
+  });
+  const d = await res.json();
+  if (d.error) throw new Error(d.error.message);
+  return d.choices?.[0]?.message?.content || "";
+}
+
+function calcType(raw) {
+  return `${(raw.E||0)>=(raw.I||0)?"E":"I"}${(raw.S||0)>=(raw.N||0)?"S":"N"}${(raw.T||0)>=(raw.F||0)?"T":"F"}${(raw.J||0)>=(raw.P||0)?"J":"P"}`;
+}
+
+// ── 小组件 ────────────────────────────────────────────
+function Tag({ children, bg = C.primaryLight, color = C.primary, sm }) {
+  return (
+    <span style={{ background: bg, color, borderRadius: 99,
+      padding: sm ? "2px 9px" : "3px 12px", fontSize: sm ? 11 : 12,
+      fontWeight: 700, display: "inline-block" }}>
+      {children}
+    </span>
+  );
+}
+function ProgressBar({ cur, total, color = C.primary }) {
+  return (
+    <div style={{ background: C.border, borderRadius: 99, height: 6, margin: "10px 0 18px" }}>
+      <div style={{ width: `${Math.min((cur/total)*100,100)}%`, background: color,
+        height: "100%", borderRadius: 99, transition: "width .4s ease" }} />
+    </div>
+  );
+}
+function Btn({ children, onClick, variant = "primary", disabled, full }) {
+  const vs = {
+    primary: { background: C.primary, color: "#fff", border: "none" },
+    ghost:   { background: "transparent", color: C.textSub, border: `1.5px solid ${C.border}` },
+  };
+  return (
+    <button onClick={onClick} disabled={disabled}
+      style={{ ...vs[variant], borderRadius: 12, padding: "11px 24px", fontSize: 14,
+        fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? .45 : 1, width: full ? "100%" : undefined, transition: "opacity .2s" }}
+      onMouseEnter={e => { if (!disabled) e.currentTarget.style.opacity = ".8"; }}
+      onMouseLeave={e => { if (!disabled) e.currentTarget.style.opacity = "1"; }}>
+      {children}
+    </button>
+  );
+}
+function Loading({ text }) {
+  const [d, setD] = useState(".");
+  useEffect(() => {
+    const t = setInterval(() => setD(p => p.length >= 3 ? "." : p + "."), 500);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div style={{ minHeight: "60vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", gap: 16 }}>
+      <div style={{ fontSize: 48 }}>🌿</div>
+      <div style={{ color: C.primary, fontWeight: 700, fontSize: 16 }}>{text}{d}</div>
+      <div style={{ color: C.textSub, fontSize: 13 }}>AI思考中，请稍候</div>
+    </div>
+  );
+}
+
+function ApiKeyModal({ onSave }) {
+  const [val, setVal]   = useState("");
+  const [show, setShow] = useState(false);
+  const [err, setErr]   = useState("");
+  const save = () => {
+    if (!val.trim().startsWith("sk-")) { setErr("Key 格式不对，应以 sk- 开头"); return; }
+    storeKey(val.trim()); onSave(val.trim());
+  };
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)",
+      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 20 }}>
+      <div style={{ ...cardStyle, padding: "32px 28px", maxWidth: 420, width: "100%" }}>
+        <div style={{ fontSize: 36, textAlign: "center", marginBottom: 12 }}>🔑</div>
+        <h2 style={{ fontSize: 18, fontWeight: 800, color: C.text, textAlign: "center", marginBottom: 8 }}>
+          输入 DeepSeek API Key
+        </h2>
+        <p style={{ color: C.textSub, fontSize: 13, textAlign: "center", marginBottom: 22, lineHeight: 1.6 }}>
+          Key 仅保存在你的浏览器本地，不会上传到任何服务器 🔒
+        </p>
+        <div style={{ position: "relative", marginBottom: 12 }}>
+          <input type={show ? "text" : "password"} value={val}
+            onChange={e => { setVal(e.target.value); setErr(""); }}
+            placeholder="sk-…"
+            onKeyDown={e => e.key === "Enter" && save()}
+            style={{ width: "100%", padding: "11px 44px 11px 14px", borderRadius: 12,
+              border: `1.5px solid ${err ? C.accent : C.border}`, fontSize: 14,
+              color: C.text, outline: "none", background: "#FAFAFA" }} />
+          <button onClick={() => setShow(p => !p)}
+            style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+              background: "none", border: "none", cursor: "pointer", fontSize: 16, color: C.textSub }}>
+            {show ? "🙈" : "👁️"}
+          </button>
+        </div>
+        {err && <div style={{ color: C.accent, fontSize: 12, marginBottom: 10 }}>⚠ {err}</div>}
+        <Btn full onClick={save}>保存并开始使用</Btn>
+      </div>
+    </div>
+  );
+}
+
+function OptBtn({ label, text, badgeBg, badgeColor, onClick }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button onClick={onClick}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{ ...cardStyle, padding: "15px 18px", textAlign: "left", cursor: "pointer",
+        fontSize: 14, color: label === "中" ? C.textSub : C.text,
+        display: "flex", alignItems: "center", gap: 14,
+        border: `1.5px solid ${hov ? badgeColor : C.border}`,
+        background: hov ? badgeBg : C.card, transition: "all .15s" }}>
+      <span style={{ background: badgeBg, color: badgeColor,
+        width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center",
+        justifyContent: "center", fontWeight: 800, fontSize: 13, flexShrink: 0 }}>
+        {label}
+      </span>
+      {text}
+    </button>
+  );
+}
+
+function Home({ go, results, onChangeKey }) {
+  const doneMBTI = !!results.mbti, doneHL = !!results.holland, allDone = doneMBTI && doneHL;
+  const items = [
+    { key:"mbti",    emoji:"🧠", title:"MBTI 人格测试", desc:"25题，探索你的性格类型",
+      tag:doneMBTI?"✓ 已完成":"约4分钟", tagBg:doneMBTI?C.primaryLight:C.secondaryLight, tagColor:doneMBTI?C.primary:C.secondary, border:doneMBTI?C.primaryLight:C.secondaryLight },
+    { key:"holland", emoji:"🧭", title:"霍兰德职业兴趣", desc:"24题，发现你的职业方向",
+      tag:doneHL?"✓ 已完成":"约4分钟", tagBg:doneHL?C.primaryLight:C.accentLight, tagColor:doneHL?C.primary:C.accent, border:doneHL?C.primaryLight:C.accentLight },
+  ];
+  return (
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: "48px 20px 60px" }}>
+      <div style={{ textAlign: "center", marginBottom: 40 }}>
+        <div style={{ fontSize: 52, marginBottom: 10 }}>🌱</div>
+        <h1 style={{ fontSize: 26, fontWeight: 800, color: C.text }}>大学生职业规划</h1>
+        <p style={{ color: C.textSub, fontSize: 14, marginTop: 8 }}>没有方向？从测验开始，找到属于你的路 ✨</p>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {items.map(it => (
+          <button key={it.key} onClick={() => go(it.key)}
+            style={{ ...cardStyle, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16,
+              cursor: "pointer", width: "100%", textAlign: "left",
+              border: `1.5px solid ${it.border||C.border}`, transition: "transform .15s, box-shadow .15s" }}
+            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.10)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform=""; e.currentTarget.style.boxShadow=cardStyle.boxShadow; }}>
+            <span style={{ fontSize: 34 }}>{it.emoji}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, color: C.text, fontSize: 15 }}>{it.title}</div>
+              <div style={{ color: C.textSub, fontSize: 12, marginTop: 3 }}>{it.desc}</div>
+            </div>
+            <Tag bg={it.tagBg||C.border} color={it.tagColor||C.textSub}>{it.tag}</Tag>
+          </button>
+        ))}
+      </div>
+      <div style={{ marginTop: 28 }}>
+        {allDone
+          ? <Btn full onClick={() => go("summary")}>✨ 查看专属综合职业分析</Btn>
+          : <div style={{ background: C.primaryLight, borderRadius: 14, padding: "14px 20px",
+              color: C.primary, fontSize: 13, fontWeight: 600, textAlign: "center" }}>
+              完成上方两项测试后，即可解锁综合分析 🔒
+            </div>
+        }
+      </div>
+      <div style={{ marginTop: 18, textAlign: "center" }}>
+        <button onClick={onChangeKey}
+          style={{ background: "none", border: "none", color: C.textSub, fontSize: 12,
+            cursor: "pointer", textDecoration: "underline" }}>
+          🔑 更换 API Key
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MBTITest({ onDone }) {
+  const [idx, setIdx] = useState(0);
+  const [ans, setAns] = useState({});
+  const q = MBTI_Q[idx];
+
+  const pick = (choice) => {
+    const next = { ...ans, [q.id]: choice };
+    setAns(next);
+    if (idx < MBTI_Q.length - 1) { setIdx(idx + 1); return; }
+
+    const dims = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+    MBTI_Q.forEach(q2 => {
+      const a = q2.id === q.id ? choice : next[q2.id];
+      if (!a || a === "mid") return;
+      if (a === "a") dims[q2.dim] = (dims[q2.dim] || 0) + 1;
+      else           dims[DIM_OPP[q2.dim]] = (dims[DIM_OPP[q2.dim]] || 0) + 1;
+    });
+
+    const uncertainDims = [["E","I"],["S","N"],["T","F"],["J","P"]]
+      .filter(([a,b]) => Math.abs((dims[a]||0) - (dims[b]||0)) <= 1)
+      .map(([a,b]) => `${a}${b}`);
+
+    onDone({ type: calcType(dims), raw: dims, uncertainDims });
+  };
+
+  return (
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: "36px 20px" }}>
+      <Tag bg={C.secondaryLight} color={C.secondary}>🧠 MBTI 人格测试</Tag>
+      <ProgressBar cur={idx+1} total={MBTI_Q.length} color={C.secondary} />
+      <div style={{ color: C.textSub, fontSize: 12, marginBottom: 22 }}>第 {idx+1} / {MBTI_Q.length} 题</div>
+      <div style={{ ...cardStyle, padding: "26px 22px", marginBottom: 22 }}>
+        <div style={{ fontWeight: 700, fontSize: 18, color: C.text, lineHeight: 1.6 }}>{q.text}</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <OptBtn label="A" text={q.a} badgeBg={C.secondaryLight} badgeColor={C.secondary} onClick={() => pick("a")} />
+        <OptBtn label="中" text="两者都可以 / 不太确定" badgeBg="#EDE9E3" badgeColor={C.textSub} onClick={() => pick("mid")} />
+        <OptBtn label="B" text={q.b} badgeBg={C.secondaryLight} badgeColor={C.secondary} onClick={() => pick("b")} />
+      </div>
+    </div>
+  );
+}
+
+function MBTIUncertain({ dims, onDeep, onSkip }) {
+  const dimNames = { EI:"内外向(E/I)", SN:"直觉感知(S/N)", TF:"思维情感(T/F)", JP:"判断感知(J/P)" };
+  return (
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: "60px 20px" }}>
+      <div style={{ ...cardStyle, padding: "36px 28px", textAlign: "center" }}>
+        <div style={{ fontSize: 52, marginBottom: 16 }}>🌀</div>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 14 }}>
+          你的MBTI有点飘忽不定哦～
+        </h2>
+        <p style={{ fontSize: 14, color: C.text, lineHeight: 1.8, marginBottom: 8 }}>
+          检测到你在{" "}
+          {dims.map(d => (
+            <span key={d} style={{ background: C.secondaryLight, color: C.secondary,
+              borderRadius: 99, padding: "2px 10px", fontWeight: 700, margin: "0 3px", display:"inline-block" }}>
+              {dimNames[d] || d}
+            </span>
+          ))}
+          {" "}维度上两边差距很小
+        </p>
+        <p style={{ fontSize: 13, color: C.textSub, lineHeight: 1.7, marginBottom: 28 }}>
+          说明你在这方面比较灵活 🌊<br/>
+          要不要再做几道针对性的题，让结果更准确？
+        </p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <Btn onClick={onDeep}>好呀，做一下！</Btn>
+          <Btn variant="ghost" onClick={onSkip}>跳过，直接看结果</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MBTIDeep({ dims, baseRaw, onDone }) {
+  const [questions] = useState(() => getDeepQsByDim(dims));
+  const [idx, setIdx] = useState(0);
+  const [ans, setAns] = useState({});
+
+  if (!questions.length) { onDone({ type: calcType(baseRaw), raw: baseRaw }); return null; }
+  const q = questions[idx];
+
+  const pick = (choice) => {
+    const next = { ...ans, [q.id]: choice };
+    setAns(next);
+    if (idx < questions.length - 1) { setIdx(idx + 1); return; }
+
+    const raw = { ...baseRaw };
+    questions.forEach(q2 => {
+      const a = q2.id === q.id ? choice : next[q2.id];
+      if (!a || a === "mid") return;
+      if (a === "a") raw[q2.dimA] = (raw[q2.dimA] || 0) + 1;
+      else           raw[DIM_OPP[q2.dimA]] = (raw[DIM_OPP[q2.dimA]] || 0) + 1;
+    });
+    onDone({ type: calcType(raw), raw });
+  };
+
+  return (
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: "36px 20px" }}>
+      <Tag bg={C.secondaryLight} color={C.secondary}>🧠 深度追问（来自93题精准题库）</Tag>
+      <ProgressBar cur={idx+1} total={questions.length} color={C.secondary} />
+      <div style={{ color: C.textSub, fontSize: 12, marginBottom: 22 }}>第 {idx+1} / {questions.length} 题</div>
+      <div style={{ ...cardStyle, padding: "26px 22px", marginBottom: 22 }}>
+        <div style={{ fontWeight: 700, fontSize: 18, color: C.text, lineHeight: 1.6 }}>{q.text}</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <OptBtn label="A" text={q.a} badgeBg={C.secondaryLight} badgeColor={C.secondary} onClick={() => pick("a")} />
+        <OptBtn label="中" text="两者都可以 / 不太确定" badgeBg="#EDE9E3" badgeColor={C.textSub} onClick={() => pick("mid")} />
+        <OptBtn label="B" text={q.b} badgeBg={C.secondaryLight} badgeColor={C.secondary} onClick={() => pick("b")} />
+      </div>
+    </div>
+  );
+}
+
+function MBTIResult({ result, back }) {
+  return (
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: "36px 20px" }}>
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{ fontSize: 48, marginBottom: 10 }}>🧠</div>
+        <Tag bg={C.secondaryLight} color={C.secondary}>你的MBTI类型</Tag>
+        <div style={{ fontSize: 42, fontWeight: 900, color: C.text, margin: "12px 0 4px", letterSpacing: 3 }}>{result.type}</div>
+      </div>
+      <div style={{ ...cardStyle, padding: "22px", marginBottom: 16 }}>
+        {[["E","I"],["S","N"],["T","F"],["J","P"]].map(([a,b]) => {
+          const va = result.raw[a]||0, vb = result.raw[b]||0, tot = va+vb;
+          const pct = tot ? Math.round((va/tot)*100) : 50;
+          return (
+            <div key={a} style={{ marginBottom: 14 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:12, marginBottom:5 }}>
+                <span style={{ fontWeight:700, color:C.text }}>{a}</span>
+                <span style={{ fontWeight:700, color:C.text }}>{b}</span>
+              </div>
+              <div style={{ background:C.border, borderRadius:99, height:8 }}>
+                <div style={{ width:`${pct}%`, background:C.secondary, borderRadius:99, height:"100%", transition:"width .6s ease" }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ ...cardStyle, padding:"22px", marginBottom:24, whiteSpace:"pre-wrap", fontSize:14, lineHeight:1.9, color:C.text }}>
+        {result.analysis}
+      </div>
+      <Btn variant="ghost" full onClick={back}>← 返回首页</Btn>
+    </div>
+  );
+}
+
+function HollandTest({ apiKey, onDone }) {
+  const [ans, setAns]         = useState({});
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg]   = useState("");
+  const done = Object.keys(ans).length;
+
+  const submit = async () => {
+    setLoading(true);
+    try {
+      const scores = { R:0, I:0, A:0, S:0, E:0, C:0 };
+      HOLLAND_Q.forEach(q => { scores[q.type] += (ans[q.id]||0); });
+      const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+      const top3 = sorted.slice(0,3).map(([k])=>k);
+      const sys = `你是温和专业的大学生职业规划顾问，中文，亲切。 输出格式（纯文本，不要markdown标记）： 【你的职业兴趣组合】 【你的兴趣特点】2-3句 【推荐专业方向】3-4个，每个简短说明 【推荐职业举例】6-8个具体职业 【发展建议】1-2句鼓励`;
+      const scoreDesc = sorted.map(([k,v])=>`${HL_LABEL[k]}(${k}):${v}分`).join("、");
+      const analysis = await callAI(apiKey, sys, `霍兰德结果：${scoreDesc}，前三类型${top3.join("")}型。`);
+      setLoading(false);
+      onDone({ scores, top3, analysis });
+    } catch(e) {
+      setLoading(false);
+      setErrMsg(e.message || "请求失败，请检查API Key");
+    }
+  };
+
+  if (loading) return <Loading text="AI正在分析你的职业兴趣" />;
+  if (errMsg) return (
+    <div style={{ maxWidth:520, margin:"0 auto", padding:36, textAlign:"center" }}>
+      <div style={{ color:C.accent, fontSize:14, marginBottom:16 }}>⚠ {errMsg}</div>
+      <Btn variant="ghost" onClick={() => setErrMsg("")}>重试</Btn>
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: "36px 20px" }}>
+      <Tag bg={C.accentLight} color={C.accent}>🧭 霍兰德职业兴趣测试</Tag>
+      <ProgressBar cur={done} total={HOLLAND_Q.length} color={C.accent} />
+      <div style={{ color:C.textSub, fontSize:12, marginBottom:22 }}>已完成 {done} / {HOLLAND_Q.length} 题</div>
+      <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+        {HOLLAND_Q.map(q => (
+          <div key={q.id} style={{ ...cardStyle, padding:"16px 18px" }}>
+            <div style={{ fontSize:13, fontWeight:600, color:C.text, marginBottom:10,
+              display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+              <Tag bg={C.accentLight} color={C.accent} sm>{HL_LABEL[q.type]}</Tag>
+              <span>{q.text}</span>
+            </div>
+            <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+              {OPT_LABELS.map((label,i) => {
+                const sel = ans[q.id] === i+1;
+                return (
+                  <button key={i} onClick={() => setAns({...ans,[q.id]:i+1})}
+                    style={{ padding:"5px 10px", borderRadius:99,
+                      border:`1.5px solid ${sel?C.accent:C.border}`,
+                      background:sel?C.accentLight:"transparent",
+                      color:sel?C.accent:C.textSub,
+                      fontSize:11, fontWeight:sel?700:400, cursor:"pointer", transition:"all .15s" }}>
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop:28 }}>
+        <Btn full disabled={done < HOLLAND_Q.length} onClick={submit}>
+          {done < HOLLAND_Q.length ? `还剩 ${HOLLAND_Q.length-done} 题未填` : "提交并查看结果 →"}
+        </Btn>
+      </div>
+    </div>
+  );
+}
+
+function HollandResult({ result, back }) {
+  return (
+    <div style={{ maxWidth:520, margin:"0 auto", padding:"36px 20px" }}>
+      <div style={{ textAlign:"center", marginBottom:28 }}>
+        <div style={{ fontSize:48, marginBottom:10 }}>🧭</div>
+        <Tag bg={C.accentLight} color={C.accent}>你的霍兰德类型</Tag>
+        <div style={{ fontSize:42, fontWeight:900, color:C.text, margin:"12px 0 4px", letterSpacing:3 }}>
+          {result.top3.join("")} 型
+        </div>
+        <div style={{ color:C.textSub, fontSize:13 }}>{result.top3.map(k=>HL_LABEL[k]).join(" · ")}</div>
+      </div>
+      <div style={{ ...cardStyle, padding:"22px", marginBottom:16 }}>
+        {Object.entries(result.scores).sort((a,b)=>b[1]-a[1]).map(([k,v]) => (
+          <div key={k} style={{ marginBottom:14 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", fontSize:12, marginBottom:5 }}>
+              <span style={{ fontWeight:700, color:C.text }}>{HL_LABEL[k]}（{k}）</span>
+              <span style={{ color:C.textSub }}>{v} / 20</span>
+            </div>
+            <div style={{ background:C.border, borderRadius:99, height:8 }}>
+              <div style={{ width:`${(v/20)*100}%`, background:result.top3.includes(k)?C.accent:"#D9D3CD",
+                borderRadius:99, height:"100%", transition:"width .6s ease" }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...cardStyle, padding:"22px", marginBottom:24, whiteSpace:"pre-wrap", fontSize:14, lineHeight:1.9, color:C.text }}>
+        {result.analysis}
+      </div>
+      <Btn variant="ghost" full onClick={back}>← 返回首页</Btn>
+    </div>
+  );
+}
+
+function Summary({ results, apiKey, back }) {
+  const [analysis, setAnalysis] = useState("");
+  const [loading, setLoading]   = useState(true);
+  const [errMsg, setErrMsg]     = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const sys = `你是专业的大学生职业规划顾问，结合MBTI和霍兰德结果给出综合个性化建议。中文，亲切有深度。 输出格式（纯文本）： 【综合分析】3-4句，融合两项测试核心发现 【你的独特优势】3个要点，每个一句 【最适合你的职业方向】top3，每个简短说明为何适合 【推荐的大学专业/学习侧重】具体建议 【给你的寄语】1-2句温暖的话`;
+        const r = await callAI(apiKey, sys,
+          `MBTI: ${results.mbti.type}，霍兰德: ${results.holland.top3.join("")}型（${results.holland.top3.map(k=>HL_LABEL[k]).join("、")}）。请综合分析。`
+        );
+        setAnalysis(r); setLoading(false);
+      } catch(e) { setLoading(false); setErrMsg(e.message||"请求失败"); }
+    })();
+  }, []);
+
+  if (loading) return <Loading text="AI正在生成专属职业规划" />;
+  if (errMsg) return (
+    <div style={{ maxWidth:520, margin:"0 auto", padding:36, textAlign:"center" }}>
+      <div style={{ color:C.accent, fontSize:14, marginBottom:16 }}>⚠ {errMsg}</div>
+      <Btn variant="ghost" onClick={back}>返回首页</Btn>
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth:520, margin:"0 auto", padding:"36px 20px" }}>
+      <div style={{ textAlign:"center", marginBottom:28 }}>
+        <div style={{ fontSize:48, marginBottom:10 }}>✨</div>
+        <h2 style={{ fontSize:22, fontWeight:800, color:C.text }}>你的专属职业规划</h2>
+        <div style={{ display:"flex", justifyContent:"center", gap:8, marginTop:10 }}>
+          <Tag bg={C.secondaryLight} color={C.secondary}>{results.mbti.type}</Tag>
+          <Tag bg={C.accentLight} color={C.accent}>{results.holland.top3.join("")}型</Tag>
+        </div>
+      </div>
+      <div style={{ ...cardStyle, padding:"24px", marginBottom:24, whiteSpace:"pre-wrap", fontSize:14, lineHeight:1.95, color:C.text }}>
+        {analysis}
+      </div>
+      <Btn variant="ghost" full onClick={back}>← 返回首页</Btn>
+    </div>
+  );
+}
+
+function App() {
+  const [apiKey, setApiKey]       = useState(getStoredKey);
+  const [showModal, setShowModal] = useState(!getStoredKey());
+  const [page, setPage]           = useState("home");
+  const [results, setResults]     = useState({ mbti: null, holland: null });
+  const [mbtiBaseRaw, setMbtiBaseRaw]     = useState(null);
+  const [mbtiUncertain, setMbtiUncertain] = useState([]);
+  const [mbtiPending, setMbtiPending]     = useState(null);
+
+  const go = p => setPage(p);
+
+  const onMbtiDone = ({ type, raw, uncertainDims }) => {
+    setMbtiBaseRaw(raw);
+    setMbtiPending({ type, raw });
+    if (uncertainDims && uncertainDims.length > 0) {
+      setMbtiUncertain(uncertainDims); go("mbtiUncertain");
+    } else {
+      fetchMbtiAnalysis(type, raw);
+    }
+  };
+
+  const fetchMbtiAnalysis = async (type, raw) => {
+    go("loading");
+    try {
+      const sys = `你是温和专业的大学生职业规划顾问，用中文，亲切不正式。 输出格式（纯文本，不要markdown标记）： 【类型名称】（如：INTJ · 建筑师） 【性格特点】2-3句 【学习与工作风格】1-2句 【适合职业方向】3-4个方向，每个加一句说明 【给你的小建议】1-2句鼓励`;
+      const analysis = await callAI(apiKey, sys, `我的MBTI是 ${type}，请分析。`);
+      setResults(p => ({ ...p, mbti: { type, raw, analysis } }));
+      go("mbtiResult");
+    } catch(e) { go("home"); alert("API调用失败：" + (e.message||"请检查Key")); }
+  };
+
+  const onHollandDone = r => { setResults(p => ({ ...p, holland: r })); go("hollandResult"); };
+
+  if (showModal) return <ApiKeyModal onSave={k => { setApiKey(k); setShowModal(false); }} />;
+
+  return (
+    <div style={{ minHeight:"100vh", background:C.bg }}>
+      {page==="home"          && <Home go={go} results={results} onChangeKey={() => setShowModal(true)} />}
+      {page==="mbti"          && <MBTITest onDone={onMbtiDone} />}
+      {page==="mbtiUncertain" && <MBTIUncertain dims={mbtiUncertain}
+        onDeep={() => go("mbtiDeep")}
+        onSkip={() => fetchMbtiAnalysis(mbtiPending.type, mbtiPending.raw)} />}
+      {page==="mbtiDeep"      && <MBTIDeep dims={mbtiUncertain} baseRaw={mbtiBaseRaw}
+        onDone={({ type, raw }) => fetchMbtiAnalysis(type, raw)} />}
+      {page==="mbtiResult"    && results.mbti    && <MBTIResult result={results.mbti} back={() => go("home")} />}
+      {page==="holland"       && <HollandTest apiKey={apiKey} onDone={onHollandDone} />}
+      {page==="hollandResult" && results.holland && <HollandResult result={results.holland} back={() => go("home")} />}
+      {page==="summary"       && results.mbti && results.holland &&
+        <Summary results={results} apiKey={apiKey} back={() => go("home")} />}
+      {page==="loading"       && <Loading text="AI正在分析" />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

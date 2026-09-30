@@ -1,0 +1,2922 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MBTI 天赋激活测评</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #fdf8f5;
+  --bg2: #f8f2ee;
+  --card: #ffffff;
+  --card2: #fef5f8;
+  --pink: #d4708a;
+  --pink-deep: #b85070;
+  --pink-light: #e898b0;
+  --pink-pale: #fde8ef;
+  --pink-bg: rgba(212,112,138,0.07);
+  --pink-border: rgba(212,112,138,0.2);
+  --blue: #7ab0cc;
+  --blue-bg: rgba(122,176,204,0.1);
+  --ink: #1e1820;
+  --ink2: #4a3d50;
+  --ink3: #9080a0;
+  --border: #ede0e8;
+  --border2: rgba(212,112,138,0.15);
+  --r: 16px;
+  --r-sm: 10px;
+  /* level colors */
+  --lv0-color: #9898a8;
+  --lv0-bg: rgba(152,152,168,0.1);
+  --lv1-color: #d4708a;
+  --lv1-bg: rgba(212,112,138,0.1);
+  --lv2-color: #5aaa88;
+  --lv2-bg: rgba(90,170,136,0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { font-size: 15px; }
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: block; }
+#screen-loading.active { display: flex; }
+
+/* ══ LANDING ══ */
+#screen-landing { background: var(--bg); }
+
+.land-hero {
+  background: linear-gradient(160deg, #c45878 0%, #d4789a 45%, #7ab0cc 100%);
+  padding: 52px 24px 48px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.land-hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -60px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  pointer-events: none;
+}
+
+.land-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -100px; left: -40px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 40px;
+  padding: 5px 14px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 2px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  position: relative; z-index: 1;
+}
+
+.hero-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #ffd0df;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hero-h1 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 31px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.4;
+  margin-bottom: 14px;
+  position: relative; z-index: 1;
+}
+
+.hero-h1 em {
+  font-style: normal;
+  display: block;
+  font-size: 34px;
+  color: #ffe8f2;
+}
+
+.hero-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.78);
+  line-height: 1.85;
+  margin-bottom: 28px;
+  position: relative; z-index: 1;
+}
+
+.hero-cta {
+  display: inline-block;
+  background: white;
+  color: var(--pink-deep);
+  border-radius: 50px;
+  padding: 15px 34px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+  cursor: pointer;
+  border: none;
+  position: relative; z-index: 1;
+  font-family: 'Noto Sans SC', sans-serif;
+  transition: transform 0.2s;
+}
+.hero-cta:active { transform: scale(0.97); }
+
+.hero-meta {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 12px;
+  letter-spacing: 0.5px;
+  position: relative; z-index: 1;
+}
+
+/* ══ THREE LEVELS SECTION ══ */
+.levels-section {
+  padding: 0 16px;
+  margin-top: -24px;
+  position: relative;
+  z-index: 10;
+  margin-bottom: 0;
+}
+
+.levels-title {
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 14px;
+  margin-top: 36px;
+}
+
+.levels-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lv-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 20px 18px;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+}
+
+.lv-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  border-radius: 2px 0 0 2px;
+}
+
+.lv-card.lv0::before { background: var(--lv0-color); }
+.lv-card.lv1::before { background: var(--lv1-color); }
+.lv-card.lv2::before { background: var(--lv2-color); }
+
+.lv-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.lv-moon-big {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.lv-card-title-wrap {}
+
+.lv-card-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.lv-card-tag {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.lv-card.lv0 .lv-card-tag { background: var(--lv0-bg); color: var(--lv0-color); }
+.lv-card.lv1 .lv-card-tag { background: var(--lv1-bg); color: var(--lv1-color); }
+.lv-card.lv2 .lv-card-tag { background: var(--lv2-bg); color: var(--lv2-color); }
+
+.lv-card-hook {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.lv-card-signals {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lv-sig {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  color: var(--ink2);
+  line-height: 1.6;
+}
+
+.lv-sig-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.lv-card.lv0 .lv-sig-dot { background: var(--lv0-color); }
+.lv-card.lv1 .lv-sig-dot { background: var(--lv1-color); }
+.lv-card.lv2 .lv-sig-dot { background: var(--lv2-color); }
+
+/* hook block */
+.hook-section {
+  padding: 28px 16px 0;
+}
+
+.hook-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 22px 18px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.hook-q {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.hook-q mark {
+  background: var(--pink-pale);
+  color: var(--pink-deep);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-style: normal;
+}
+
+.hook-list { display: flex; flex-direction: column; gap: 10px; }
+
+.hook-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13.5px;
+  color: var(--ink2);
+  line-height: 1.7;
+}
+
+.hook-dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--pink-pale);
+  color: var(--pink);
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* stats */
+.stats-section { padding: 16px 16px 0; text-align: center; }
+
+
+.stats-row {
+  display: flex;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.stat { flex: 1; padding: 16px 8px; text-align: center; position: relative; }
+.stat:not(:last-child)::after {
+  content: ''; position: absolute;
+  right: 0; top: 20%; bottom: 20%;
+  width: 1px; background: var(--border);
+}
+
+.stat-num {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--pink); display: block; margin-bottom: 2px;
+}
+
+.stat-label { font-size: 10.5px; color: var(--ink3); letter-spacing: 0.5px; }
+
+/* cta */
+.cta-section { padding: 20px 16px 48px; text-align: center; }
+
+.cta-btn-main {
+  width: 100%;
+  background: var(--pink);
+  color: white;
+  border: none;
+  border-radius: var(--r);
+  padding: 17px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 6px 22px rgba(212,112,138,0.38);
+  transition: transform 0.2s;
+}
+
+.cta-btn-main::before {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine { 0%{left:-100%} 100%{left:200%} }
+.cta-btn-main:active { transform: scale(0.98); }
+
+.cta-note {
+  text-align: center; font-size: 11.5px;
+  color: var(--ink3); margin-top: 10px; letter-spacing: 0.3px;
+}
+
+/* ══ MBTI SCREEN ══ */
+#screen-mbti { background: var(--bg); min-height: 100vh; }
+
+.mbti-header {
+  padding: 18px 22px 14px;
+  position: sticky; top: 0;
+  background: rgba(253,248,245,0.97);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+
+.hdr-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.hdr-label { font-size: 11px; color: var(--ink3); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+.hdr-step { font-size: 12px; color: var(--pink); font-weight: 700; letter-spacing: 1px; }
+
+.prog-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--blue)); border-radius: 2px; transition: width 0.4s ease; }
+
+.mbti-body { padding: 34px 22px 60px; text-align: center; }
+
+.mbti-dim-tag {
+  display: inline-block; font-size: 10px; color: var(--pink);
+  border: 1px solid var(--pink-border); background: var(--pink-bg);
+  border-radius: 20px; padding: 4px 12px; letter-spacing: 2px;
+  text-transform: uppercase; font-weight: 700; margin-bottom: 18px;
+}
+
+.mbti-q {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 21px; font-weight: 700; color: var(--ink);
+  line-height: 1.6; margin-bottom: 8px;
+  text-align: center;
+}
+
+.mbti-hint { font-size: 12.5px; color: var(--ink3); margin-bottom: 30px; line-height: 1.6; text-align: center; }
+
+.choice-list { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+
+.choice-btn {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 18px 16px;
+  text-align: left; cursor: pointer;
+  display: flex; align-items: flex-start; gap: 14px;
+  transition: all 0.22s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.choice-letter {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--pink-bg); border: 1px solid var(--pink-border);
+  color: var(--pink); font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-family: 'Noto Serif SC', serif;
+  transition: all 0.22s;
+}
+
+.choice-title { font-size: 14.5px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.choice-desc { font-size: 12.5px; color: var(--ink3); line-height: 1.6; }
+
+.choice-btn:active, .choice-btn.selected {
+  border-color: var(--pink); background: var(--pink-pale);
+}
+.choice-btn.selected .choice-letter { background: var(--pink); color: white; border-color: var(--pink); }
+.choice-btn.selected .choice-title { color: var(--pink-deep); }
+
+.mbti-dots { display: flex; justify-content: center; gap: 8px; margin-top: 36px; }
+.mdot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
+.mdot.active { background: var(--pink); width: 20px; border-radius: 3px; }
+.mdot.done { background: var(--pink-light); }
+
+.prev-wrap { display: flex; justify-content: center; margin-top: 18px; }
+.prev-btn {
+  background: transparent; border: 1px solid var(--border);
+  border-radius: var(--r); color: var(--ink3);
+  font-size: 13px; font-family: 'Noto Sans SC', sans-serif;
+  padding: 11px 30px; cursor: pointer; transition: all 0.2s;
+}
+.prev-btn:active { border-color: var(--pink-border); color: var(--pink); }
+
+/* ══ QUESTION SCREEN ══ */
+#screen-question { background: var(--bg); min-height: 100vh; }
+
+.q-header {
+  padding: 16px 22px 12px;
+  position: sticky; top: 0;
+  background: rgba(253,248,245,0.97);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+
+.q-hdr-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.q-counter { font-size: 11px; color: var(--ink3); letter-spacing: 1px; }
+.q-counter span { color: var(--pink); font-weight: 700; font-size: 13px; }
+
+.q-dim-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; color: var(--pink);
+  border: 1px solid var(--pink-border); background: var(--pink-bg);
+  border-radius: 20px; padding: 3px 10px;
+  letter-spacing: 1px; font-weight: 700;
+}
+
+.q-body { padding: 30px 22px 60px; animation: slideIn 0.3s ease; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.q-text {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 20px; font-weight: 700; color: var(--ink);
+  line-height: 1.65; margin-bottom: 28px;
+  text-align: center;
+}
+
+.opt-list { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+
+.opt-btn {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 14px 15px;
+  text-align: left; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  transition: all 0.22s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.opt-key {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--pink-bg); border: 1px solid var(--pink-border);
+  color: var(--pink); font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-family: 'Noto Serif SC', serif;
+  transition: all 0.22s;
+}
+
+.opt-text { font-size: 14px; color: var(--ink2); line-height: 1.55; }
+
+.opt-btn:active, .opt-btn.selected {
+  border-color: var(--pink); background: var(--pink-pale);
+}
+.opt-btn.selected .opt-key { background: var(--pink); color: white; border-color: var(--pink); }
+.opt-btn.selected .opt-text { color: var(--ink); font-weight: 500; }
+
+/* ══ LOADING ══ */
+#screen-loading {
+  background: var(--bg); flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh; text-align: center; padding: 40px 28px;
+}
+
+.loading-ring {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: conic-gradient(var(--pink), var(--blue), var(--pink-pale), var(--pink));
+  animation: spin 1.6s linear infinite;
+  margin: 0 auto 28px; position: relative;
+  box-shadow: 0 0 32px rgba(212,112,138,0.25);
+}
+.loading-ring::after {
+  content: ''; position: absolute; inset: 8px;
+  background: var(--bg); border-radius: 50%;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 19px; font-weight: 700; color: var(--ink); margin-bottom: 6px;
+}
+.loading-sub { font-size: 12.5px; color: var(--ink3); margin-bottom: 32px; }
+
+.loading-steps { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 256px; }
+.l-step {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 12.5px; color: var(--ink3);
+  padding: 8px 13px; border-radius: 8px;
+  border: 1px solid transparent; opacity: 0.35; transition: all 0.5s;
+}
+.l-step.done { color: var(--pink); border-color: var(--pink-border); background: var(--pink-bg); opacity: 1; }
+.l-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+/* ══ RESULT SCREEN ══ */
+#screen-result { background: var(--bg); padding-bottom: 60px; }
+
+.r-hero {
+  padding: 44px 24px 36px; text-align: center;
+  position: relative; overflow: hidden;
+}
+
+.r-hero.level-0 { background: linear-gradient(160deg, #7880a0 0%, #9090b0 100%); }
+.r-hero.level-1 { background: linear-gradient(160deg, #b85070 0%, #d4789a 50%, #7ab0cc 100%); }
+.r-hero.level-2 { background: linear-gradient(160deg, #2a8870 0%, #4aaa8a 50%, #5ab0cc 100%); }
+
+.r-hero::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 240px; height: 240px; border-radius: 50%;
+  background: rgba(255,255,255,0.07); pointer-events: none;
+}
+.r-hero::after {
+  content: ''; position: absolute; bottom: -80px; left: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(255,255,255,0.04); pointer-events: none;
+}
+
+/* MBTI字母行 */
+.r-mbti-row {
+  display: flex; gap: 5px; justify-content: center;
+  margin-bottom: 18px; flex-wrap: wrap; position: relative; z-index: 1;
+}
+.r-mbti-letter {
+  background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.32);
+  border-radius: 7px; padding: 4px 9px; font-size: 15px; font-weight: 800;
+  color: white; font-family: 'Noto Serif SC', serif;
+}
+.r-mbti-full {
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 7px; padding: 4px 11px; font-size: 12px; font-weight: 600;
+  color: rgba(255,255,255,0.8); letter-spacing: 1.5px;
+}
+
+/* 段位——最醒目的大字 */
+.r-level-block {
+  position: relative; z-index: 1; margin-bottom: 14px;
+  text-align: center;
+}
+
+.r-level-moon {
+  font-size: 44px;
+  display: block;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+}
+
+.r-level-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 52px;
+  font-weight: 900;
+  color: white;
+  line-height: 1;
+  letter-spacing: 4px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.25);
+  margin-bottom: 8px;
+}
+
+.r-level-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 40px;
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 1px;
+}
+
+.r-type-name {
+  font-family: 'Noto Serif SC', serif; font-size: 22px; font-weight: 700;
+  color: white; line-height: 1.35; margin-bottom: 10px;
+  position: relative; z-index: 1;
+}
+
+.r-hit {
+  font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.9;
+  font-family: 'Noto Serif SC', serif; font-style: italic;
+  max-width: 300px; margin: 0 auto 22px;
+  position: relative; z-index: 1;
+}
+
+.r-score-strip {
+  display: inline-flex; align-items: center;
+  background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 12px; padding: 12px 24px;
+  position: relative; z-index: 1;
+}
+.r-score-item { text-align: center; }
+.r-score-num {
+  display: block; font-family: 'Noto Serif SC', serif;
+  font-size: 24px; font-weight: 700; color: white; line-height: 1; margin-bottom: 3px;
+}
+.r-score-label { font-size: 10px; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; }
+.r-score-div { width: 1px; height: 28px; background: rgba(255,255,255,0.2); margin: 0 16px; }
+
+/* Result body */
+.r-body { padding: 0; }
+
+.r-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px 18px; margin-top: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.r-card-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10px; font-weight: 700; color: var(--pink);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px;
+}
+.r-card-label::before {
+  content: ''; display: block; width: 3px; height: 12px;
+  background: var(--pink); border-radius: 2px;
+}
+
+/* level track */
+.level-track { display: flex; gap: 5px; margin-bottom: 14px; }
+.lv-node { flex: 1; text-align: center; }
+.lv-bar { height: 4px; border-radius: 2px; background: var(--border); margin-bottom: 7px; transition: background 0.5s; }
+.lv-node.past .lv-bar { background: var(--pink-light); }
+.lv-node.active .lv-bar { background: var(--pink); }
+.lv-moon { font-size: 16px; display: block; margin-bottom: 3px; }
+.lv-name { font-size: 10px; color: var(--ink3); }
+.lv-node.active .lv-name { color: var(--pink); font-weight: 700; }
+
+.level-desc-box {
+  background: var(--pink-bg); border: 1px solid var(--pink-border);
+  border-radius: var(--r-sm); border-left: 3px solid var(--pink);
+  padding: 13px 15px; font-size: 13px; color: var(--ink2); line-height: 1.85;
+}
+
+/* gifts */
+.gifts-list { display: flex; flex-direction: column; gap: 12px; }
+.gift-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 13px 14px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+}
+.gift-icon { font-size: 20px; flex-shrink: 0; }
+.gift-name { font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.gift-desc { font-size: 12px; color: var(--ink3); line-height: 1.65; }
+
+/* wasted */
+.wasted-box {
+  background: #fff8f5; border: 1px solid rgba(200,80,60,0.15);
+  border-radius: var(--r-sm); padding: 16px 15px;
+}
+.wasted-title { font-size: 13px; font-weight: 700; color: #b86050; margin-bottom: 8px; }
+.wasted-desc { font-size: 12.5px; color: var(--ink2); line-height: 1.8; }
+
+/* deep read */
+.deep-read { font-size: 13.5px; color: var(--ink2); line-height: 2; }
+.deep-read p + p { margin-top: 10px; }
+.guide-line {
+  background: var(--pink-bg); border: 1px solid var(--pink-border);
+  border-radius: var(--r-sm); padding: 13px 15px; margin-top: 14px;
+  font-size: 13px; color: var(--pink-deep); line-height: 1.8; font-weight: 500;
+}
+
+/* pattern */
+.pattern-box { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+
+/* dirs */
+.dir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.dir-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 13px 12px;
+}
+.dir-icon { font-size: 20px; margin-bottom: 6px; }
+.dir-name { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.dir-desc { font-size: 11.5px; color: var(--ink3); line-height: 1.55; }
+
+/* radar + dims */
+.radar-wrap { display: flex; justify-content: center; padding: 4px 0; }
+.dim-label-row { font-size: 11px; color: var(--ink3); margin-bottom: 12px; text-align: center; }
+
+.dim-bars { display: flex; flex-direction: column; gap: 14px; }
+.dim-row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.dim-row-name { font-size: 12.5px; font-weight: 600; color: var(--ink2); display: flex; align-items: center; gap: 5px; }
+.dim-row-val {
+  font-size: 11px; font-weight: 700; color: var(--pink);
+  background: var(--pink-bg); border: 1px solid var(--pink-border);
+  border-radius: 10px; padding: 2px 8px;
+}
+.dim-track { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.dim-fill { height: 100%; border-radius: 3px; width: 0; transition: width 1.1s cubic-bezier(0.4,0,0.2,1); }
+
+/* tags */
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { padding: 5px 13px; border-radius: 20px; font-size: 12.5px; font-weight: 500; border: 1px solid; }
+.tag:nth-child(odd) { background: var(--pink-bg); color: var(--pink); border-color: var(--pink-border); }
+.tag:nth-child(even) { background: var(--blue-bg); color: #4a90b8; border-color: rgba(122,176,204,0.3); }
+
+/* combo */
+.combo-badge {
+  display: inline-block; background: linear-gradient(135deg, var(--pink-deep), var(--pink));
+  color: white; border-radius: 20px; padding: 8px 20px;
+  font-size: 15px; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px;
+}
+.combo-desc { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+
+/* blockers */
+.blocker-list { display: flex; flex-direction: column; }
+.blocker-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.blocker-item:last-child { border-bottom: none; }
+.blocker-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.blocker-name { font-size: 13px; font-weight: 700; color: #b86050; margin-bottom: 3px; }
+.blocker-desc { font-size: 12px; color: var(--ink3); line-height: 1.65; }
+
+/* steps */
+.step-list {
+  display: flex; flex-direction: column; gap: 0;
+  position: relative; padding-left: 26px;
+}
+.step-list::before {
+  content: ''; position: absolute; left: 8px; top: 6px; bottom: 6px;
+  width: 1px; background: linear-gradient(to bottom, var(--pink), var(--pink-light), transparent);
+}
+.step-item { position: relative; padding: 0 0 18px 14px; }
+.step-item:last-child { padding-bottom: 0; }
+.step-dot {
+  position: absolute; left: -18px; top: 3px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--pink); border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--pink);
+}
+.step-item:nth-child(2) .step-dot { background: var(--pink-light); box-shadow: 0 0 0 2px var(--pink-light); }
+.step-item:nth-child(3) .step-dot { background: var(--blue); box-shadow: 0 0 0 2px var(--blue); }
+.step-title { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.step-desc { font-size: 12px; color: var(--ink3); line-height: 1.7; }
+
+/* signals */
+.signal-list { display: flex; flex-direction: column; }
+.signal-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--ink2); line-height: 1.7;
+}
+.signal-item:last-child { border-bottom: none; }
+.signal-circle {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid var(--pink-border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px; font-size: 8px; color: var(--pink);
+}
+
+.retake-btn {
+  width: 100%; background: transparent;
+  border: 1px solid var(--border); color: var(--ink3);
+  border-radius: var(--r); padding: 14px;
+  font-family: 'Noto Sans SC', sans-serif; font-size: 14px;
+  cursor: pointer; margin-top: 20px; transition: all 0.2s;
+}
+.retake-btn:active { border-color: var(--pink-border); color: var(--pink); }
+
+.screen { animation: fadeUp 0.35s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+
+/* ══ RESULT PAGES - SCREEN-SIZED CARDS ══ */
+.r-body { padding: 0; }
+
+/* Each result page fills one phone screen */
+.rp {
+  padding: 0 20px 48px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 8px solid var(--bg2);
+}
+
+/* Page header strip */
+.rp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.rp-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--pink);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rp-tag::before {
+  content: '';
+  display: block;
+  width: 3px; height: 12px;
+  background: var(--pink);
+  border-radius: 2px;
+}
+
+.rp-pg {
+  font-size: 10px;
+  color: var(--ink3);
+  letter-spacing: 1px;
+}
+
+/* Page big title */
+.rp-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.rp-title-note {
+  font-size: 12px;
+  color: var(--ink3);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* Page 1 - Identity card override (hero is p1) */
+
+/* Page 2 - Three gifts */
+.rp-gifts {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.rp-gift-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.rp-gift-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  border-radius: 2px 0 0 2px;
+  background: var(--pink);
+}
+
+.rp-gift-card:nth-child(2)::after { background: var(--blue); }
+.rp-gift-card:nth-child(3)::after { background: #9898d8; }
+
+.rp-gift-num {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pink);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.rp-gift-card:nth-child(2) .rp-gift-num { color: var(--blue); }
+.rp-gift-card:nth-child(3) .rp-gift-num { color: #9898d8; }
+
+.rp-gift-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.rp-gift-desc {
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.7;
+}
+
+/* Page 3 - Wasted gift (high tension) */
+.rp3-bg {
+  background: linear-gradient(160deg, #fdf0ed 0%, #fdf8f5 100%);
+}
+
+.rp-wasted-headline {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #b84030;
+  line-height: 1.45;
+  margin-bottom: 20px;
+}
+
+.rp-wasted-body {
+  background: white;
+  border: 1px solid rgba(184,64,48,0.15);
+  border-radius: 14px;
+  padding: 20px 18px;
+  margin-bottom: 16px;
+}
+
+.rp-wasted-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.rp-wasted-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #b84030;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.rp-wasted-desc {
+  font-size: 13.5px;
+  color: var(--ink2);
+  line-height: 1.85;
+}
+
+.rp-wasted-quote {
+  background: var(--card);
+  border-left: 4px solid #e86050;
+  border-radius: 0 12px 12px 0;
+  padding: 16px 16px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* Page 4 - Behavior pattern (deep insight) */
+.rp4-bg {
+  background: linear-gradient(160deg, #fdf8f5 0%, #f8f2f8 100%);
+}
+
+.rp-insight-box {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 18px;
+  margin-bottom: 14px;
+  flex: 1;
+}
+
+.rp-insight-lead {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.65;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rp-insight-body {
+  font-size: 13.5px;
+  color: var(--ink2);
+  line-height: 1.9;
+}
+
+.rp-insight-body p + p { margin-top: 10px; }
+
+.rp-guide-pill {
+  background: var(--pink-bg);
+  border: 1px solid var(--pink-border);
+  border-radius: 50px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pink-deep);
+  line-height: 1.65;
+  text-align: center;
+}
+
+/* Page 5 - Direction */
+.rp5-bg {
+  background: linear-gradient(160deg, #f0f8fd 0%, #fdf8f5 100%);
+}
+
+.rp-dir-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+}
+
+.rp-dir-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rp-dir-icon {
+  font-size: 28px;
+}
+
+.rp-dir-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.rp-dir-why {
+  font-size: 12px;
+  color: var(--ink3);
+  line-height: 1.6;
+}
+
+.rp-dir-tag {
+  display: inline-block;
+  background: var(--blue-bg);
+  color: #4a90b8;
+  border: 1px solid rgba(122,176,204,0.3);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* Page 6 - Radar + scores */
+.rp6-bg {
+  background: linear-gradient(160deg, #fdf8f5 0%, #f8f5fd 100%);
+}
+
+.rp-radar-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.rp-dim-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.rp-dim-row {}
+
+.rp-dim-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.rp-dim-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.rp-dim-score {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--pink);
+}
+
+.rp-dim-label-sm {
+  font-size: 10px;
+  color: var(--ink3);
+  margin-left: 3px;
+}
+
+.rp-dim-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.rp-dim-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 0;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+.rp-dim-desc {
+  font-size: 11.5px;
+  color: var(--ink3);
+  line-height: 1.5;
+}
+
+/* Page 7 - Blockers + Next steps */
+.rp7-bg { background: var(--bg); }
+
+.rp-blocker-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.rp-blocker-card {
+  background: white;
+  border: 1px solid rgba(184,96,80,0.18);
+  border-radius: 12px;
+  padding: 14px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.rp-blocker-icon { font-size: 22px; flex-shrink: 0; }
+
+.rp-blocker-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #b84030;
+  margin-bottom: 3px;
+}
+
+.rp-blocker-desc {
+  font-size: 12px;
+  color: var(--ink2);
+  line-height: 1.65;
+}
+
+.rp-steps-mini {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 16px;
+}
+
+.rp-steps-mini-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.rp-step-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.rp-step-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+.rp-step-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--pink);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rp-step-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.rp-step-desc {
+  font-size: 11.5px;
+  color: var(--ink3);
+  line-height: 1.6;
+}
+
+/* Page 8 - Upgrade signals */
+.rp8-bg {
+  background: linear-gradient(160deg, #f8f5fd 0%, #fdf8f5 100%);
+}
+
+.rp-signal-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.rp-signal-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.rp-signal-num {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--pink-pale);
+  line-height: 1;
+  flex-shrink: 0;
+  min-width: 36px;
+  text-shadow: none;
+  -webkit-text-stroke: 1.5px var(--pink);
+  color: transparent;
+}
+
+.rp-signal-text {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.75;
+  font-weight: 500;
+  padding-top: 4px;
+}
+
+.rp-combo-banner {
+  background: linear-gradient(135deg, var(--pink-deep), var(--pink));
+  border-radius: 14px;
+  padding: 20px 18px;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.rp-combo-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.rp-combo-text {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.8;
+}
+
+/* Watermark on each page */
+.rp-watermark {
+  text-align: center;
+  font-size: 10.5px;
+  color: var(--ink3);
+  letter-spacing: 1px;
+  margin-top: 20px;
+  flex-shrink: 0;
+}
+
+/* Tags inline */
+.rp-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+.rp-tag-pill {
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+}
+.rp-tag-pill:nth-child(odd) { background: var(--pink-bg); color: var(--pink); border-color: var(--pink-border); }
+.rp-tag-pill:nth-child(even) { background: var(--blue-bg); color: #4a90b8; border-color: rgba(122,176,204,0.3); }
+
+/* Level desc on page 1 */
+.rp-level-desc {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.85;
+  margin-top: 14px;
+  text-align: left;
+}
+
+.rp-share-hint {
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 16px;
+  letter-spacing: 0.5px;
+}
+
+/* Retake */
+.rp-retake {
+  margin: 0 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rp-retake-btn {
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--ink3);
+  border-radius: var(--r);
+  padding: 14px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rp-retake-btn:active { border-color: var(--pink-border); color: var(--pink); }
+
+.rp-share-text {
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink3);
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══ LANDING ══ -->
+<div id="screen-landing" class="screen active">
+
+  <!-- Hero -->
+  <div class="land-hero">
+    <div class="hero-eyebrow"><div class="hero-dot"></div>MBTI × 天赋激活测评</div>
+    <h1 class="hero-h1">
+      同样的MBTI
+      <em>为什么差距这么大？</em>
+    </h1>
+    <p class="hero-sub">不是类型决定你的上限<br>是你的天赋——激活了多少</p>
+    <button class="hero-cta" onclick="startTest()">测出你的天赋激活段位 →</button>
+    <div class="hero-meta">先确认MBTI · 再完成21道专项测评 · 约6分钟</div>
+  </div>
+
+  <!-- 三阶段 -->
+  <div class="levels-section">
+    <div class="levels-title">同一个MBTI · 三种完全不同的状态</div>
+    <div class="levels-cards">
+
+      <div class="lv-card lv0">
+        <div class="lv-card-top">
+          <span class="lv-moon-big">🌑</span>
+          <div class="lv-card-title-wrap">
+            <div class="lv-card-name">低阶——天赋被压住了</div>
+            <span class="lv-card-tag">未觉醒</span>
+          </div>
+        </div>
+        <div class="lv-card-hook">「明明有能力，但始终没有发出来」</div>
+        <div class="lv-card-signals">
+          <div class="lv-sig"><span class="lv-sig-dot"></span><span>想法很多，很少落地；努力了，但感觉方向不对</span></div>
+          <div class="lv-sig"><span class="lv-sig-dot"></span><span>知道自己是什么类型，却依然不知道天赋在哪里</span></div>
+          <div class="lv-sig"><span class="lv-sig-dot"></span><span>偶尔会爆发，但根本没办法稳定输出</span></div>
+        </div>
+      </div>
+
+      <div class="lv-card lv1">
+        <div class="lv-card-top">
+          <span class="lv-moon-big">🌗</span>
+          <div class="lv-card-title-wrap">
+            <div class="lv-card-name">觉醒期——天赋开始流动</div>
+            <span class="lv-card-tag">过渡态</span>
+          </div>
+        </div>
+        <div class="lv-card-hook">「有时候感觉自己很厉害，有时候又陷回去」</div>
+        <div class="lv-card-signals">
+          <div class="lv-sig"><span class="lv-sig-dot"></span><span>开始有成果，但不稳定——没有形成体系</span></div>
+          <div class="lv-sig"><span class="lv-sig-dot"></span><span>知道方向，但总感觉缺一个能持续的系统</span></div>
+          <div class="lv-sig"><span class="lv-sig-dot"></span><span>已经比没开始的人走得远，但还不够稳</span></div>
+        </div>
+      </div>
+
+      <div class="lv-card lv2">
+        <div class="lv-card-top">
+          <span class="lv-moon-big">🌕</span>
+          <div class="lv-card-title-wrap">
+            <div class="lv-card-name">高阶——天赋在稳定输出</div>
+            <span class="lv-card-tag">已激活</span>
+          </div>
+        </div>
+        <div class="lv-card-hook">「在做正确的事，而且做得出来」</div>
+        <div class="lv-card-signals">
+          <div class="lv-sig"><span class="lv-sig-dot"></span><span>天赋被正确使用，有稳定的结果和影响力</span></div>
+          <div class="lv-sig"><span class="lv-sig-dot"></span><span>不再靠状态驱动——有结构，有节奏，有复利</span></div>
+          <div class="lv-sig"><span class="lv-sig-dot"></span><span>下一步是放大，而不是再次从头找方向</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Hook -->
+  <div class="hook-section">
+    <div class="hook-card">
+      <div class="hook-q">
+        你有没有这种感觉——<br>
+        <mark>知道自己有能力，但天赋始终发不出来</mark>
+      </div>
+      <div class="hook-list">
+        <div class="hook-item"><div class="hook-dot">·</div><span>MBTI做了很多次，但天赋在哪里还是不清楚</span></div>
+        <div class="hook-item"><div class="hook-dot">·</div><span>同样的类型，有人在发光，有人还在内耗——差距不在类型，在激活程度<span style="font-size:11px;color:var(--ink3);margin-left:5px;">（以INFJ为例）</span></span></div>
+        <div class="hook-item"><div class="hook-dot">·</div><span>努力了，但方向不对；或者有方向，但天赋一直用不出来</span></div>
+        <div class="hook-item"><div class="hook-dot">·</div><span>这个测试测的不是「你是谁」——而是「你的天赋，激活了吗」</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-section">
+    <div class="stats-row">
+      <div class="stat"><span class="stat-num">21题</span><div class="stat-label">专项测评</div></div>
+      <div class="stat"><span class="stat-num">约6分钟</span><div class="stat-label">完成时间</div></div>
+      <div class="stat"><span class="stat-num">48种</span><div class="stat-label">专属结果</div></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <button class="cta-btn-main" onclick="startTest()">测出你的天赋激活段位 →</button>
+    <p class="cta-note">MBTI确认（约30秒）+ 21道天赋测评题</p>
+  </div>
+
+</div>
+
+<!-- ══ MBTI SCREEN ══ -->
+<div id="screen-mbti" class="screen">
+  <div class="mbti-header">
+    <div class="hdr-top">
+      <span class="hdr-label">确认你的MBTI类型</span>
+      <span class="hdr-step" id="mbti-step-count">1 / 4</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="mbti-prog" style="width:25%"></div>
+    </div>
+  </div>
+  <div class="mbti-body" id="mbti-body"></div>
+  <div class="prev-wrap" id="mbti-prev-wrap" style="display:none">
+    <button class="prev-btn" onclick="prevMbti()">← 上一步</button>
+  </div>
+  <div class="mbti-dots" id="mbti-dots">
+    <div class="mdot active" id="mdot-0"></div>
+    <div class="mdot" id="mdot-1"></div>
+    <div class="mdot" id="mdot-2"></div>
+    <div class="mdot" id="mdot-3"></div>
+  </div>
+</div>
+
+<!-- ══ QUESTION SCREEN ══ -->
+<div id="screen-question" class="screen">
+  <div class="q-header">
+    <div class="q-hdr-top">
+      <span class="q-counter">第 <span id="q-cur">1</span> 题 / 共21题</span>
+      <span class="q-dim-badge" id="q-dim-badge">天赋调用度</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="q-prog" style="width:4.76%"></div>
+    </div>
+  </div>
+  <div class="q-body" id="q-body"></div>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div id="screen-loading" class="screen">
+  <div class="loading-symbol">◎</div>
+  <div class="loading-title">正在解析你的天赋结构</div>
+  <div class="loading-sub">结果即将生成</div>
+  <div class="loading-steps">
+    <div class="l-step" id="lstep-1"><div class="l-dot"></div>分析天赋调用模式</div>
+    <div class="l-step" id="lstep-2"><div class="l-dot"></div>计算激活段位</div>
+    <div class="l-step" id="lstep-3"><div class="l-dot"></div>生成专属报告</div>
+  </div>
+</div>
+
+<!-- ══ RESULT SCREEN ══ -->
+<div id="screen-result" class="screen">
+  <div class="r-hero" id="r-hero">
+    <div class="r-mbti-row" id="r-mbti-row"></div>
+    <div class="r-level-block" id="r-level-block">
+      <span class="r-level-moon" id="r-level-moon">🌗</span>
+      <div class="r-level-name" id="r-level-name">--</div>
+      <span class="r-level-sub" id="r-level-sub">天赋激活段位</span>
+    </div>
+    <div class="r-type-name" id="r-type-name"></div>
+    <div class="r-hit" id="r-hit"></div>
+    <div class="r-score-strip">
+      <div class="r-score-item">
+        <span class="r-score-num" id="r-score">--</span>
+        <span class="r-score-label">天赋激活值</span>
+      </div>
+      <div class="r-score-div"></div>
+      <div class="r-score-item">
+        <span class="r-score-num" id="r-level-sm">--</span>
+        <span class="r-score-label">激活段位</span>
+      </div>
+    </div>
+    <div class="rp-level-desc" id="r-level-desc">—</div>
+    <div class="rp-share-hint">01 / 08 · 截图发小红书 ↓ 往下滑看完整报告</div>
+  </div>
+
+    <div class="r-body">
+
+    <!-- ■ PAGE 2：三个核心天赋 -->
+    <div class="rp">
+      <div class="rp-header">
+        <span class="rp-tag">你的核心天赋</span>
+        <span class="rp-pg">02 / 08</span>
+      </div>
+      <div class="rp-title" id="rp2-title">你天生就会的三件事</div>
+      <div class="rp-title-note">测评结果显示，你有这3个被大多数人低估的天赋</div>
+      <div class="rp-gifts" id="r-gifts">
+        <div class="rp-gift-card">
+          <div class="rp-gift-num">GIFT 01</div>
+          <div class="rp-gift-name" id="gift-name-0">—</div>
+          <div class="rp-gift-desc" id="gift-desc-0">—</div>
+        </div>
+        <div class="rp-gift-card">
+          <div class="rp-gift-num">GIFT 02</div>
+          <div class="rp-gift-name" id="gift-name-1">—</div>
+          <div class="rp-gift-desc" id="gift-desc-1">—</div>
+        </div>
+        <div class="rp-gift-card">
+          <div class="rp-gift-num">GIFT 03</div>
+          <div class="rp-gift-name" id="gift-name-2">—</div>
+          <div class="rp-gift-desc" id="gift-desc-2">—</div>
+        </div>
+      </div>
+      <div class="rp-watermark">MBTI 天赋激活测评 · @自我觉察实验室</div>
+    </div>
+
+    <!-- ■ PAGE 3：被浪费的天赋（爆点） -->
+    <div class="rp rp3-bg">
+      <div class="rp-header">
+        <span class="rp-tag" style="color:#c04030;">你正在浪费的天赋</span>
+        <span class="rp-pg">03 / 08</span>
+      </div>
+      <div class="rp-title" style="color:#b84030;" id="rp3-title">你有，但一直在白白消耗</div>
+      <div class="rp-title-note">很多人看完这一页会说——「这说的是我」</div>
+      <div class="rp-wasted-body" id="r-wasted">
+        <span class="rp-wasted-icon" id="wasted-icon">⚠️</span>
+        <div class="rp-wasted-title" id="wasted-title">—</div>
+        <div class="rp-wasted-desc" id="wasted-desc">—</div>
+      </div>
+      <div class="rp-wasted-quote" id="wasted-quote">—</div>
+      <div class="rp-watermark">MBTI 天赋激活测评 · @自我觉察实验室</div>
+    </div>
+
+    <!-- ■ PAGE 4：你的行为密码 -->
+    <div class="rp rp4-bg">
+      <div class="rp-header">
+        <span class="rp-tag">你的行为密码</span>
+        <span class="rp-pg">04 / 08</span>
+      </div>
+      <div class="rp-title">你为什么会这样行动</div>
+      <div class="rp-title-note">你的决策路径，比你意识到的更有规律</div>
+      <div class="rp-insight-box">
+        <div class="rp-insight-lead" id="r-pattern">—</div>
+        <div class="rp-insight-body" id="r-deep">—</div>
+      </div>
+      <div class="rp-guide-pill" id="r-guide">—</div>
+      <div class="rp-tags" id="r-tags"></div>
+      <div class="rp-watermark">MBTI 天赋激活测评 · @自我觉察实验室</div>
+    </div>
+
+    <!-- ■ PAGE 5：天赋方向 -->
+    <div class="rp rp5-bg">
+      <div class="rp-header">
+        <span class="rp-tag" style="color:#4a90b8;">天赋变现方向</span>
+        <span class="rp-pg">05 / 08</span>
+      </div>
+      <div class="rp-title">你的天赋适合去哪里发光</div>
+      <div class="rp-title-note">基于你的天赋结构，这4个方向最适合你</div>
+      <div class="rp-dir-grid" id="r-dirs"></div>
+      <div class="rp-watermark">MBTI 天赋激活测评 · @自我觉察实验室</div>
+    </div>
+
+    <!-- ■ PAGE 6：激活雷达 -->
+    <div class="rp rp6-bg">
+      <div class="rp-header">
+        <span class="rp-tag">天赋激活雷达</span>
+        <span class="rp-pg">06 / 08</span>
+      </div>
+      <div class="rp-title">你的三维天赋激活图谱</div>
+      <div class="rp-title-note">基于21道题的答题路径生成，每个人都不同</div>
+      <div class="rp-radar-card">
+        <canvas id="radar-canvas" width="240" height="220" style="width:240px;height:220px;"></canvas>
+      </div>
+      <div class="rp-dim-rows" id="r-dim-bars"></div>
+      <div class="rp-watermark">MBTI 天赋激活测评 · @自我觉察实验室</div>
+    </div>
+
+    <!-- ■ PAGE 7：卡点 + 下一步 -->
+    <div class="rp rp7-bg">
+      <div class="rp-header">
+        <span class="rp-tag" style="color:#c04030;">当前卡点 · 破局行动</span>
+        <span class="rp-pg">07 / 08</span>
+      </div>
+      <div class="rp-title">是什么一直在压住你的天赋</div>
+      <div class="rp-blocker-cards" id="r-blockers"></div>
+      <div class="rp-steps-mini">
+        <div class="rp-steps-mini-title">今天就能开始</div>
+        <div id="r-steps"></div>
+      </div>
+      <div class="rp-watermark">MBTI 天赋激活测评 · @自我觉察实验室</div>
+    </div>
+
+    <!-- ■ PAGE 8：跃升信号 + 组合标签 -->
+    <div class="rp rp8-bg">
+      <div class="rp-header">
+        <span class="rp-tag">跃升信号</span>
+        <span class="rp-pg">08 / 08</span>
+      </div>
+      <div class="rp-title">你快要跃升的3个信号</div>
+      <div class="rp-title-note">当你开始出现这些迹象，说明你快要激活了</div>
+      <div class="rp-signal-cards" id="r-signals"></div>
+      <div class="rp-combo-banner" id="r-combo"></div>
+      <div class="rp-watermark">MBTI 天赋激活测评 · @自我觉察实验室</div>
+    </div>
+
+    <!-- 重测 -->
+    <div class="rp-retake">
+      <button class="rp-retake-btn" onclick="retakeTest()">重新测试</button>
+      <p class="rp-share-text">截图每一页，发小红书，看看朋友的天赋激活了多少 ✦</p>
+    </div>
+
+  </div>
+
+
+
+<script>
+// ══════════════════════════════════
+// MBTI 维度配置
+// ══════════════════════════════════
+const mbtiDims = [
+  {
+    key: 'EI', badge: '维度一 · 能量来源',
+    question: '你更像哪种状态？',
+    hint: '选最接近你日常的',
+    choices: [
+      { letter: 'E', title: '外向 (E)', desc: '和人交流让我充电，喜欢热闹，容易主动开口' },
+      { letter: 'I', title: '内向 (I)', desc: '独处让我恢复能量，需要安静，社交后容易疲惫' }
+    ]
+  },
+  {
+    key: 'SN', badge: '维度二 · 信息处理',
+    question: '你更习惯哪种思维方式？',
+    hint: '选直觉最近的那个',
+    choices: [
+      { letter: 'S', title: '实感 (S)', desc: '关注具体事实，重视经验，脚踏实地' },
+      { letter: 'N', title: '直觉 (N)', desc: '关注可能性，跳跃式思维，喜欢想象大局' }
+    ]
+  },
+  {
+    key: 'TF', badge: '维度三 · 决策方式',
+    question: '做决定时，你更依赖什么？',
+    hint: '想想你最近一次重要决定',
+    choices: [
+      { letter: 'T', title: '思考 (T)', desc: '依靠逻辑分析，重视客观原则，不太受情绪影响' },
+      { letter: 'F', title: '情感 (F)', desc: '依靠价值观和感受，重视关系，会考虑他人感受' }
+    ]
+  },
+  {
+    key: 'JP', badge: '维度四 · 生活方式',
+    question: '你更偏好哪种节奏？',
+    hint: '选让你感到更自在的',
+    choices: [
+      { letter: 'J', title: '判断 (J)', desc: '喜欢计划和确定性，提前安排让我安心' },
+      { letter: 'P', title: '知觉 (P)', desc: '喜欢灵活开放，随机应变，计划太多会压抑' }
+    ]
+  }
+];
+
+// ══════════════════════════════════
+// 21题：围绕3个天赋激活维度
+// 维度A：天赋调用度（你的能力有没有被真正用出来）7题
+// 维度B：输出稳定性（有没有持续可见的结果）7题
+// 维度C：方向清晰度（知不知道天赋往哪用）7题
+// 每题3选项，scores[选项][维度A,B,C] 0-100贡献值
+// ══════════════════════════════════
+const questions = [
+  // ── 维度A：天赋调用度 ──
+  {
+    dim: 'A', dimName: '天赋调用度',
+    text: '当你做一件事的时候，你更常有哪种感觉？',
+    opts: ['感觉自己在用力，但不确定是不是在用对地方', '偶尔会进入一种很流畅的状态，感觉特别顺', '大多数时候都能进入那种流畅、清醒的状态'],
+    scores: [[25,40,30],[60,60,50],[90,75,70]]
+  },
+  {
+    dim: 'A', dimName: '天赋调用度',
+    text: '你觉得自己的能力——',
+    opts: ['大部分还停留在脑子里，没有真正被用出来', '在某些场合会用出来，但很不稳定', '基本上能在需要的时候调用出来'],
+    scores: [[20,25,30],[55,50,50],[88,80,72]]
+  },
+  {
+    dim: 'A', dimName: '天赋调用度',
+    text: '你做最重要的那件事时，用到的是——',
+    opts: ['还没确定哪件事是最重要的，在摸索', '有一件事，但感觉没有完全投入进去', '就是它，我知道，而且我在全力投入'],
+    scores: [[18,20,22],[52,48,55],[90,85,88]]
+  },
+  {
+    dim: 'A', dimName: '天赋调用度',
+    text: '别人说你有某方面的天赋，你更常有哪种反应？',
+    opts: ['半信半疑，不知道那算不算真正的天赋', '会高兴，但不知道怎么把它变成有用的东西', '会点头，因为我自己也知道，并且在用它'],
+    scores: [[22,30,25],[58,55,50],[85,80,85]]
+  },
+  {
+    dim: 'A', dimName: '天赋调用度',
+    text: '你有没有一件事，是你做起来不费力但别人觉得很难的？',
+    opts: ['想不出来，或者有但感觉不算什么', '有，但我一直没把它当回事', '有，而且我已经在用它创造价值了'],
+    scores: [[20,22,28],[55,52,48],[88,85,82]]
+  },
+  {
+    dim: 'A', dimName: '天赋调用度',
+    text: '当你在做自己真正擅长的事情时——',
+    opts: ['这种时刻很少出现，大多数时候我不确定自己擅长什么', '出现过，但我不知道怎么让它持续出现', '会主动创造这种状态，因为我知道怎么触发它'],
+    scores: [[18,20,25],[52,55,50],[90,88,85]]
+  },
+  {
+    dim: 'A', dimName: '天赋调用度',
+    text: '你觉得自己的天赋和你现在做的事情的关系是——',
+    opts: ['基本没什么关系，在做的事不是天赋所在', '有关系，但没有完全对上', '高度匹配，我就在用天赋做事'],
+    scores: [[15,18,20],[50,48,55],[92,88,85]]
+  },
+
+  // ── 维度B：输出稳定性 ──
+  {
+    dim: 'B', dimName: '输出稳定性',
+    text: '你有没有能让别人看见的、持续的输出或结果？',
+    opts: ['基本没有，还在积累阶段', '有一些，但很零散，不连续', '有，而且相对稳定，有节奏'],
+    scores: [[20,15,25],[55,52,48],[88,90,80]]
+  },
+  {
+    dim: 'B', dimName: '输出稳定性',
+    text: '过去一个月，你在某件重要事情上的推进状态是——',
+    opts: ['停滞或进展很少，有点卡住', '有推进，但时快时慢，很不稳定', '稳定推进，有清晰的进展'],
+    scores: [[18,15,22],[52,55,48],[85,90,80]]
+  },
+  {
+    dim: 'B', dimName: '输出稳定性',
+    text: '你做一件事，通常会停在哪个阶段？',
+    opts: ['很少做完，经常停在开头或中间', '会做完，但不会持续做下去', '会做完，还会持续迭代'],
+    scores: [[15,18,20],[55,50,50],[88,92,85]]
+  },
+  {
+    dim: 'B', dimName: '输出稳定性',
+    text: '别人知道你在做什么、有什么成果吗？',
+    opts: ['不太知道，我很少展示自己的进展', '知道一些，但不完整', '知道，我有在让自己的成果被看见'],
+    scores: [[22,18,25],[55,52,50],[85,88,80]]
+  },
+  {
+    dim: 'B', dimName: '输出稳定性',
+    text: '你的能量状态和输出的关系是——',
+    opts: ['波动很大，状态好的时候做很多，状态差的时候几乎停', '有波动，但能保持最低限度的推进', '相对稳定，不强依赖状态'],
+    scores: [[20,15,22],[55,58,50],[85,90,82]]
+  },
+  {
+    dim: 'B', dimName: '输出稳定性',
+    text: '你有没有一个领域，是你已经有一定积累的？',
+    opts: ['没有，或者不确定', '有，但积累很分散，没有体系', '有，而且有清晰的积累脉络'],
+    scores: [[18,15,22],[52,55,50],[88,90,82]]
+  },
+  {
+    dim: 'B', dimName: '输出稳定性',
+    text: '如果有人想找你合作或者付费请你做某件事，你会——',
+    opts: ['不知道自己能提供什么，没有清晰的输出', '能提供一些，但说不清楚是什么', '知道自己能提供什么，能清晰描述'],
+    scores: [[15,18,20],[52,55,48],[88,90,82]]
+  },
+
+  // ── 维度C：方向清晰度 ──
+  {
+    dim: 'C', dimName: '方向清晰度',
+    text: '你知道自己的天赋应该用在哪个方向吗？',
+    opts: ['不知道，这是我最困惑的地方', '有一些感觉，但还不清晰', '知道，而且已经在朝那个方向走了'],
+    scores: [[25,22,18],[55,50,52],[82,85,90]]
+  },
+  {
+    dim: 'C', dimName: '方向清晰度',
+    text: '如果让你描述「我应该做什么」，你会——',
+    opts: ['很难描述，说不清楚', '能说出一个方向，但很模糊', '能清晰说出来，而且有具体计划'],
+    scores: [[22,20,18],[52,55,50],[80,85,90]]
+  },
+  {
+    dim: 'C', dimName: '方向清晰度',
+    text: '你在尝试很多事情吗？',
+    opts: ['是的，什么都试了一点，但没有深的', '在精简，但还是有点分散', '聚焦了，知道哪件事值得押注'],
+    scores: [[20,25,18],[52,50,55],[80,78,92]]
+  },
+  {
+    dim: 'C', dimName: '方向清晰度',
+    text: '当你想到「未来5年想成为什么样的人」，你的感觉是——',
+    opts: ['很模糊，想不清楚', '有一些想法，但不确定', '相对清晰，有方向感'],
+    scores: [[22,20,18],[52,55,50],[80,82,90]]
+  },
+  {
+    dim: 'C', dimName: '方向清晰度',
+    text: '你的日常行动和你想去的方向的关系是——',
+    opts: ['基本不知道自己在往哪走', '大方向是对的，但每天做的事常常和它无关', '基本一致，我在有意识地走向那个方向'],
+    scores: [[18,20,20],[50,52,55],[80,82,90]]
+  },
+  {
+    dim: 'C', dimName: '方向清晰度',
+    text: '你有没有「这件事就是我该做的」的那种感觉？',
+    opts: ['没有，或者一直在等这种感觉出现', '偶尔会有，但不稳定', '有，而且我已经在做了'],
+    scores: [[20,18,18],[55,52,50],[82,85,90]]
+  },
+  {
+    dim: 'C', dimName: '方向清晰度',
+    text: '你的天赋和你打算赚钱的方式之间——',
+    opts: ['基本没有连接，不知道怎么把天赋变现', '有一些想法，但还没想清楚路径', '已经有清晰的变现路径，在执行'],
+    scores: [[18,15,20],[52,55,48],[82,85,90]]
+  }
+];
+
+// ══════════════════════════════════
+// 16种人格结果数据（天赋框架）
+// ══════════════════════════════════
+const personas = {
+  INTJ: {
+    name: '被封印的战略家',
+    hit: '你有比大多数人更深的视野——问题是，这个视野还没有找到值得它的战场',
+    gifts: [
+      { icon: '🔭', name: '战略洞见天赋', desc: '能看穿趋势，判断什么值得做、什么是在浪费时间' },
+      { icon: '⚙️', name: '系统构建天赋', desc: '能把混乱变成结构，天生会把事情变得可以复用和扩展' },
+      { icon: '🧠', name: '深度执行天赋', desc: '一旦方向清晰，能以常人难以持续的专注度推进到底' }
+    ],
+    wastedGift: { title: '你的判断力，一直在帮自己"不行动"', desc: '你能看出大多数路径的问题，但这个能力被反向使用了——用来推迟行动，而不是选出最值得的那条路然后踏上去。' },
+    deep: ['你不是不知道自己有能力，你是不确定这个能力值不值得被相信。所以你一直在等——等一个更清晰的信号，等一个更确定的时机。', '但你越等，越会发现信号从来不会自己来找你。你的战略天赋需要一个战场，而战场是打出来的，不是等出来的。', '你正在浪费的不是时间，是判断力。你的判断力本可以用来选择并压注，但现在它主要被用来分析为什么还不行动。'],
+    guide: '你最需要的不是更多分析，而是选一件事压注——你的天赋只在投入了才能被激活。',
+    pattern: '你的决策路径是：感知全局 → 判断优劣 → 等待完美时机。这个路径的问题在于最后一步。「完美时机」是一个不会自动出现的东西——它是被行动创造出来的。',
+    dirs: [
+      { icon: '📐', name: '战略咨询', desc: '帮别人做方向判断和路径设计' },
+      { icon: '✍️', name: '深度内容', desc: '把你的洞见变成高质量的长篇内容' },
+      { icon: '🏗️', name: '产品搭建', desc: '设计并构建可以稳定运转的系统产品' },
+      { icon: '🎓', name: '知识产品', desc: '把你的框架思维变成课程或体系' }
+    ],
+    blockers: [
+      { icon: '⏳', name: '永远在等完美时机', desc: '你的高标准是优势，但它同时在阻止你开始。60分的行动，产生的结果比100分的计划多。' },
+      { icon: '🔇', name: '不让别人知道你在做什么', desc: '你的成果需要被看见才能产生杠杆。你做了很多，但因为很少展示，资源和机会流向了别人。' },
+      { icon: '🗺️', name: '方向太多，没有押注', desc: '你能看到很多有价值的方向，但每个都只是蜻蜓点水。天赋的激活需要聚焦。' }
+    ],
+    steps: [
+      { title: '选一件事，今天就动手做最小版本', desc: '不是计划最小版本——是做出来。做完一个最小的东西，比计划十个更能激活你的天赋。' },
+      { title: '让至少一个人知道你在做什么', desc: '不是公开宣布，而是让外部见证进入你的循环。这会激活你内部一种不同的动力。' },
+      { title: '把你对某件事的判断写出来发出去', desc: '你的洞见是稀缺品。让它从私人资产变成公共价值，这是天赋激活最快的路径之一。' }
+    ],
+    signals: ['你开始在某件事上有了重复的成果，而不只是偶尔爆发', '有人因为你做的某件具体的事来找你', '你发现自己不再等「完全准备好了」才开始'],
+    tags: ['战略眼光', '深度执行', '系统思维', '判断精准', '长期主义', '独立内核'],
+    combo: { tag: '封印中的战略家', desc: '你有极强的判断力和执行潜力，现在缺的只是一个值得押注的方向 + 开始行动的决心。一旦这两个到位，你会是那种让人回头看的时候觉得「他很早就想到了」的人。' }
+  },
+  INTP: {
+    name: '走在地图外的探索者',
+    hit: '你的思维早就出发了，只是你的行动还没跟上',
+    gifts: [
+      { icon: '🔬', name: '底层逻辑天赋', desc: '能穿透表象找到本质，别人看到现象，你看到机制' },
+      { icon: '🌐', name: '跨域联结天赋', desc: '能把不同领域的东西联系起来，产生别人没想到的视角' },
+      { icon: '💡', name: '概念构建天赋', desc: '能把模糊的感知变成清晰的框架和定义' }
+    ],
+    wastedGift: { title: '你的洞见，一直停留在思维里', desc: '你有大量精彩的思考，但它们大多数存在于你的脑子里——没有被写出来，没有被分享，没有变成别人能受益的东西。' },
+    deep: ['你的思维是你最大的资产，但它目前只为你自己服务。它没有被转化成任何形式的可见输出。', '你不缺洞见，你缺的是一个「够了，先发出去」的信号——一个允许自己用不完美的状态表达的内在许可。', '你最快的天赋激活路径，是把你脑子里某一个想清楚的东西，用任何形式表达出来。表达倒逼思维，而不是反过来。'],
+    guide: '你不需要等想清楚了再说——表达本身是思维最快的加速器。',
+    pattern: '你的思维路径：感知问题 → 深度分析 → 还没分析完 → 分析更多。这个循环会无限持续，直到你强制引入「输出」这个打断项。',
+    dirs: [
+      { icon: '✍️', name: '深度写作', desc: '把你的分析框架变成高质量文章' },
+      { icon: '🔧', name: '工具产品', desc: '把你的逻辑变成别人能用的系统或工具' },
+      { icon: '🎓', name: '知识分享', desc: '把复杂东西讲得让人看得懂' },
+      { icon: '🔭', name: '研究咨询', desc: '帮别人搞清楚问题的本质' }
+    ],
+    blockers: [
+      { icon: '🔄', name: '想得很多，说得很少', desc: '你的洞见停在内部，没有产生外部价值。你需要强制引入输出节奏。' },
+      { icon: '🎯', name: '追求完整再表达', desc: '等完全想清楚才开口，结果是永远不开口。60分的表达，比100分的沉默有价值。' },
+      { icon: '🗂️', name: '方向太分散', desc: '你对很多事感兴趣，但没有在一件事上形成足够深的积累和可见度。' }
+    ],
+    steps: [
+      { title: '今天写一段话，把最近想清楚的一件事说出来', desc: '不用完整，不用完美。就是一段话，发出去。这是最小的天赋激活动作。' },
+      { title: '选一个领域开始持续输出', desc: '哪怕每周一篇。频率比质量更重要——先建立节奏，再提高质量。' },
+      { title: '找一个人把你的某个框架讲给他听', desc: '讲出来会暴露你真正没想清楚的地方，同时建立连接。' }
+    ],
+    signals: ['你发出去一个东西，有人认真回应了', '你发现讲出来之后思路反而更清晰了', '开始有人因为你的视角主动来找你聊'],
+    tags: ['底层逻辑', '跨域联结', '概念构建', '分析深度', '系统思维', '理论天赋'],
+    combo: { tag: '思维领先行动的探索者', desc: '你的思维维度极高，但它还没有进入流通。一旦你开始持续表达，你会发现外部对你这种视角的需求远超你的预期。' }
+  },
+  ENTJ: {
+    name: '还没找到战场的将军',
+    hit: '你有调动资源、推动结果的天赋——你现在缺的只是一个值得全押的方向',
+    gifts: [
+      { icon: '⚡', name: '驱动激活天赋', desc: '能让团队和项目快速启动，把停滞变成行动' },
+      { icon: '🏗️', name: '规模化构建天赋', desc: '天生知道怎么把一件事从0做到能放大' },
+      { icon: '🎯', name: '目标压注天赋', desc: '能识别最值得投入的方向并全力推进' }
+    ],
+    wastedGift: { title: '你的调动力，还没有找到最值得的战场', desc: '你有极强的推动力，但你的能量目前分散在多个方向——每个都在推，但没有一个被真正做透、做大。' },
+    deep: ['你不缺执行力，你缺的是一个让你愿意把所有资源押进去的方向。你一直在等一个「值得全押」的感觉。', '但押注本身会创造这种感觉，而不是反过来。你的天赋在全力投入后才会被真正激活。', '你现在最大的风险是：用70%的力做太多的事，而不是用120%的力做那一件最重要的事。'],
+    guide: '你的天赋是放大器——它需要一个值得被放大的方向，才能真正爆发。',
+    pattern: '你的行动路径：看到机会 → 推动启动 → 同时推进多个 → 每个都没做到最大价值。你需要的是一个强制聚焦机制。',
+    dirs: [
+      { icon: '🚀', name: '项目主导', desc: '主导一个你全力押注的核心项目' },
+      { icon: '🎙️', name: '影响力建设', desc: '把你的驱动力转化为内容和品牌' },
+      { icon: '🤝', name: '商业拓展', desc: '你在需要推动合作和增长的场景里如鱼得水' },
+      { icon: '🏢', name: '团队搭建', desc: '组建并带动一个高效的小团队' }
+    ],
+    blockers: [
+      { icon: '🎯', name: '方向太多，没有压注', desc: '你同时在推很多事，但没有一件被你真正全押。你的天赋在聚焦时才会爆发。' },
+      { icon: '📣', name: '做得多，说得少', desc: '你推动了很多结果，但很少让外部世界知道。可见性是你现在最需要建立的。' },
+      { icon: '🔁', name: '启动快、后劲不足', desc: '你擅长把事情推动起来，但维持长期的系统性推进不是你的本能，需要主动设计。' }
+    ],
+    steps: [
+      { title: '这周选一件最重要的事，其他的先搁置', desc: '不是永远放弃，是这一段时间全押这一个。体验一下全力投入的感觉。' },
+      { title: '把你正在做的事公开出去', desc: '不是宣布计划，而是展示进展。外部见证会让你的推进更有力。' },
+      { title: '设计一个90天只做这一件事的计划', desc: '90天够让一件事从零到有真实成果。这个时间长度是你建立可见核心优势的最短路径。' }
+    ],
+    signals: ['某一件事开始有外部反馈说「你做这个真的很强」', '你发现自己不再想开新坑了', '有人主动想要参与或支持你在做的事'],
+    tags: ['驱动激活', '规模思维', '目标压注', '资源调动', '推动力强', '结果导向'],
+    combo: { tag: '聚焦前的将军', desc: '你的推动力和资源整合能力是稀缺的。你缺的不是能力，是一个值得全押的战场。一旦聚焦，你的天赋会以让你自己都意外的速度产生结果。' }
+  },
+  ENTP: {
+    name: '灵感闪烁但尚未落地的创变者',
+    hit: '你的创意是真实的——完成一件，比开始十件更能证明这一点',
+    gifts: [
+      { icon: '💡', name: '创意联结天赋', desc: '能把看似无关的东西连接起来，产生别人没想到的新组合' },
+      { icon: '🗣️', name: '表达感染天赋', desc: '能让别人很快看到一个想法的可能性和价值' },
+      { icon: '🔄', name: '快速迭代天赋', desc: '能在极短时间内产生大量可行的方向和方案' }
+    ],
+    wastedGift: { title: '你的创意，停留在「有个好想法」的阶段', desc: '你有很多精彩的开头，但大多数没有被做完。你的天赋需要「完成」才能真正兑换价值——一个被完成发出去的东西，远比十个好想法有价值。' },
+    deep: ['你的创意生产速度是真正稀缺的。问题是，这些创意大多数活在你的脑子里或对话里，没有变成可以被别人触达的东西。', '你不缺灵感，你缺的是一个「完成优先」的习惯。你对新鲜感的偏好会在事情进入「枯燥中段」时带着你跑去下一个想法。', '你现在最需要建立的不是更多创意，而是完成一件的能力——这件事做完了，你的天赋才开始真正积累。'],
+    guide: '完成一件，发出去一件——这是你的天赋从「潜力」变成「价值」的唯一路径。',
+    pattern: '你的行动路径：有新想法 → 超级兴奋 → 开始做 → 进入枯燥期 → 又有新想法 → 切换。你需要人为打断这个循环。',
+    dirs: [
+      { icon: '🎨', name: '创意内容', desc: '把你的联结天赋变成有趣且有价值的内容' },
+      { icon: '🧩', name: '产品创新', desc: '在现有产品里找到别人没看到的结合点' },
+      { icon: '🎙️', name: '演讲表达', desc: '用你的感染力让别人看到某个想法的可能性' },
+      { icon: '🔗', name: '资源整合', desc: '把不同的人、资源、机会连接起来创造价值' }
+    ],
+    blockers: [
+      { icon: '🏃', name: '开头很多，完成很少', desc: '你的潜力没有被兑现，因为大多数东西停在一半。「完成」是你现在最需要练习的动作。' },
+      { icon: '✨', name: '总被新想法带走', desc: '你对新鲜感的依赖是你最大的阻力。进入枯燥期时坚持，是你天赋激活的关键节点。' },
+      { icon: '🌫️', name: '缺少可见的积累', desc: '你的创意散落各处，没有在一个地方形成可见的积累体。' }
+    ],
+    steps: [
+      { title: '找一件已经开始的东西，这周做完并发出去', desc: '不管完不完美——发出去。这一步比开始任何新的东西都更重要。' },
+      { title: '给自己设一个「完成计数器」', desc: '每完成并发出去一件，记一个。让完成成为你追求的指标，而不是开始。' },
+      { title: '选一个平台，承诺每周至少一次输出', desc: '节奏会建立积累，积累会建立可见度，可见度会建立机会。' }
+    ],
+    signals: ['有人转发或引用了你完成的某个东西', '你开始体会到完成之后的那种满足感', '有人因为看到你的某个成果而主动来找你'],
+    tags: ['创意联结', '快速迭代', '表达天赋', '可能性感知', '感染力强', '发散思维'],
+    combo: { tag: '半步之遥的创变者', desc: '你的创意和表达都是真实的天赋，你离真正爆发只差「持续完成」这一步。一旦建立起完成的习惯，你会比大多数人更快积累起让人印象深刻的东西。' }
+  },
+  INFJ: {
+    name: '洞见深藏未发的先知',
+    hit: '你看到了很多别人看不到的东西——它们需要一个出口，而不只是安静地存在',
+    gifts: [
+      { icon: '🌊', name: '深层感知天赋', desc: '能感知到他人情绪和动机背后的东西，往往一眼就能看出关键' },
+      { icon: '🔭', name: '远见洞察天赋', desc: '能看到事情发展的方向，常常比实际发生早几步' },
+      { icon: '✍️', name: '深度表达天赋', desc: '能把复杂、微妙的感受和洞察变成语言，让别人感到被说中' }
+    ],
+    wastedGift: { title: '你的洞见，大多数时候没有被表达出来', desc: '你看到了很多，感知到了很多，但这些往往停留在内部——你不确定说出来会不会被理解，不确定自己的感知是不是准确，所以宁可沉默。' },
+    deep: ['你有一种很罕见的能力：能感知到他人没说出口的东西，能看到事情发展的脉络。这是真正稀缺的天赋。', '但它目前主要被用来感知，而不是表达。你的洞见停在内部，外部世界看不见它，也就无法给你匹配的资源和机会。', '你最需要做的，是开始把你看到的东西说出来——不是因为你有义务，而是因为你的洞见本身就有让别人受益的价值。'],
+    guide: '你不需要等确认自己是对的再说——你的感知本身就是价值，表达是激活它的方式。',
+    pattern: '你的模式：感知到很多 → 内部消化 → 不确定是否值得表达 → 沉默。你需要把这条链的最后一步改掉。',
+    dirs: [
+      { icon: '✍️', name: '深度写作', desc: '把你的洞察变成能被别人读到的文字' },
+      { icon: '🤝', name: '一对一陪跑', desc: '你感知他人的能力在深度服务里是核心竞争力' },
+      { icon: '🎙️', name: '内容创作', desc: '让你对人性的理解帮助更多人' },
+      { icon: '🌱', name: '咨询引导', desc: '帮别人看清他们自己看不清的地方' }
+    ],
+    blockers: [
+      { icon: '🤐', name: '洞见不被表达', desc: '你看到了，但没说出来。这是你最大的天赋浪费。你的感知需要被表达才能产生价值。' },
+      { icon: '🎯', name: '太在意是否「足够好」才表达', desc: '你对输出质量的高要求阻止了你输出本身。降低标准，先表达，再完善。' },
+      { icon: '⚡', name: '能量分散在关系消耗里', desc: '你的感知力让你容易被别人的情绪消耗。需要主动保护你用来输出的能量。' }
+    ],
+    steps: [
+      { title: '今天写一段关于「你观察到的某个人性规律」的文字', desc: '不用完整，不用完美。就是你最近看到的一个让你有感触的东西。' },
+      { title: '选一个你能持续表达的场所，开始发', desc: '小红书、公众号、任何地方都行。重要的是开始，而不是平台。' },
+      { title: '尝试帮一个人做一次深度对话', desc: '用你的感知力去帮一个真实的人看清他们的困惑。这会让你的天赋找到出口。' }
+    ],
+    signals: ['你发出去的东西让人说「你说中了我一直说不清楚的感受」', '有人专门来找你聊，因为他们感觉你能理解他们', '你开始体会到表达完之后的那种轻盈感'],
+    tags: ['深层感知', '远见洞察', '深度表达', '人性理解', '共情天赋', '直觉精准'],
+    combo: { tag: '等待破土的先知', desc: '你的感知和洞察是极其稀缺的天赋，很多人想要但做不到。你现在需要的只是开始表达——一旦你的洞见开始流动，你会发现外部对它的需求远超你的预期。' }
+  },
+  INFP: {
+    name: '价值感很强但还没落地的理想者',
+    hit: '你有非常清晰的「这个对我重要」的感觉——它需要找到一个落地的入口',
+    gifts: [
+      { icon: '🌸', name: '价值感知天赋', desc: '能清晰感知什么是真正重要的，什么是在浪费时间' },
+      { icon: '🎨', name: '真实表达天赋', desc: '能把内心深处的感受变成让人共鸣的语言或形式' },
+      { icon: '🌱', name: '深度投入天赋', desc: '一旦找到真正有意义的事，能以极高的专注度持续投入' }
+    ],
+    wastedGift: { title: '你的使命感，还没找到落地的入口', desc: '你有强烈的「这才是重要的事」的感知，但它目前更多是一种感受，而不是一个可以行动的方向。使命感没有被转化成行动，会反过来成为内耗的来源。' },
+    deep: ['你知道什么对你重要，这是很多人花很多年都找不到的东西。但「知道很重要」和「在做」之间，有一段需要主动跨越的距离。', '你的内耗大多来自这个距离——你知道应该做什么，但还没做，或者做了但感觉没做到心里期待的样子。', '你最需要的不是更清晰的使命感，而是一个「先做最小版本」的行动——意义是在行动中生长的，不是在等待中出现的。'],
+    guide: '意义不是在出发前找到的——它是在你开始做之后，一点点生长出来的。',
+    pattern: '你的模式：感到「这件事有意义」→ 想做到足够好 → 感觉还没准备好 → 等待。你需要打破最后两步。',
+    dirs: [
+      { icon: '✍️', name: '真实表达', desc: '把你的感受和价值观变成让人共鸣的内容' },
+      { icon: '🤝', name: '深度陪伴', desc: '帮助真正需要帮助的人——这是你天赋最直接的出口' },
+      { icon: '🎨', name: '创意产出', desc: '用任何你擅长的形式表达你的感受和洞察' },
+      { icon: '🌱', name: '经验变现', desc: '把你经历过的、真实有价值的东西分享出去' }
+    ],
+    blockers: [
+      { icon: '🌌', name: '使命感还没有落地形式', desc: '你知道什么重要，但还没找到一个具体的、可以持续行动的形式。这是你最需要解决的问题。' },
+      { icon: '💸', name: '天赋和变现感觉对立', desc: '你觉得「真正有意义的事」和「能赚钱的事」是矛盾的。它们其实不是——让价值触达更多人就是变现。' },
+      { icon: '⏰', name: '等「准备好了」再开始', desc: '你对质量的感知让你一直觉得还没准备好。真正的准备来自开始之后，而不是开始之前。' }
+    ],
+    steps: [
+      { title: '把你觉得最重要的那件事写下来，具体到「今天能做的一个动作」', desc: '不是写愿景——是写今天。今天能做的哪怕最小的一件事。' },
+      { title: '做完那件小事，发出去或告诉一个人', desc: '让它离开你的脑子，进入世界。哪怕只是一条朋友圈。' },
+      { title: '找一件你真心想帮助的事，现在就开始帮', desc: '你的天赋在帮助真实的人的过程中被激活。不要等——先帮一个人。' }
+    ],
+    signals: ['有人因为你做的或说的某件事感谢你', '你做完一件事之后感觉「这就是我应该做的」', '你发现意义感不需要等——它就在你开始做之后出现了'],
+    tags: ['价值感知', '真实表达', '深度投入', '共情天赋', '使命驱动', '内在清醒'],
+    combo: { tag: '落地前的理想者', desc: '你有极强的价值感知和投入潜力，缺的是一个落地入口。一旦找到并开始行动，你会是那种让人觉得「这件事她做是对的」的人——因为你的天真不是软弱，是力量。' }
+  },
+  ENFJ: {
+    name: '还没聚焦的影响者',
+    hit: '你有让别人变得更好的天赋——问题是它还在分散给所有人，而不是一个值得深耕的方向',
+    gifts: [
+      { icon: '🌟', name: '激发潜力天赋', desc: '能看到别人身上的可能性，并且让他们自己也看到' },
+      { icon: '🌊', name: '氛围创造天赋', desc: '能让一个群体快速建立信任和参与感' },
+      { icon: '🗣️', name: '表达感染天赋', desc: '能把想法变成让人愿意跟随的方式说出来' }
+    ],
+    wastedGift: { title: '你的激发力，分散给了所有人', desc: '你的天赋是帮别人看到他们自己的可能性，但它目前太分散了——你在帮每一个人，但没有在一个方向上建立核心的积累和影响力。' },
+    deep: ['你的感染力和激发力是真实的天赋——很多人想要但做不到的东西，你天然就有。', '但你的能量目前分散在太多的关系和请求里，真正属于你自己方向的时间和精力反而最少。', '你最需要做的，是找到一个你真正想要深耕的群体或方向，把你的激发力聚焦在那里。深度服务少数人，远比浅度照顾所有人更能激活你的天赋。'],
+    guide: '你的影响力需要一个聚焦点——深耕一个值得的方向，比分散给所有人更能让你的天赋真正发光。',
+    pattern: '你的模式：感知到别人的需求 → 帮助 → 再感知 → 再帮助。你的精力一直在被别人的需求消耗，自己的方向没有时间。',
+    dirs: [
+      { icon: '🌱', name: '陪跑社群', desc: '建立一个你来带节奏的成长型社群' },
+      { icon: '🎙️', name: '内容影响', desc: '用你的感染力建立有影响力的内容' },
+      { icon: '🤝', name: '高端咨询', desc: '一对一深度激发，让你的天赋产生更大价值' },
+      { icon: '🏫', name: '知识产品', desc: '把你激发别人的方式变成可复制的课程' }
+    ],
+    blockers: [
+      { icon: '⚖️', name: '能量分散给太多人', desc: '你很难说不，这让你的精力一直在被别人的需求消耗，自己的核心方向建立缓慢。' },
+      { icon: '🎯', name: '没有聚焦的服务对象', desc: '你在帮所有人，但没有一类人被你真正深耕。深度服务一类人，是你激活天赋的关键。' },
+      { icon: '🕰️', name: '自己的事总排在最后', desc: '你的优先级里，别人的需求永远在你自己之前。这是你天赋被稀释的根本原因。' }
+    ],
+    steps: [
+      { title: '选一类你最想帮助的人，从今天开始聚焦', desc: '不是所有人——是一类人。你的天赋在聚焦之后才会真正产生护城河。' },
+      { title: '每周保留固定时间用于你自己的核心方向', desc: '不是剩下的时间——是最先保留的时间。这是你方向积累的基础。' },
+      { title: '把你帮助别人的一次经历写下来分享出去', desc: '你的激发天赋本身就是内容——让它可见，是你建立影响力最快的路径。' }
+    ],
+    signals: ['某一类人开始专门来找你', '你的某次帮助产生了可见的结果，并且被传播', '你开始感觉到「这个方向是对的」而不只是「我在帮别人」'],
+    tags: ['激发潜力', '氛围创造', '感染表达', '关系建立', '带动能力', '温暖影响力'],
+    combo: { tag: '聚焦前的影响者', desc: '你的感染力和激发天赋是极其稀缺的——很多人想建立但做不到的东西，你天然就有。你现在只需要一个聚焦点，让这股能量有地方真正积累和放大。' }
+  },
+  ENFP: {
+    name: '能量爆满但尚未聚焦的可能性感知者',
+    hit: '你看到的可能性是真实的——现在需要选一个，然后真正做透',
+    gifts: [
+      { icon: '🌈', name: '可能性感知天赋', desc: '能在别人看不到的地方看到机会和潜力' },
+      { icon: '⚡', name: '快速启动天赋', desc: '能迅速进入一件事，把它从0推动起来' },
+      { icon: '🎙️', name: '感染激励天赋', desc: '能让别人对一件事感到兴奋并愿意参与' }
+    ],
+    wastedGift: { title: '你的启动天赋，消耗在了太多的开头里', desc: '你能把很多事情推动起来，但大多数停留在开头——进入中段之后，新的可能性会吸引你转移注意力。你的天赋在「完成」里才能被兑换。' },
+    deep: ['你看到可能性的能力是真实的——而且这种能力是稀缺的。很多人看不到你能看到的东西。', '但可能性需要被做透才能变成结果。你现在的模式是：看到可能性 → 推动开始 → 看到下一个可能性 → 转移。', '你最需要建立的不是新的开始，而是完成的习惯。先把一件事做透、做出来，你会发现你的天赋产生的结果比你预期的大得多。'],
+    guide: '你的天赋是放大器——但它只对「完成了的事」有效。先做完一件。',
+    pattern: '你的模式：感知到可能性 → 能量爆发式投入 → 新鲜感结束 → 感知到下一个可能性 → 切换。',
+    dirs: [
+      { icon: '🎙️', name: '内容创作', desc: '把你感知到的可能性变成让别人也能看到的内容' },
+      { icon: '🚀', name: '项目孵化', desc: '帮别人把一个想法从0推动起来——这是你最快速体现价值的方式' },
+      { icon: '🌐', name: '社群构建', desc: '创建并激活一个围绕某个可能性的社群' },
+      { icon: '🎨', name: '创意表达', desc: '把你感知到的世界变成有共鸣的创意内容' }
+    ],
+    blockers: [
+      { icon: '🏃', name: '开始很多，完成很少', desc: '你的天赋被困在开头里。建立「完成一件再开下一件」的规则，是你现在最重要的事。' },
+      { icon: '✨', name: '新鲜感结束就失去动力', desc: '你的驱动力来自可能性和新鲜感，进入枯燥中段时你的能量会下降。这是天赋激活的关键考验节点。' },
+      { icon: '🌫️', name: '没有一个领域的深度积累', desc: '你在很多地方都有涉猎，但没有一个地方的积累深到能建立不可替代性。' }
+    ],
+    steps: [
+      { title: '找一件最重要的事，承诺30天内看到结果', desc: '30天，只做这一件，直到出结果。这是打破你的模式最有效的方式。' },
+      { title: '在最高能量的时候搭好框架和习惯', desc: '在兴奋时期建立能在低能量时自动运转的系统，这样即使新鲜感结束，还能继续推进。' },
+      { title: '告诉一个人你的30天目标', desc: '外部承诺会在你能量下降时给你一个继续的理由。' }
+    ],
+    signals: ['你完成了一件事，并且发出去了', '有人因为你完成的某件事来找你', '你开始感受到完成的满足感，而不只是开始的兴奋感'],
+    tags: ['可能性感知', '快速启动', '感染激励', '能量充沛', '创意丰富', '乐观驱动'],
+    combo: { tag: '半步之遥的可能性开拓者', desc: '你看到可能性的天赋是极其稀缺的——问题是它需要「完成」才能兑换价值。先做完一件，你会发现结果比你预期的大得多，然后你就会知道接下来该做什么了。' }
+  },
+  ISTJ: {
+    name: '积累深厚但尚未可见的实干者',
+    hit: '你有真实的积累——它现在最需要的不是更多，而是被看见',
+    gifts: [
+      { icon: '⚙️', name: '稳定执行天赋', desc: '能在没有外部压力的情况下持续推进，不崩' },
+      { icon: '🔍', name: '细节精准天赋', desc: '能发现别人忽略的细节，确保事情真正被做对' },
+      { icon: '📚', name: '系统积累天赋', desc: '能把一件事做深、做扎实，积累真实的深度' }
+    ],
+    wastedGift: { title: '你的积累，一直是隐形的', desc: '你做了很多真实有价值的事，但它们基本不被外部世界感知。你的积累需要一个出口——不是要你变得高调，而是让你做的东西能够被触达。' },
+    deep: ['你不缺能力，你缺可见度。你做的东西是真实的，但因为很少展示，外部世界无法感知你拥有的东西，也就无法给你匹配的资源和机会。', '你的积累被隐藏了，这是你最大的天赋浪费。你不需要改变做事的方式——只需要把做的东西让别人看见。', '这不是要求你变成一个高调的人。只是开始记录你在做什么，偶尔分享一下进展，让积累从私人的变成可以流通的。'],
+    guide: '你的天赋是真实的——让它可见，是它真正开始产生杠杆的起点。',
+    pattern: '你的模式：踏实做事 → 很少展示 → 积累隐形 → 机会流向了看起来更活跃的人。',
+    dirs: [
+      { icon: '📊', name: '执行管理', desc: '在需要可靠执行的环境里是天然的核心' },
+      { icon: '✍️', name: '经验输出', desc: '把你做的东西写成别人能用的内容' },
+      { icon: '🔧', name: '系统优化', desc: '帮别人把流程和系统做扎实' },
+      { icon: '📚', name: '深度服务', desc: '在需要深度和可靠性的领域建立不可替代性' }
+    ],
+    blockers: [
+      { icon: '📦', name: '积累不被看见', desc: '你做了很多，但外部世界感知不到。「可见性」是你现在最需要建立的东西。' },
+      { icon: '🐢', name: '启动永远在等「准备好」', desc: '你对质量的标准很高，导致很多东西迟迟不开始。降低启动门槛，先做出来再优化。' },
+      { icon: '🔁', name: '路径依赖', desc: '你倾向于用熟悉的方式做事，即使这条路不再是最优解，也很难主动切换。' }
+    ],
+    steps: [
+      { title: '把你最近做的一件事记录下来，发给一个人看', desc: '不是要公开宣布——就是让一个人知道你在做什么。这是可见性的最小单位。' },
+      { title: '建立一个每周输出一次的节奏', desc: '哪怕只是一句话的进展汇报，也比沉默强。节奏会建立可见性，可见性会带来机会。' },
+      { title: '选一件你做得最好的事，把它变成内容或产品', desc: '你的积累是真实的——把它变成别人能触达的形式，是激活它的最快路径。' }
+    ],
+    signals: ['有人因为你做的某件事主动来找你', '你的某个进展被别人引用或分享', '有人说「我一直觉得你在认真做事，只是不知道是什么」'],
+    tags: ['稳定执行', '细节精准', '系统积累', '可靠实干', '长期主义', '扎实深耕'],
+    combo: { tag: '可见性待解锁的实干者', desc: '你的积累质量是真实的——这是很多人想要但需要多年才能建立的东西，而你已经有了。你缺的不是更多积累，是让它被看见。一旦可见性提升，你会发现机会出现的速度远超你的预期。' }
+  },
+  ISFJ: {
+    name: '深度付出但尚未照顾自己的守护者',
+    hit: '你有让别人感到被真正照顾的天赋——它需要先照顾到自己才能真正发光',
+    gifts: [
+      { icon: '🛡️', name: '深度照护天赋', desc: '能感知别人的需求并以恰当的方式回应，让人感到被真正看见' },
+      { icon: '🔍', name: '细节关注天赋', desc: '能注意到别人忽略的细节，确保重要的事情被做对' },
+      { icon: '🌱', name: '稳定支撑天赋', desc: '在别人需要的时候可靠地在场，不轻易消失' }
+    ],
+    wastedGift: { title: '你的照护天赋，耗尽了自己', desc: '你有极强的照护他人的能力，但这个天赋被用得没有边界——你把精力给了所有人，自己最后没有剩余。长期这样下去，你的天赋会因为耗尽而无法持续。' },
+    deep: ['你的照护天赋是真实的稀缺能力——能让人感到被真正理解和照顾的人，在世界上并不多。', '但这个天赋需要边界才能持续。你现在的模式是把它分散给所有人，结果是你自己慢慢被掏空，天赋也因此无法维持。', '你最需要做的，是选一个你真正想照顾的方向或群体，把能量集中在那里——深度照顾少数人，远比浅度照顾所有人更能让你的天赋真正发光。'],
+    guide: '你的天赋需要边界才能持续——先照顾好自己的能量，再让它流向值得的地方。',
+    pattern: '你的模式：感知到别人的需求 → 优先满足 → 自己的事排最后 → 能量耗尽 → 天赋无法持续发挥。',
+    dirs: [
+      { icon: '🤝', name: '深度陪跑', desc: '一对一深度服务，你的照护天赋在这里价值最高' },
+      { icon: '🌱', name: '社群维护', desc: '在一个小圈子里建立深度连接和信任' },
+      { icon: '✍️', name: '治愈内容', desc: '把你照顾别人的经验变成让别人感到被理解的内容' },
+      { icon: '📋', name: '执行支持', desc: '在需要可靠细节执行的场景里建立不可替代性' }
+    ],
+    blockers: [
+      { icon: '🔋', name: '能量耗尽型付出', desc: '你给别人的比给自己的多太多，导致长期处于能量赤字状态。你需要先给自己充电。' },
+      { icon: '🙅', name: '难以说不', desc: '你很难拒绝别人的需求，这让你的精力被无边界地消耗。说不是保护你天赋的必要能力。' },
+      { icon: '🌫️', name: '自己的方向不清晰', desc: '你一直在帮别人走路，但自己想去哪里不清晰。你需要先有自己的方向。' }
+    ],
+    steps: [
+      { title: '今天为自己的事保留至少一小时，不回应任何人', desc: '这是最小的边界建立实验。感受一下你在不照顾任何人时，自己想做什么。' },
+      { title: '选一类你真正想深度服务的人，把精力集中在那里', desc: '不是所有人——是一类人。深度服务创造的价值和满足感，比分散付出大得多。' },
+      { title: '把你照顾别人的一次经历写出来', desc: '你的照护经验是有价值的内容——让它可见，是你建立影响力的路径。' }
+    ],
+    signals: ['你发现自己有精力做自己的事了', '有人愿意付费请你深度帮助他们', '你说了一次不，发现关系没有因此破裂'],
+    tags: ['深度照护', '细节关注', '稳定支撑', '共情天赋', '可靠温暖', '深度连接'],
+    combo: { tag: '边界待建立的守护者', desc: '你有真正稀缺的照护天赋，让别人感到被看见的能力不是人人都有。但它需要边界才能持续发光。一旦你建立起边界，你的天赋会让你成为一个让别人愿意长期追随的人。' }
+  },
+  ESTJ: {
+    name: '执行力极强但还没找到最值得做的事的管理者',
+    hit: '你有把事情做成的能力——你现在缺的是一件值得你全力做成的事',
+    gifts: [
+      { icon: '⚡', name: '推进执行天赋', desc: '能把计划变成行动，把行动变成结果——这个能力很多人没有' },
+      { icon: '🏗️', name: '结构建立天赋', desc: '能快速建立可以让事情有序运转的框架和流程' },
+      { icon: '🎯', name: '目标达成天赋', desc: '设定了目标就会做到，不轻易半途而废' }
+    ],
+    wastedGift: { title: '你的执行力，还没找到最值得的方向', desc: '你有极强的把事情做成的能力，但它目前被用在了太分散的事情上——每件事都做了，但没有一件被做到让你真正自豪的程度。' },
+    deep: ['你不缺做事的能力，你缺一件值得你全力做的事。你的执行力是真正稀缺的资产——大多数人想做到的事，你能做到。', '但执行力需要一个值得的方向才能产生最大价值。你现在的精力分散在太多事情上，每件都没有达到你真正的上限。', '选一件最重要的事，把你所有的执行力压在那里——这是你激活天赋最快的路径。'],
+    guide: '你的执行力是放大器——它在聚焦时才能产生真正让你自豪的结果。',
+    pattern: '你的模式：设定目标 → 高效执行 → 完成 → 设定下一个。这个循环本身没问题，但目标的质量决定了执行力产生的价值。',
+    dirs: [
+      { icon: '🚀', name: '项目主导', desc: '主导一个从0到1的核心项目' },
+      { icon: '📊', name: '运营管理', desc: '把一个已有的东西做得更有序和高效' },
+      { icon: '🏢', name: '团队建设', desc: '建立并带动一个高效运转的团队' },
+      { icon: '📱', name: '产品化变现', desc: '把你的执行力包装成别人能购买的产品或服务' }
+    ],
+    blockers: [
+      { icon: '🗺️', name: '目标质量不够高', desc: '你能做成很多事，但你在做的事值不值得你的执行力，是值得重新审视的问题。' },
+      { icon: '📣', name: '结果没有被展示', desc: '你做成了很多，但很少主动让人知道。可见性是你天赋放大的关键。' },
+      { icon: '🔁', name: '执行模式固化', desc: '你的执行路径很高效，但有时候固化在熟悉的方式里，错过了更好的路径。' }
+    ],
+    steps: [
+      { title: '选一件「如果做成了，我会真正自豪」的事，现在开始做', desc: '不是最容易做的事——是最值得做的事。让你的执行力有一个够大的目标。' },
+      { title: '把你做成的一件事，完整地展示出来', desc: '你做的东西值得被看见。展示不是炫耀——是让你的天赋有机会被匹配的机会。' },
+      { title: '设定一个90天的核心目标，其他事情降优先级', desc: '聚焦才能产生你真正骄傲的结果。90天足够让一件事从零到可见。' }
+    ],
+    signals: ['有人专门来找你说「你做这件事真的很厉害」', '你完成了一件让自己觉得「这才是我真正想做的」的事', '有人愿意付费购买你的执行能力或经验'],
+    tags: ['推进执行', '结构建立', '目标达成', '可靠高效', '结果导向', '领导力天赋'],
+    combo: { tag: '等待真正战场的执行者', desc: '你的执行力是真正稀缺的——把事情从计划变成结果的能力，大多数人做不到。你需要的是一个够大的目标让它真正爆发。一旦找到，你会是那种「他真的做成了」的人。' }
+  },
+  ESFJ: {
+    name: '关系天赋极强但尚未产品化的连接者',
+    hit: '你有让每个人都感到被重视的天赋——它需要一个聚焦的方向才能真正放大',
+    gifts: [
+      { icon: '🌟', name: '关系建立天赋', desc: '能快速和别人建立真实的连接，让人感到被重视' },
+      { icon: '🤝', name: '协调整合天赋', desc: '能在多方之间找到共同点，让合作顺畅进行' },
+      { icon: '💬', name: '温暖表达天赋', desc: '能用让人感到舒适的方式表达，减少摩擦，增加信任' }
+    ],
+    wastedGift: { title: '你的关系天赋，分散给了所有人', desc: '你的连接能力极强，但它目前太分散了——你在照顾所有人的关系，但没有在某一个方向上把这个天赋用到极致。' },
+    deep: ['你让别人感到被重视的能力是真实的稀缺天赋——这不是人人都有的东西。', '但这个天赋目前被用在了维持所有关系上，自己真正想做的事反而没有时间。', '你最需要做的，是把这个天赋聚焦在一个值得深耕的方向——深度服务一类人，远比浅度照顾所有人更能让你的关系天赋真正产生价值。'],
+    guide: '你的关系天赋是放大器——聚焦一个方向，让它真正积累成影响力。',
+    pattern: '你的模式：感知到别人的需求 → 立刻响应 → 照顾所有人 → 自己的方向没有时间。',
+    dirs: [
+      { icon: '🌐', name: '社群运营', desc: '用你的关系天赋建立一个有温度的社群' },
+      { icon: '🤝', name: '用户连接', desc: '在需要深度用户关系的业务里是天然核心' },
+      { icon: '🎙️', name: '暖心内容', desc: '让别人感到被理解的内容，是你最自然的输出形式' },
+      { icon: '🏪', name: '服务产品', desc: '把你的关系能力包装成别人愿意付费的服务' }
+    ],
+    blockers: [
+      { icon: '⚖️', name: '照顾所有人但方向不聚焦', desc: '你的关系能力分散在所有人身上，没有在一个方向形成积累。聚焦才能产生真正的影响力。' },
+      { icon: '🕰️', name: '自己的事总排在最后', desc: '你的优先级里，别人的需求永远先于你自己。这是你天赋被稀释的根本原因。' },
+      { icon: '🌫️', name: '不确定天赋如何变现', desc: '你知道自己有关系天赋，但不知道怎么让它变成真实的收入。这是你现在最需要解决的问题。' }
+    ],
+    steps: [
+      { title: '选一类你最想深度服务的人，从今天开始聚焦', desc: '用你的关系天赋深度服务一类人，而不是浅度照顾所有人。' },
+      { title: '把你帮助某个人的经历变成内容发出去', desc: '你的关系天赋本身就是内容——让它可见，是你建立影响力最快的路径。' },
+      { title: '试着为你最擅长的服务定一个价格，卖给第一个人', desc: '把天赋变成可以被购买的东西，是激活它的关键一步。' }
+    ],
+    signals: ['有人专门来找你，因为他们觉得你能理解他们', '你的某次帮助产生了可见的结果并被分享', '有人主动付费请你帮助他们'],
+    tags: ['关系建立', '协调整合', '温暖表达', '连接天赋', '被信任感', '社群凝聚'],
+    combo: { tag: '等待聚焦的连接者', desc: '你建立真实连接的天赋是极其稀缺的——让别人感到被重视不是人人都能做到的。你需要的是一个聚焦点，让这股能量在一个方向上真正积累成影响力。' }
+  },
+  ISTP: {
+    name: '精准问题解决者，天赋还藏在私人领域',
+    hit: '你有解决别人解决不了的问题的天赋——它需要一个让别人知道的出口',
+    gifts: [
+      { icon: '🔧', name: '精准解决天赋', desc: '能快速找到问题的关键点并用最简洁的方式解决' },
+      { icon: '🧩', name: '结构拆解天赋', desc: '能把复杂的事情变成可操作的步骤' },
+      { icon: '⚡', name: '即时响应天赋', desc: '在需要快速判断和行动的时候，本能地知道该做什么' }
+    ],
+    wastedGift: { title: '你的解决能力，没有被别人看见', desc: '你能解决很多别人解决不了的问题，但这件事大多数时候只发生在私下——没有变成内容，没有变成产品，也没有让足够多的人知道你有这个能力。' },
+    deep: ['你的问题解决能力是真正稀缺的——在别人还在分析问题的时候，你已经找到了解法。这不是人人都有的天赋。', '但它目前主要存在于你私下解决的那些事情里，没有被转化成可以产生持续价值的东西。', '你最需要做的，是让你解决问题的过程和结果被看见——把它变成内容、工具或服务，让更多人能触达你的这个能力。'],
+    guide: '你解决问题的天赋需要一个可见的出口——让别人知道你能做什么，才能让天赋真正产生价值。',
+    pattern: '你的模式：发现问题 → 快速分析 → 解决 → 私下完成 → 没有积累可见度。',
+    dirs: [
+      { icon: '🔧', name: '技术产品', desc: '把你解决问题的方式变成工具或产品' },
+      { icon: '📋', name: '流程优化', desc: '帮别人把混乱的流程变成高效运转的系统' },
+      { icon: '✍️', name: '解法内容', desc: '把你解决问题的过程和方法写出来' },
+      { icon: '🎓', name: '实战培训', desc: '教别人用你的方式解决他们解决不了的问题' }
+    ],
+    blockers: [
+      { icon: '🔇', name: '解决能力不被看见', desc: '你做了很多，但外部世界不知道。「可见性」是你现在最需要建立的东西。' },
+      { icon: '🗣️', name: '不擅长描述自己能做什么', desc: '你能做很多，但说出来很困难。把你能做的事写成具体的描述，是建立可见性的第一步。' },
+      { icon: '🏃', name: '解决完就结束，没有复用', desc: '你解决了很多问题，但每次都从头来。把解法变成可复用的框架，是天赋产生更大价值的路径。' }
+    ],
+    steps: [
+      { title: '把你最近解决的一个具体问题写成内容发出去', desc: '不用完整，不用完美。就是「我遇到了这个问题，我这样解决的」——这就是内容。' },
+      { title: '把你最擅长解决的那类问题变成一个服务', desc: '给它定一个价格，卖给第一个人。这一步会让你发现你的天赋有真实的市场价值。' },
+      { title: '建立一个每周分享一个解法的习惯', desc: '持续输出你的解法，是建立「这件事找他」这种认知最有效的方式。' }
+    ],
+    signals: ['有人看了你分享的解法然后主动来找你', '有人愿意付费请你帮他解决类似的问题', '你发现自己分享的东西被别人引用或转发'],
+    tags: ['精准解决', '结构拆解', '即时响应', '实用主义', '冷静判断', '效率天赋'],
+    combo: { tag: '等待被发现的解题高手', desc: '你解决问题的天赋是真实的——能快速找到关键并解决，是大多数人缺乏的能力。你需要的是让这个能力被外部世界看见，一旦可见性建立，机会会自然来找你。' }
+  },
+  ISFP: {
+    name: '感知极细腻但尚未表达出来的创作者',
+    hit: '你对美、感受和细节的感知是真实的天赋——它需要一个被表达的出口',
+    gifts: [
+      { icon: '🎨', name: '审美感知天赋', desc: '能感知到别人感知不到的美、和谐与失调' },
+      { icon: '🌸', name: '当下临在天赋', desc: '能完全进入当下，感受到此刻的丰富性' },
+      { icon: '✍️', name: '真实表达天赋', desc: '能把内心深处的感受变成让人共鸣的形式' }
+    ],
+    wastedGift: { title: '你的感知天赋，还没找到表达的形式', desc: '你感受到的东西非常丰富，但大多数时候它停留在内部，没有被转化成别人能触达的东西——不是因为它不值得，而是你还没找到适合你的表达形式。' },
+    deep: ['你对细节、感受和美的感知是真正稀缺的——很多人经历同样的事情，但感受不到你能感受到的层次。', '但这种感知目前是私人的，它没有被转化成任何可以让别人受益的形式。', '你不需要变成一个高产的创作者——你需要找到一种「只需要你做出来」的表达形式。哪怕每次只有一件，完成了，发出去，你的天赋就开始积累了。'],
+    guide: '你的感知天赋需要一个出口——找到你最自然的表达形式，让它开始流动。',
+    pattern: '你的模式：感知到很多 → 内部消化 → 觉得说不清楚或者不值得说 → 沉默。你需要打破最后两步。',
+    dirs: [
+      { icon: '🎨', name: '视觉创作', desc: '用图像、设计或任何视觉形式表达你的感知' },
+      { icon: '✍️', name: '感受写作', desc: '把你对某件事的深层感受写出来' },
+      { icon: '📸', name: '记录表达', desc: '把你感知到的美和细节记录下来分享' },
+      { icon: '🌱', name: '生活方式', desc: '把你的审美和感知变成别人想要学习的生活方式' }
+    ],
+    blockers: [
+      { icon: '🤐', name: '感知不被表达', desc: '你感受到了很多，但表达得很少。表达本身是激活你天赋的行动。' },
+      { icon: '🪞', name: '对自己的输出要求太高', desc: '你感知到的东西太丰富，所以你对表达的标准也很高，导致很少真正发出去。' },
+      { icon: '🌫️', name: '不确定表达有没有价值', desc: '你不确定你感知到的东西是否值得被分享。它是值得的——你的感知本身就有价值。' }
+    ],
+    steps: [
+      { title: '今天把你感知到的一件事用任何形式记录下来并发出去', desc: '一张图、一段话、一个感受——都行。就是发出去这一步。' },
+      { title: '选一种你觉得最自然的表达形式，坚持用它', desc: '不需要尝试所有方式——找到一种最自然的，然后在那里积累。' },
+      { title: '连续发30天，不管好不好', desc: '频率比质量更重要。30天的连续表达会让你找到属于你的表达节奏。' }
+    ],
+    signals: ['有人说「你的感受表达让我想到了我自己的某个经历」', '你发现表达之后感觉更轻了，而不是更重了', '有人开始关注你，因为你分享的感受和视角'],
+    tags: ['审美感知', '当下临在', '真实表达', '感受力强', '细节天赋', '内在丰富'],
+    combo: { tag: '等待出口的感知者', desc: '你对世界的感知深度和细腻度是极其稀缺的——很多人经历同样的事，感受不到你感受到的层次。你需要的是一个让这种感知流动出来的出口。一旦开始表达，你会发现共鸣来得比你预期的早。' }
+  },
+  ESTP: {
+    name: '行动力极强但还没建立积累的闯入者',
+    hit: '你有快速进入任何场景并产生影响的天赋——它需要一个可以积累的方向',
+    gifts: [
+      { icon: '⚡', name: '即时行动天赋', desc: '能在别人还在想的时候已经做了，而且往往做对了' },
+      { icon: '🎯', name: '现场判断天赋', desc: '能在复杂情况下快速读懂局面，做出最佳应对' },
+      { icon: '🌊', name: '氛围激活天赋', desc: '能让停滞的东西动起来，让无聊的场景变得有活力' }
+    ],
+    wastedGift: { title: '你的行动力，还没有产生可积累的东西', desc: '你有很强的行动力，而且大多数时候你的判断是对的。但你的行动产生的结果往往是即时性的，没有在一个方向上形成可以持续放大的积累。' },
+    deep: ['你进入场景、快速判断、推动行动的能力是真正稀缺的——很多人在你已经做完了一件事的时候还在分析。', '但你的天赋目前的模式是：做了 → 产生即时效果 → 不太有积累 → 下一件事。每次都从头来，天赋没有复利效应。', '你最需要做的，是在一个方向上建立积累——让你每次的行动都在同一个地方产生沉淀，而不是分散在到处都是的即时效果里。'],
+    guide: '你的行动力需要一个方向来积累——在一件事上持续行动，才能让你的天赋产生真正的复利。',
+    pattern: '你的模式：感知到机会 → 立刻行动 → 产生效果 → 找下一个机会。这个循环本身是好的，但需要增加一个「沉淀」的环节。',
+    dirs: [
+      { icon: '🎙️', name: '现场表达', desc: '你在需要即时表达和影响力的场景里是天然的核心' },
+      { icon: '🚀', name: '销售转化', desc: '把你的即时判断天赋用在推动成交上' },
+      { icon: '📱', name: '短视频内容', desc: '把你的即时行动和判断变成快节奏的内容' },
+      { icon: '🔗', name: '资源整合', desc: '用你快速读懂局面的能力去整合不同的人和资源' }
+    ],
+    blockers: [
+      { icon: '📦', name: '行动没有积累', desc: '你做了很多，但每次都是即时效果，没有在一个方向上形成可见的积累体。' },
+      { icon: '🌫️', name: '方向分散', desc: '你响应的机会太多，没有在某一件事上持续到建立真正的优势。' },
+      { icon: '📝', name: '不记录不沉淀', desc: '你的判断和行动很有价值，但因为很少记录，这些经验没有被转化成可复用的东西。' }
+    ],
+    steps: [
+      { title: '选一个你最擅长的领域，开始持续记录你的行动和判断', desc: '不需要很完整，就是把你做了什么、判断是什么记下来。这是积累的起点。' },
+      { title: '把你最近的一次好的判断或行动变成内容分享出去', desc: '你的即时判断是有价值的内容——让它可见，建立「这件事他很强」的认知。' },
+      { title: '选一件事，承诺在同一个方向上持续行动90天', desc: '90天的持续行动会建立别人很难在短期内复制的优势。' }
+    ],
+    signals: ['某一类人开始专门来找你', '你在某个领域开始被人认可为「很懂这件事的人」', '有人看了你分享的判断或行动，说「我怎么没想到这个」'],
+    tags: ['即时行动', '现场判断', '氛围激活', '快速响应', '实战天赋', '先行者'],
+    combo: { tag: '积累待建立的闯入者', desc: '你的即时行动和判断天赋是真正稀缺的——在别人还在想的时候你已经做了，而且往往是对的。你现在需要的是把这股能量聚焦在一个方向上，让它开始积累成别人很难追上的优势。' }
+  },
+  ESFP: {
+    name: '表达欲强且真实感人但尚未聚焦的表演者',
+    hit: '你有让人在当下就感受到你的天赋——把它聚焦到一件事上，它会走得很远',
+    gifts: [
+      { icon: '🌟', name: '当下存在感天赋', desc: '能让一个场景里的人都注意到你，感受到你的能量' },
+      { icon: '🎙️', name: '真实感染天赋', desc: '你是真实的，而真实本身就有感染力' },
+      { icon: '🎨', name: '体验创造天赋', desc: '能把普通的事情变成让人愿意参与和记住的体验' }
+    ],
+    wastedGift: { title: '你的感染力，分散在太多不同的场景里', desc: '你的表达能量是真实的，但它目前被分散在各种场合——没有在一个地方形成持续的积累和可见的影响力。' },
+    deep: ['你的存在感和感染力是真实的天赋——你进入一个场景，那个场景就会不一样。这不是人人都有的能力。', '但这种能量目前是散点式的，它没有在一个方向上积累成「这就是她」的识别度。', '你最需要做的，是找到一个你真正热爱的场景或内容形式，然后持续在那里出现——让你的感染力有一个可以积累的地方。'],
+    guide: '你的感染力需要一个固定的舞台——在同一个地方持续出现，让别人认识你、记住你、跟着你。',
+    pattern: '你的模式：进入场景 → 产生影响 → 移动到下一个场景 → 每次都是全新的开始，没有积累。',
+    dirs: [
+      { icon: '📱', name: '短视频内容', desc: '把你的当下感染力变成可以被无限播放的内容' },
+      { icon: '🎙️', name: '直播互动', desc: '在实时互动场景里你的天赋最容易发光' },
+      { icon: '🎨', name: '体验产品', desc: '把你创造体验的能力变成别人愿意付费的产品' },
+      { icon: '🌐', name: '社群激活', desc: '你进入一个社群，它就会活起来——让这成为你的核心服务' }
+    ],
+    blockers: [
+      { icon: '🌫️', name: '能量分散，没有积累', desc: '你的感染力散落在各处，没有在一个地方建立持续的识别度和积累。' },
+      { icon: '⏳', name: '即时性强但持续性弱', desc: '你在当下很有影响力，但很少建立能在时间上持续增长的东西。' },
+      { icon: '🎯', name: '不确定要聚焦在哪', desc: '你感兴趣的事太多，很难决定把能量集中在哪一件事上。' }
+    ],
+    steps: [
+      { title: '选一个你最享受的表达形式，今天发出去第一条', desc: '不需要完美——就是今天发出去一条，看看反应。这是找到你的舞台的开始。' },
+      { title: '承诺连续发30条，不管每条好不好', desc: '30条的积累会帮你找到你的风格和受众。频率比质量更重要。' },
+      { title: '选一个平台，把它作为你的主场', desc: '专注一个地方，让你的能量在那里积累成可见的影响力。' }
+    ],
+    signals: ['有人开始特别关注你，因为你出现的地方他就想看', '你发现某种内容形式让你做起来特别顺，别人也特别喜欢', '有人愿意付费参与你创造的体验或内容'],
+    tags: ['当下存在感', '真实感染', '体验创造', '表达天赋', '能量充沛', '真实吸引力'],
+    combo: { tag: '等待固定舞台的表演者', desc: '你的存在感和感染力是真实的——你进入任何地方，它都会不一样。你需要的是一个固定的舞台，让你的能量在同一个地方持续积累。一旦找到，你会比大多数人更快建立自己的受众和影响力。' }
+  }
+};
+
+// ══════════════════════════════════
+// 三个激活段位
+// ══════════════════════════════════
+const levels = [
+  {
+    key: 0, emoji: '🌑', name: '低阶',
+    heroClass: 'level-0',
+    desc: '你的天赋还在休眠状态。能力是有的，但还没找到真正的出口——思维和行动之间有断层，方向感还模糊，输出也还不稳定。这不是你的问题，是你还没经历那个触发时刻。',
+    advantage: '低阶阶段有一种稀缺的优势：你的感知还没有被单一方向固化，视角是完整的。一旦天赋被激活，你的判断会比那些走错了很多弯路的人更准。',
+    signals: ['你开始对某件事产生持续的好奇，而不只是一闪而过', '你第一次在做某件事时进入了那种「时间停止了」的状态', '有人因为你某一次的表达或行动对你刮目相看'],
+    celeb: { name: '乔布斯', period: '蛰伏的12年（1985-1997）', desc: '被苹果赶走后，他没有消失——他在积蓄。NeXT和皮克斯的12年，是他最沉默也最关键的天赋孕育期。没有那12年，就没有后来的iPhone。' }
+  },
+  {
+    key: 1, emoji: '🌗', name: '觉醒期',
+    heroClass: 'level-1',
+    desc: '你的天赋开始流动了。有阶段性的爆发，有时候感觉自己很厉害，有时候又陷回去——这是觉醒期最真实的状态。天赋在被调用，但还不成体系、不稳定。你不是在退步，你在找节奏。',
+    advantage: '觉醒期是最有价值的黄金阶段：你比还没开始的人走得更远，同时比已经稳定的人有更大的灵活性和试错空间。你的每一个行动都在积累真实的判断力。',
+    signals: ['你开始有一个相对固定的输出节奏，哪怕只是每周一次', '有人开始因为你做的某件具体的事来找你', '你发现自己不再需要每次都重新说服自己开始'],
+    celeb: { name: '村上春树', period: '从酒吧老板到作家（1978）', desc: '29岁还在经营小酒吧，某天有了「我也可以写小说」的念头——回家就买了打字机，每天凌晨写，白天继续开店。他没有等「准备好了」，他选择了在混乱中开始。' }
+  },
+  {
+    key: 2, emoji: '🌕', name: '高阶',
+    heroClass: 'level-2',
+    desc: '你的天赋找到了出口，在稳定产出真实的结果。你有方向感，有节奏，有开始让外部世界感知到你的影响力。现在最重要的不是更多行动，而是找到能让价值被更大范围看见的杠杆点。',
+    advantage: '高阶阶段有一种独特的能力：你的存在本身开始对别人产生影响。你做的事会让身边的人也想行动。这种感染力是可以被产品化和放大的。',
+    signals: ['有人开始愿意为你做的事付费，而不只是免费受益', '你的经验开始对别人产生真实的帮助', '你在思考的不再是「我能不能」，而是「我怎么做得更大」'],
+    celeb: { name: '稻盛和夫', period: '52岁时创办第二电电（1984）', desc: '京瓷已经很成功，但他没有停。52岁选择进入电信行业挑战垄断——不是因为需要证明什么，而是因为他知道自己的天赋还有更大的战场可以发光。' }
+  }
+];
+
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+let mbtiAnswers = {};
+let mbtiStep = 0;
+let mbtiType = '';
+let curQ = 0;
+let qAnswers = [];
+
+// ══════════════════════════════════
+// SCREENS
+// ══════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ══════════════════════════════════
+// MBTI
+// ══════════════════════════════════
+function startTest() {
+  mbtiStep = 0; mbtiAnswers = {}; mbtiType = '';
+  showScreen('screen-mbti');
+  renderMbti();
+}
+
+function renderMbti() {
+  const dim = mbtiDims[mbtiStep];
+  const body = document.getElementById('mbti-body');
+  body.innerHTML = '';
+
+  const tag = document.createElement('div');
+  tag.className = 'mbti-dim-tag';
+  tag.textContent = dim.badge;
+  body.appendChild(tag);
+
+  const q = document.createElement('div');
+  q.className = 'mbti-q';
+  q.textContent = dim.question;
+  body.appendChild(q);
+
+  const hint = document.createElement('div');
+  hint.className = 'mbti-hint';
+  hint.textContent = dim.hint;
+  body.appendChild(hint);
+
+  const list = document.createElement('div');
+  list.className = 'choice-list';
+
+  const dimKey = dim.key;
+  dim.choices.forEach(c => {
+    const letter = c.letter;
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<div class="choice-letter">${letter}</div>
+      <div class="choice-content">
+        <div class="choice-title">${c.title}</div>
+        <div class="choice-desc">${c.desc}</div>
+      </div>`;
+    btn.onclick = () => selectMbti(dimKey, letter, btn);
+    list.appendChild(btn);
+  });
+  body.appendChild(list);
+
+  document.getElementById('mbti-step-count').textContent = `${mbtiStep+1} / 4`;
+  document.getElementById('mbti-prog').style.width = `${(mbtiStep+1)/4*100}%`;
+
+  const prevWrap = document.getElementById('mbti-prev-wrap');
+  prevWrap.style.display = mbtiStep > 0 ? 'flex' : 'none';
+
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById(`mdot-${i}`);
+    d.className = 'mdot';
+    if (i < mbtiStep) d.classList.add('done');
+    if (i === mbtiStep) d.classList.add('active');
+  }
+}
+
+function selectMbti(key, letter, el) {
+  document.querySelectorAll('#mbti-body .choice-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  mbtiAnswers[key] = letter;
+  setTimeout(() => {
+    mbtiStep++;
+    if (mbtiStep < mbtiDims.length) {
+      renderMbti();
+    } else {
+      mbtiType = mbtiAnswers['EI'] + mbtiAnswers['SN'] + mbtiAnswers['TF'] + mbtiAnswers['JP'];
+      curQ = 0; qAnswers = [];
+      showScreen('screen-question');
+      renderQ();
+    }
+  }, 320);
+}
+
+function prevMbti() {
+  if (mbtiStep > 0) {
+    mbtiStep--;
+    delete mbtiAnswers[mbtiDims[mbtiStep].key];
+    renderMbti();
+  }
+}
+
+// ══════════════════════════════════
+// QUESTIONS
+// ══════════════════════════════════
+function renderQ() {
+  const q = questions[curQ];
+
+  document.getElementById('q-cur').textContent = curQ + 1;
+  document.getElementById('q-dim-badge').textContent = q.dimName;
+  document.getElementById('q-prog').style.width = `${(curQ+1)/questions.length*100}%`;
+
+  const body = document.getElementById('q-body');
+  body.innerHTML = '';
+
+  const qText = document.createElement('div');
+  qText.className = 'q-text';
+  qText.textContent = q.text;
+  body.appendChild(qText);
+
+  const optList = document.createElement('div');
+  optList.className = 'opt-list';
+  const keys = ['A','B','C'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<div class="opt-key">${keys[i]}</div><div class="opt-text">${opt}</div>`;
+    btn.onclick = () => selectOpt(i, btn);
+    optList.appendChild(btn);
+  });
+  body.appendChild(optList);
+
+  if (curQ > 0) {
+    const pw = document.createElement('div');
+    pw.className = 'prev-wrap';
+    pw.innerHTML = `<button class="prev-btn" onclick="prevQ()">← 上一题</button>`;
+    body.appendChild(pw);
+  }
+
+  body.style.animation = 'none';
+  requestAnimationFrame(() => { body.style.animation = 'slideIn 0.3s ease'; });
+}
+
+function selectOpt(idx, btn) {
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  qAnswers[curQ] = idx;
+  setTimeout(() => {
+    curQ++;
+    if (curQ < questions.length) {
+      renderQ();
+    } else {
+      showLoading();
+    }
+  }, 320);
+}
+
+function prevQ() {
+  if (curQ > 0) { curQ--; renderQ(); }
+}
+
+// ══════════════════════════════════
+// LOADING
+// ══════════════════════════════════
+function showLoading() {
+  showScreen('screen-loading');
+  [1,2,3].forEach((n, i) => {
+    setTimeout(() => {
+      document.getElementById(`lstep-${n}`).classList.add('done');
+    }, 500 + i * 700);
+  });
+  setTimeout(showResult, 3000);
+}
+
+// ══════════════════════════════════
+// CALCULATE
+// ══════════════════════════════════
+function calcScores() {
+  // 3维度：A=天赋调用度, B=输出稳定性, C=方向清晰度
+  const totals = [0, 0, 0];
+  const counts = [0, 0, 0];
+  const dimMap = { A: 0, B: 1, C: 2 };
+
+  qAnswers.forEach((ans, qi) => {
+    if (ans === undefined || ans === null) return;
+    const q = questions[qi];
+    const d = dimMap[q.dim];
+    totals[d] += q.scores[ans][d];
+    counts[d]++;
+  });
+
+  const scores = totals.map((t, i) => counts[i] > 0 ? Math.round(t / counts[i]) : 50);
+  const overall = Math.round((scores[0] * 0.35 + scores[1] * 0.35 + scores[2] * 0.30));
+  return { scores, overall };
+}
+
+function calcLevel(overall) {
+  if (overall < 42) return 0;   // 低阶：大多数选A选项
+  if (overall < 72) return 1;   // 觉醒期：大多数选B选项
+  return 2;                      // 高阶：大多数选C选项
+}
+
+// ══════════════════════════════════
+// SHOW RESULT
+// ══════════════════════════════════
+function showResult() {
+  const { scores, overall } = calcScores();
+  const levelIdx = calcLevel(overall);
+  const level = levels[levelIdx];
+  const persona = personas[mbtiType] || personas['INFJ'];
+
+  // Hero
+  const hero = document.getElementById('r-hero');
+  hero.className = `r-hero ${level.heroClass}`;
+
+  // MBTI letters
+  document.getElementById('r-mbti-row').innerHTML =
+    mbtiType.split('').map(l => `<span class="r-mbti-letter">${l}</span>`).join('') +
+    `<span class="r-mbti-full">${mbtiType}</span>`;
+
+  // Level block - big impactful display
+  document.getElementById('r-level-moon').textContent = level.emoji;
+  document.getElementById('r-level-name').textContent = level.name;
+  document.getElementById('r-level-sub').textContent = 'MBTI 天赋激活段位';
+
+  // Name & hit
+  document.getElementById('r-type-name').textContent = persona.name;
+  document.getElementById('r-hit').textContent = persona.hit;
+
+  // Scores - add small variation based on answer pattern for diversity
+  const scoreVariation = (qAnswers.reduce((a,b) => a + (b||0), 0) % 8) - 4;
+  const displayScore = Math.min(98, Math.max(12, overall + scoreVariation));
+  document.getElementById('r-score').textContent = displayScore;
+  document.getElementById('r-level-sm').textContent = level.name;
+
+  // P1 hero extras
+  document.getElementById('r-level-desc').textContent = level.desc;
+
+  // P2. Gifts - level-aware descriptions
+  const levelGiftPrefix = ['【还未被激活】', '【正在流动中】', '【已稳定输出】'];
+  const levelGiftColor = ['color:#9898a8', 'color:var(--pink-deep)', 'color:#2a8870'];
+  persona.gifts.forEach((g, i) => {
+    document.getElementById(`gift-name-${i}`).textContent = g.name;
+    const descEl = document.getElementById(`gift-desc-${i}`);
+    descEl.innerHTML = `<span style="font-size:11px;font-weight:700;letter-spacing:0.5px;${levelGiftColor[levelIdx]}">${levelGiftPrefix[levelIdx]}</span><br>${g.desc}`;
+  });
+
+  // P3. Wasted gift
+  document.getElementById('wasted-icon').textContent = persona.wastedGift.icon;
+  document.getElementById('wasted-title').textContent = persona.wastedGift.title;
+  document.getElementById('wasted-desc').textContent = persona.wastedGift.desc;
+  document.getElementById('wasted-quote').textContent = `「${persona.wastedGift.desc.split('。')[0]}。」`;
+
+  // P4. Behavior + deep read - level-specific paragraphs
+  const deepSlice = levelIdx === 0 ? [0,1] : levelIdx === 1 ? [1,2] : [2,3];
+  document.getElementById('r-pattern').textContent = persona.pattern;
+  document.getElementById('r-deep').innerHTML = persona.deep
+    .slice(deepSlice[0], deepSlice[1]+1)
+    .map(p => `<p>${p}</p>`).join('');
+  document.getElementById('r-guide').textContent = `💡 ${persona.guide}`;
+  document.getElementById('r-tags').innerHTML = persona.tags.map(t =>
+    `<span class="rp-tag-pill">${t}</span>`
+  ).join('');
+
+  // P5. Directions - level-aware tags
+  const dirTag = ['待开发', '正在探索', '重点深耕'][levelIdx];
+  const dirTagColor = [
+    'background:rgba(152,152,168,0.1);color:#9898a8;border-color:rgba(152,152,168,0.2)',
+    'background:var(--pink-bg);color:var(--pink);border-color:var(--pink-border)',
+    'background:rgba(42,136,112,0.1);color:#2a8870;border-color:rgba(42,136,112,0.25)'
+  ][levelIdx];
+  document.getElementById('r-dirs').innerHTML = persona.dirs.map(d =>
+    `<div class="rp-dir-card">
+      <div class="rp-dir-icon">${d.icon}</div>
+      <div class="rp-dir-name">${d.name}</div>
+      <div class="rp-dir-why">${d.desc}</div>
+      <span class="rp-dir-tag" style="${dirTagColor}">${dirTag}</span>
+    </div>`
+  ).join('');
+
+  // P6. Radar - add small per-dimension variation for diversity
+  const varSeeds = qAnswers.slice(0,3).map((a,i) => ((a||0) * (i+3)) % 7 - 3);
+  const variedScores = scores.map((s,i) => Math.min(95, Math.max(8, s + varSeeds[i])));
+  drawRadar(variedScores);
+
+  // P6. Dim bars (new style)
+  const dimNames = ['天赋调用度', '输出稳定性', '方向清晰度'];
+  const dimIcons = ['🔆', '📡', '🧭'];
+  const dimDescs = ['你的能力有没有被真正用出来', '有没有持续可见的结果和积累', '知不知道天赋往哪个方向用'];
+  const gradients = [
+    ['#d4789a','#e898b8'],
+    ['#7ab0cc','#9acce0'],
+    ['#9898d8','#b8b8e8']
+  ];
+  document.getElementById('r-dim-bars').innerHTML = dimNames.map((name, i) => {
+    const s = scores[i];
+    const label = s < 45 ? '待激活' : s < 65 ? '初步调用' : s < 82 ? '稳定输出' : '高度激活';
+    return `<div class="rp-dim-row">
+      <div class="rp-dim-row-top">
+        <div class="rp-dim-name">${dimIcons[i]} ${name}</div>
+        <div><span class="rp-dim-score">${s}</span><span class="rp-dim-label-sm">${label}</span></div>
+      </div>
+      <div class="rp-dim-bar">
+        <div class="rp-dim-fill" data-w="${s}%" style="background:linear-gradient(90deg,${gradients[i][0]},${gradients[i][1]})"></div>
+      </div>
+      <div class="rp-dim-desc">${dimDescs[i]}</div>
+    </div>`;
+  }).join('');
+
+  // P7. Blockers - level determines which blockers are shown/highlighted
+  const blockersToShow = levelIdx === 0 ? persona.blockers : 
+                         levelIdx === 1 ? persona.blockers.slice(0,2) : 
+                         persona.blockers.slice(1,3);
+  document.getElementById('r-blockers').innerHTML = blockersToShow.map(b =>
+    `<div class="rp-blocker-card">
+      <span class="rp-blocker-icon">${b.icon}</span>
+      <div>
+        <div class="rp-blocker-name">${b.name}</div>
+        <div class="rp-blocker-desc">${b.desc}</div>
+      </div>
+    </div>`
+  ).join('');
+
+  // P7. Steps - level specific
+  const levelStepIntro = ['低阶破局：先让天赋找到出口', '觉醒期提速：建立稳定系统', '高阶放大：让天赋产生复利'];
+  document.getElementById('r-steps').innerHTML =
+    `<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--pink);text-transform:uppercase;margin-bottom:12px;">${levelStepIntro[levelIdx]}</div>` +
+    persona.steps.map((s, i) =>
+      `<div class="rp-step-row">
+        <div class="rp-step-num">${i+1}</div>
+        <div>
+          <div class="rp-step-title">${s.title}</div>
+          <div class="rp-step-desc">${s.desc}</div>
+        </div>
+      </div>`
+    ).join('');
+
+  // P8. Signals
+  const signalNums = ['01','02','03'];
+  document.getElementById('r-signals').innerHTML = level.signals.map((s, i) =>
+    `<div class="rp-signal-card">
+      <div class="rp-signal-num">${signalNums[i]}</div>
+      <div class="rp-signal-text">${s}</div>
+    </div>`
+  ).join('');
+
+  // P8. Combo banner
+  document.getElementById('r-combo').innerHTML =
+    `<div class="rp-combo-name">✦ ${persona.combo.tag}</div>
+     <div class="rp-combo-text">${persona.combo.desc}</div>`;
+
+  showScreen('screen-result');
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.rp-dim-fill').forEach(el => {
+      el.style.width = el.dataset.w;
+    });
+  }, 400);
+}
+
+function drawRadar(scores) {
+  const canvas = document.getElementById('radar-canvas');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = 260 * dpr;
+  canvas.height = 240 * dpr;
+  canvas.style.width = '260px';
+  canvas.style.height = '240px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cx = 130, cy = 118, R = 80, n = 3;
+  const labels = ['天赋调用度', '输出稳定性', '方向清晰度'];
+  const angles = labels.map((_, i) => (Math.PI * 2 * i / n) - Math.PI / 2);
+
+  ctx.clearRect(0, 0, 260, 240);
+
+  // Grid
+  [0.25, 0.5, 0.75, 1].forEach(r => {
+    ctx.beginPath();
+    angles.forEach((a, i) => {
+      const x = cx + Math.cos(a) * R * r;
+      const y = cy + Math.sin(a) * R * r;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = r === 1 ? 'rgba(200,152,42,0.25)' : 'rgba(200,152,42,0.1)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Spokes
+  angles.forEach(a => {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+    ctx.strokeStyle = 'rgba(200,152,42,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Data
+  ctx.beginPath();
+  angles.forEach((a, i) => {
+    const r = (scores[i] / 100) * R;
+    const x = cx + Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  g.addColorStop(0, 'rgba(200,152,42,0.5)');
+  g.addColorStop(1, 'rgba(104,192,160,0.25)');
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.strokeStyle = '#c8982a';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Points
+  angles.forEach((a, i) => {
+    const r = (scores[i] / 100) * R;
+    const x = cx + Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r;
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8982a';
+    ctx.fill();
+    ctx.strokeStyle = '#0c0c0e';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+
+  // Labels
+  ctx.font = `500 11px "Noto Sans SC", sans-serif`;
+  ctx.fillStyle = '#a8a49c';
+  ctx.textAlign = 'center';
+  angles.forEach((a, i) => {
+    const lR = R + 22;
+    const x = cx + Math.cos(a) * lR;
+    const y = cy + Math.sin(a) * lR + 4;
+    ctx.fillText(labels[i], x, y);
+  });
+}
+
+function retakeTest() {
+  mbtiStep = 0; mbtiAnswers = {}; mbtiType = '';
+  curQ = 0; qAnswers = [];
+  showScreen('screen-mbti');
+  renderMbti();
+}
+</script>
+</body>
+</html>

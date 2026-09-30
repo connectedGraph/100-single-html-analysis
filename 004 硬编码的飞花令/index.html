@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script data-html2web-source-protection>
+(function () {
+  function blockShortcut(event) {
+    var key = String(event.key || '').toUpperCase();
+    var inspect = key === 'F12' || ((event.ctrlKey || event.metaKey) && event.shiftKey && ['I', 'J', 'C'].indexOf(key) >= 0);
+    var sourceOrSave = (event.ctrlKey || event.metaKey) && ['U', 'S'].indexOf(key) >= 0;
+    if (inspect || sourceOrSave) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+  document.addEventListener('contextmenu', function (event) { event.preventDefault(); }, true);
+  document.addEventListener('keydown', blockShortcut, true);
+})();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>飞花令 · 清韵诗庐 | 以诗会友 自主接令</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 30%, #2f2a23, #1f1b15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: '华文楷书', 'STKaiti', '楷体', 'Georgia', 'Times New Roman', serif;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        /* 古风底纹：暗香疏影 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.12"><path fill="none" stroke="%23dbbc87" stroke-width="0.6" d="M20 30 Q 35 20 45 35 T 70 30 M15 70 Q 30 60 42 75 T 68 70 M78 50 Q 88 42 92 55" /><circle cx="32" cy="52" r="1.2" fill="%23cfaa7a"/><circle cx="68" cy="28" r="1" fill="%23cfaa7a"/><path d="M50 85 L52 78 L55 85 L52 82 Z" fill="%23b9925e"/></svg>');
+            background-repeat: repeat;
+            background-size: 68px 68px;
+            pointer-events: none;
+        }
+
+        /* 主卷轴 */
+        .scroll-container {
+            position: relative;
+            z-index: 10;
+            max-width: 880px;
+            width: 100%;
+            background: #fef7e9;
+            background-image: linear-gradient(145deg, #fff8ed 0%, #fef1df 100%);
+            border-radius: 56px 32px 64px 36px;
+            box-shadow: 0 30px 45px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 250, 230, 0.9);
+            border: 1px solid #e7d6b5;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* 天头地脚 仿书眉 */
+        .header-brush {
+            background: #cfbc91;
+            background: linear-gradient(112deg, #bea371, #dac292);
+            padding: 1rem 1.8rem;
+            text-align: center;
+            border-bottom: 2px solid #a9864f;
+            position: relative;
+        }
+
+        .header-brush h1 {
+            font-size: 2rem;
+            letter-spacing: 10px;
+            color: #2a2416;
+            text-shadow: 2px 2px 0 #ebdeb9;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-brush h1:before, .header-brush h1:after {
+            content: "❦";
+            font-size: 1.4rem;
+            color: #7a5a38;
+            opacity: 0.7;
+        }
+
+        .subhead {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            background: #f0e3cf;
+            display: inline-block;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            color: #5d4328;
+            margin-top: 6px;
+        }
+
+        /* 令牌区 典雅 */
+        .token-chamber {
+            background: #fff7ea;
+            margin: 24px 28px 12px 28px;
+            border-radius: 48px;
+            padding: 16px 16px;
+            text-align: center;
+            border: 1px solid #eadbbc;
+            box-shadow: inset 0 0 0 2px #fffbf0, 0 8px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .token-label {
+            font-size: 0.75rem;
+            color: #b38649;
+            text-transform: uppercase;
+            background: #eee1cb;
+            display: inline-block;
+            padding: 0 14px;
+            border-radius: 50px;
+            letter-spacing: 2px;
+        }
+
+        .token-word {
+            font-size: 4rem;
+            font-weight: 600;
+            font-family: '华文楷书', '楷体', serif;
+            color: #8b5a2e;
+            text-shadow: 4px 4px 0 rgba(190, 150, 90, 0.2);
+            margin: 12px 0 6px;
+            letter-spacing: 14px;
+        }
+
+        .token-rule {
+            font-size: 0.7rem;
+            color: #b27d48;
+            border-top: 1px dashed #e5cfaa;
+            display: inline-block;
+            padding-top: 8px;
+        }
+
+        /* 诗战地域 */
+        .battle-field {
+            margin: 10px 28px 16px;
+            background: #fcf6ea;
+            border-radius: 32px;
+            padding: 20px 20px;
+            box-shadow: inset 0 1px 3px #f6ecdb, 0 6px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9d8bb;
+        }
+
+        .last-recital {
+            background: #f4ecd9;
+            border-radius: 28px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            border-left: 8px solid #c6a15b;
+            transition: all 0.2s;
+        }
+
+        .last-caption {
+            font-size: 0.7rem;
+            color: #b3894b;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .last-poem-line {
+            font-size: 1.25rem;
+            line-height: 1.55;
+            color: #3a2b1c;
+            font-weight: 500;
+            word-break: break-word;
+            font-style: normal;
+        }
+
+        .last-authority {
+            text-align: right;
+            font-size: 0.7rem;
+            color: #b68b54;
+            margin-top: 12px;
+            font-style: italic;
+        }
+
+        /* 接令区 */
+        .recite-area {
+            margin-top: 8px;
+        }
+
+        .input-cluster {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .poem-input {
+            flex: 4;
+            background: #fffef7;
+            border: 1.5px solid #e2cfaa;
+            border-radius: 60px;
+            padding: 12px 22px;
+            font-size: 1rem;
+            font-family: '华文楷书', '楷体', 'Georgia', serif;
+            color: #3a2b1c;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: inset 0 1px 3px #e7dbc3;
+        }
+
+        .poem-input:focus {
+            border-color: #c2a068;
+            box-shadow: 0 0 0 3px rgba(194, 160, 104, 0.2), inset 0 1px 2px #f0e5cf;
+        }
+
+        .btn-submit {
+            flex: 1.2;
+            background: #dac292;
+            border: none;
+            border-radius: 60px;
+            padding: 0 18px;
+            font-size: 1rem;
+            font-family: '楷体', serif;
+            font-weight: bold;
+            color: #2e2619;
+            cursor: pointer;
+            transition: 0.18s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+        }
+
+        .btn-submit:hover {
+            background: #cbae78;
+            transform: scale(0.97);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 14px;
+            margin-top: 22px;
+            justify-content: center;
+        }
+
+        .sec-button {
+            background: #e8decb;
+            border: 1px solid #d4c09b;
+            border-radius: 40px;
+            padding: 8px 22px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.12s;
+            color: #5a3f24;
+            font-weight: 500;
+        }
+
+        .sec-button:hover {
+            background: #dbcbaa;
+            border-color: #be9f6a;
+        }
+
+        .message-pavilion {
+            margin: 12px 28px 20px;
+            padding: 10px 20px;
+            background: #e7dcc8;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            text-align: center;
+            color: #4d3922;
+            transition: 0.2s;
+            border: 1px solid #ddcdae;
+            min-height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+        }
+
+        .score-bureau {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 28px 20px;
+            background: #efe2ce;
+            border-radius: 70px;
+            padding: 10px 24px;
+            border: 1px solid #dfcea9;
+        }
+
+        .score-card {
+            background: #fff8ec;
+            padding: 5px 20px;
+            border-radius: 50px;
+            min-width: 110px;
+            text-align: center;
+            box-shadow: inset 0 0 0 1px #fff8e7, 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .score-card span:first-child {
+            color: #a5723e;
+            font-weight: bold;
+        }
+
+        .score-number {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-left: 10px;
+            color: #4f341c;
+            font-family: monospace;
+        }
+
+        .turn-badge {
+            background: #cfb786;
+            padding: 6px 24px;
+            border-radius: 36px;
+            font-weight: bold;
+            color: #2c2319;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.65rem;
+            color: #b59466;
+            border-top: 1px solid #eadbbc;
+            padding: 14px;
+            background: #fef5e6;
+        }
+
+        @media (max-width: 580px) {
+            .token-word { font-size: 2.6rem; letter-spacing: 6px; }
+            .input-cluster { flex-direction: column; }
+            .btn-submit { padding: 10px; }
+            .score-bureau { flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="scroll-container">
+    <div class="header-brush">
+        <h1>飞花令 · 清韵诗庐</h1>
+        <div class="subhead">⚡ 自主接令 · 君判输赢 · 雅士风流 ⚡</div>
+    </div>
+
+    <div class="token-chamber">
+        <div class="token-label">🎋 今 日 令 牌 🎋</div>
+        <div class="token-word" id="currentToken">花</div>
+        <div class="token-rule">「 所接诗句须含此字，古今诗词皆可，不得重复上句 」</div>
+    </div>
+
+    <div class="battle-field">
+        <div class="last-recital">
+            <div class="last-caption">📜 上 一 轮 佳 句</div>
+            <div class="last-poem-line" id="lastPoemDisplay">—— 虚席以待，请君先发 ——</div>
+            <div class="last-authority" id="lastAuthorDisplay"></div>
+        </div>
+        <div class="recite-area">
+            <div class="input-cluster">
+                <input type="text" id="poemInput" class="poem-input" placeholder="题写诗句… 例如：夜来风雨声，花落知多少" autocomplete="off">
+                <button id="submitBtn" class="btn-submit">✍️ 接 令</button>
+            </div>
+            <div class="action-row">
+                <button id="changeTokenBtn" class="sec-button">🎋 更 换 令 字</button>
+                <button id="resetGameBtn" class="sec-button">🪶 重 启 诗 局</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="message-pavilion" id="messageBox">
+        静候君之佳句。依令字「花」接诗，无预设例句，由您续写风雅。
+    </div>
+
+    <div class="score-bureau">
+        <div class="score-card"><span>🏆 成 功 次 数</span><span class="score-number" id="successCount">0</span></div>
+        <div class="turn-badge" id="turnHint">🌸 等 待 接 令</div>
+        <div class="score-card"><span>📖 本 轮 记 录</span><span class="score-number" id="roundCount">0</span></div>
+    </div>
+    <footer>
+        ✨ 飞花令规则：每接令成功一次，成功次数+1；不得重复之前出现过的任何诗句（包含令字即可）；可更换令牌延续诗会。
+    </footer>
+</div>
+
+<script>
+    // ==================== 飞花令 · 无预设例句，自主接令，只判断合法性及重复 ====================
+    // 游戏核心：
+    // - 玩家自由输入诗句，系统仅验证： ① 非空 ② 包含当前令字 ③ 不与历史上任何一轮诗句重复（无视作者，只比对文本）
+    // - 没有AI对手，但记录成功次数，让玩家自我挑战 / 教师同乐。增加回合记录，支持多轮接令。
+    // - 游戏只评判“接令是否成功”，成功则记录并显示到“成功次数”，同时将诗句加入历史。
+    // - 更换令字后，不清空历史诗句池（仅更换主题，依旧不可重复使用任何已出过的诗句，体现公平）。
+    // - 提供“重启诗局”彻底重置所有记录、令字重置为“花”，从头开始。
+    // - 设计优雅，完全自主接令，完全由玩家判断诗词意境，游戏只做文字合规检验。
+    
+    // 游戏状态
+    let currentToken = "花";                // 当前令字
+    let usedPoemsSet = new Set();           // 存储已经接令过的诗句原文（全等比对，trim后）
+    let successCounter = 0;                // 累计成功接令次数（历史总成功次数）
+    let roundHistory = [];                 // 存储每一轮接令 { poemText, tokenWhenSubmit, timestamp }
+    let lastPoem = null;                   // 最近一次成功接令的诗句文本
+    
+    // DOM 元素
+    const tokenSpan = document.getElementById("currentToken");
+    const lastPoemDisplay = document.getElementById("lastPoemDisplay");
+    const lastAuthorDisplay = document.getElementById("lastAuthorDisplay");
+    const poemInput = document.getElementById("poemInput");
+    const submitBtn = document.getElementById("submitBtn");
+    const changeTokenBtn = document.getElementById("changeTokenBtn");
+    const resetGameBtn = document.getElementById("resetGameBtn");
+    const messageBox = document.getElementById("messageBox");
+    const successCountSpan = document.getElementById("successCount");
+    const roundCountSpan = document.getElementById("roundCount");
+    const turnHintSpan = document.getElementById("turnHint");
+    
+    // 辅助：更新UI上的统计数据
+    function updateStatsUI() {
+        successCountSpan.innerText = successCounter;
+        roundCountSpan.innerText = roundHistory.length;
+        tokenSpan.innerText = currentToken;
+        if (lastPoem) {
+            lastPoemDisplay.innerText = `「${lastPoem}」`;
+            lastAuthorDisplay.innerText = "—— 君之所咏 · 清雅存录";
+        } else {
+            lastPoemDisplay.innerText = "—— 虚席以待，请君先发 ——";
+            lastAuthorDisplay.innerText = "";
+        }
+    }
+    
+    // 显示消息 (优雅且能够自动渐隐)
+    let msgTimeout = null;
+    function setMessage(msg, isError = false) {
+        if (msgTimeout) clearTimeout(msgTimeout);
+        messageBox.innerHTML = msg;
+        messageBox.style.color = isError ? "#b5451c" : "#4f3922";
+        messageBox.style.background = isError ? "#ffe0cf" : "#e7dcc8";
+        msgTimeout = setTimeout(() => {
+            if (messageBox.innerHTML === msg) {
+                messageBox.style.color = "#4d3922";
+                messageBox.style.background = "#e7dcc8";
+                if (roundHistory.length === 0 && successCounter === 0) {
+                    messageBox.innerHTML = "静候君之佳句。依令字「"+currentToken+"」接诗，无预设例句，由您续写风雅。";
+                } else {
+                    messageBox.innerHTML = "诗兴正浓，请继续接令。";
+                }
+            }
+        }, 2200);
+    }
+    
+    // 核心验证：检验诗句是否符合飞花令规则
+    function validatePoem(poemText, token) {
+        const trimmed = poemText.trim();
+        if (trimmed === "") {
+            return { valid: false, reason: "诗句不可空白，请题写雅句。" };
+        }
+        // 长度太短太长的提示（过于短的字符不成诗句）
+        if (trimmed.length < 4) {
+            return { valid: false, reason: "诗句过短，请完整的一句或一联。" };
+        }
+        if (trimmed.length > 70) {
+            return { valid: false, reason: "诗句过于冗长，请按古典诗词惯例。" };
+        }
+        // 是否包含令字
+        if (!trimmed.includes(token)) {
+            return { valid: false, reason: `诗句中必须包含令字 “${token}”，请重新斟酌。` };
+        }
+        // 是否与历史诗句重复（完全匹配）
+        if (usedPoemsSet.has(trimmed)) {
+            return { valid: false, reason: `此句 “${trimmed.length > 28 ? trimmed.slice(0,28)+'…' : trimmed}” 已然在飞花令中吟咏过，不可重诵。` };
+        }
+        // 简单过滤：禁止纯标点或纯数字表情等（基本优雅约束）
+        const chineseCount = (trimmed.match(/[\u4e00-\u9fa5]/g) || []).length;
+        if (chineseCount < 2) {
+            return { valid: false, reason: "请题写正经诗词文句，至少包含两个汉字。" };
+        }
+        // 通过验证
+        return { valid: true, reason: "" };
+    }
+    
+    // 执行接令成功
+    function acceptPoem(poemText) {
+        const trimmed = poemText.trim();
+        usedPoemsSet.add(trimmed);
+        roundHistory.push({
+            poemText: trimmed,
+            tokenWhenSubmit: currentToken,
+            timestamp: Date.now()
+        });
+        successCounter++;
+        lastPoem = trimmed;
+        updateStatsUI();
+        setMessage(`✓ 接令成功！「${trimmed.length > 34 ? trimmed.slice(0,34)+'…' : trimmed}」 风雅卓绝。 +1 才名`, false);
+        poemInput.value = "";
+        // 变更提示回合花火 (趣味)
+        turnHintSpan.innerHTML = "🎋 令字依旧 · 可续新句";
+        setTimeout(() => {
+            turnHintSpan.innerHTML = "🌸 待接令";
+        }, 1500);
+        poemInput.focus();
+    }
+    
+    // 处理接令主逻辑（由玩家触发）
+    function handleSubmit() {
+        const rawPoem = poemInput.value;
+        const validation = validatePoem(rawPoem, currentToken);
+        if (!validation.valid) {
+            setMessage(`❌ 接令未成：${validation.reason}`, true);
+            // 聚焦但保留输入方便修改
+            poemInput.focus();
+            return;
+        }
+        // 成功接令
+        acceptPoem(rawPoem);
+    }
+    
+    // 更换令字 (保留已有接令记录及成功次数，防止重复诗句继续出现，只是变主题)
+    function changeToken() {
+        const tokenOptions = ["花", "月", "春", "秋", "山", "水", "风", "雪", "酒", "剑", "竹", "梅"];
+        let newToken = currentToken;
+        // 随机换一个不同的令字
+        while (newToken === currentToken && tokenOptions.length > 1) {
+            const randomIndex = Math.floor(Math.random() * tokenOptions.length);
+            newToken = tokenOptions[randomIndex];
+        }
+        currentToken = newToken;
+        tokenSpan.innerText = currentToken;
+        updateStatsUI();
+        // 注意：更换令字后，已用诗句池（usedPoemsSet）不变！不可重复任何已经出现过的诗句，增加挑战性
+        // 同时最近一句lastPoem保留之前最后一句，但最好提示新的令字
+        setMessage(`🎋 令字更换为「${currentToken}」。之前所有诗句仍不可重复，请围绕新令字接句。`, false);
+        poemInput.value = "";
+        poemInput.focus();
+        turnHintSpan.innerHTML = `🍃 新令：${currentToken}`;
+        setTimeout(() => {
+            turnHintSpan.innerHTML = "🌸 待接令";
+        }, 1800);
+        // 若没有任何诗句记录则保持等待，否则显示最近的一句（保留诗词历史）
+    }
+    
+    // 重启诗局：重置所有记录、成功次数、已用诗词池、令字重置为"花"，清空所有历史
+    function resetGame() {
+        currentToken = "花";
+        usedPoemsSet.clear();
+        successCounter = 0;
+        roundHistory = [];
+        lastPoem = null;
+        updateStatsUI();
+        poemInput.value = "";
+        setMessage("✨ 诗局重启 · 万象更新。令字重归「花」，过往诗句皆归尘，请重新接令。", false);
+        turnHintSpan.innerHTML = "🌸 新启诗局";
+        setTimeout(() => {
+            turnHintSpan.innerHTML = "🌸 待接令";
+        }, 1500);
+        // 清空显示最后诗句
+        lastPoemDisplay.innerText = "—— 虚席以待，请君先发 ——";
+        lastAuthorDisplay.innerText = "";
+        // 聚焦
+        poemInput.focus();
+    }
+    
+    // 添加快捷键支持 (回车)
+    function bindEvents() {
+        submitBtn.addEventListener("click", handleSubmit);
+        changeTokenBtn.addEventListener("click", changeToken);
+        resetGameBtn.addEventListener("click", resetGame);
+        poemInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                handleSubmit();
+            }
+        });
+    }
+    
+    // 可附加额外诗词检测辅助：不干涉玩家创作，只做合规。为了更优雅，可选增加一个“示例随机提示”但不必备
+    // 为了更友好，在初始时给一个小tips，但不提供预置例句，完全尊重自主。
+    function initGame() {
+        bindEvents();
+        // 初始状态无任何诗句历史，lastPoem为null，展示虚位
+        updateStatsUI();
+        setMessage("「飞花令」无预设例句，请自选诗词接令，系统仅判断令字及重复。同一令牌可无限轮次，典雅切磋。", false);
+        poemInput.focus();
+    }
+    
+    // 额外优雅功能： 如果玩家需要查看当前已接令的列表（可选但为了古典整洁不加复杂面板，但可做一个轻声提示）
+    // 通过双击消息区域可展示最近接令数目? 为了更好体验，增加一个隐性彩蛋，无需复杂。
+    // 但为了让游戏更加清晰，在message区域加入悬浮显示已接令总数，但目前的分数栏已有轮次记录。
+    // 完全满足：不提供例句，玩家自主接令，系统只负责判定是否符合令字+不重复。同一个令牌可多轮无限接下去。
+    // 已经支持多轮接令（因为usedPoemsSet累计所有诗句，每次成功后会加入集合，且不限制轮次，只要不重复即可无限）
+    // 更换令字后，依然遵守已使用诗句池不得重复任何诗句（跨令字也不可重复），保证高挑战性
+    
+    initGame();
+</script>
+</body>
+</html>

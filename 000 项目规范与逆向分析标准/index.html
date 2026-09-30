@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>100 HTML REVERSE · 百大单页逆向工程大厅</title>
+  <!-- Google Fonts: Inter & JetBrains Mono & Noto Sans SC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #090a0f;
+      --bg-surface: #10131c;
+      --bg-card: rgba(18, 22, 34, 0.75);
+      --bg-card-hover: rgba(26, 32, 50, 0.9);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(0, 240, 255, 0.4);
+      --primary: #00f0ff;
+      --primary-glow: rgba(0, 240, 255, 0.25);
+      --accent: #ff007f;
+      --accent-glow: rgba(255, 0, 127, 0.25);
+      --purple: #8a2be2;
+      --green: #00ff88;
+      --text: #f0f4fc;
+      --text-sub: #8c9bb5;
+      --text-dim: #4e5d78;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(138, 43, 226, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(0, 240, 255, 0.1) 0%, transparent 35%),
+        radial-gradient(circle at 50% 80%, rgba(255, 0, 127, 0.08) 0%, transparent 45%);
+    }
+
+    /* 顶部导航与 HUD 状态栏 */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(9, 10, 15, 0.82);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+    }
+
+    .nav-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px var(--primary-glow);
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      font-size: 18px;
+      color: #000;
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #fff, #99c2ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-sub);
+      font-family: 'Fira Code', monospace;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #00b4d8);
+      color: #000;
+      border: none;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #33f3ff, #1ac0e0);
+      box-shadow: 0 0 25px var(--primary-glow);
+    }
+
+    /* Hero Banner 区域 */
+    .hero-section {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 48px 32px 32px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 30px;
+      font-size: 12px;
+      font-family: 'Fira Code', monospace;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .hero-badge .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-size: 38px;
+      font-weight: 900;
+      line-height: 1.25;
+      margin-bottom: 16px;
+      letter-spacing: -0.8px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(90deg, var(--primary), var(--purple), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      color: var(--text-sub);
+      max-width: 620px;
+      margin-bottom: 28px;
+      line-height: 1.7;
+    }
+
+    /* HUD 仪表盘卡片 */
+    .hud-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hud-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--purple), var(--accent));
+    }
+
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .hud-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-sub);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .progress-bar-wrap {
+      margin-bottom: 24px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-family: 'Fira Code', monospace;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 3%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      box-shadow: 0 0 12px var(--primary);
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hud-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .hud-stat-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .hud-stat-num {
+      font-size: 24px;
+      font-weight: 800;
+      font-family: 'Fira Code', monospace;
+      color: var(--text);
+    }
+
+    .hud-stat-num.active { color: var(--primary); }
+    .hud-stat-num.purple { color: #c084fc; }
+    .hud-stat-num.green { color: var(--green); }
+
+    .hud-stat-label {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    /* 过滤与搜索交互栏 */
+    .controls-section {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 32px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-sub);
+      transition: all 0.2s ease;
+    }
+
+    .filter-tab:hover {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .filter-tab.active {
+      background: rgba(0, 240, 255, 0.12);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .search-input-wrap {
+      position: relative;
+      min-width: 280px;
+    }
+
+    .search-input-wrap input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 9px 18px 9px 40px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input-wrap input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px var(--primary-glow);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    /* 100 项目网格矩阵 */
+    .grid-section {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 32px 80px;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 24px;
+    }
+
+    /* 项目卡片样式 */
+    .project-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(12px);
+      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-active);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0, 240, 255, 0.12);
+    }
+
+    .project-card.locked {
+      opacity: 0.45;
+      border-style: dashed;
+      background: rgba(15, 18, 26, 0.4);
+    }
+
+    .project-card.locked:hover {
+      opacity: 0.75;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .card-id-badge {
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+    }
+
+    .card-category {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-sub);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin-bottom: 18px;
+      line-height: 1.6;
+      flex-grow: 1;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .tag-item {
+      font-size: 11px;
+      font-family: 'Fira Code', monospace;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #9cb0d1;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-sm {
+      padding: 8px 12px;
+      font-size: 12px;
+      justify-content: center;
+    }
+
+    /* 实时沙箱弹窗 / 抽屉模式 */
+    .sandbox-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .sandbox-overlay.active { display: flex; }
+
+    .sandbox-window {
+      width: 100%;
+      max-width: 1200px;
+      height: 90vh;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    .sandbox-header {
+      padding: 14px 20px;
+      background: #151924;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sandbox-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sandbox-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .device-switcher {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      gap: 4px;
+    }
+
+    .device-btn {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      cursor: pointer;
+    }
+
+    .device-btn.active {
+      background: var(--primary);
+      color: #000;
+      font-weight: 600;
+    }
+
+    .sandbox-body {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #08090d;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .preview-frame-wrap {
+      width: 100%;
+      height: 100%;
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .preview-frame-wrap.mobile {
+      width: 375px;
+      height: 667px;
+      border: 8px solid #2a3142;
+      border-radius: 36px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+    }
+
+    .preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+    }
+
+    /* Markdown 报告查看器 */
+    .readme-viewer {
+      width: 100%;
+      height: 100%;
+      background: #11141d;
+      color: #e2e8f0;
+      padding: 40px;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .readme-viewer h1, .readme-viewer h2, .readme-viewer h3 {
+      color: #fff;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .readme-viewer h1 { font-size: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+    .readme-viewer h2 { font-size: 18px; color: var(--primary); }
+    .readme-viewer table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    .readme-viewer th, .readme-viewer td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; text-align: left; }
+    .readme-viewer th { background: rgba(255,255,255,0.05); color: #fff; }
+    .readme-viewer pre { background: #080a0f; padding: 14px; border-radius: 8px; overflow-x: auto; margin: 16px 0; border: 1px solid rgba(255,255,255,0.05); }
+    .readme-viewer code { font-family: 'Fira Code', monospace; font-size: 12px; color: #38bdf8; }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .nav-container { padding: 0 16px; }
+      .hero-section, .controls-section, .grid-section { padding-left: 16px; padding-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <div class="brand-logo">100</div>
+        <div class="brand-text">
+          <h1>100 HTML REVERSE ARCHIVE</h1>
+          <p>百大高价值单页 HTML 逆向与商业解构图鉴</p>
+        </div>
+      </a>
+      <div class="header-actions">
+        <button class="btn" onclick="openReadmeModal('000')">
+          <span>📜</span> 逆向工程规范 (000)
+        </button>
+        <a href="https://github.com" target="_blank" class="btn btn-primary">
+          <span>⚡</span> 极客模式
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero 全景与 HUD 状态看板 -->
+  <section class="hero-section">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-badge">
+          <div class="pulse-dot"></div>
+          <span>LIVE CODEX · 100 SHIT HTML REVERSE</span>
+        </div>
+        <h2 class="hero-title">解构百大单页 <span>商业密码与代码机制</span></h2>
+        <p class="hero-desc">
+          涵盖 <b>防封跳板 / AI 知识付费 / 3D 玄学裂变 / 爆款营销 / 留资表单</b> 等极度实用与黑产攻防的纯前端单文件应用。每一个项目均包含完整逆向分析报告与全屏沙箱交互体验。
+        </p>
+      </div>
+
+      <!-- HUD 进度仪表盘 -->
+      <div class="hud-card">
+        <div class="hud-header">
+          <div class="hud-title">⚡ 逆向工程归档进度</div>
+          <span style="font-size: 11px; font-family: 'Fira Code'; color: var(--primary);">SYSTEM ONLINE</span>
+        </div>
+
+        <div class="progress-bar-wrap">
+          <div class="progress-info">
+            <span>COMPLETION RATE</span>
+            <span style="color: var(--primary); font-weight: 700;">3 / 100 (3.0%)</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 3%;"></div>
+          </div>
+        </div>
+
+        <div class="hud-stats-grid">
+          <div class="hud-stat-item">
+            <div class="hud-stat-num active">3</div>
+            <div class="hud-stat-label">已完全解构</div>
+          </div>
+          <div class="hud-stat-item">
+            <div class="hud-stat-num purple">97</div>
+            <div class="hud-stat-label">雷达扫描中</div>
+          </div>
+          <div class="hud-stat-item">
+            <div class="hud-stat-num green">100%</div>
+            <div class="hud-stat-label">纯前端零依赖</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 搜索与分类 Tab 过滤 -->
+  <section class="controls-section">
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterProjects('ALL')">全部 (100)</button>
+      <button class="filter-tab" onclick="filterProjects('ACTIVE')">已解构 (3)</button>
+      <button class="filter-tab" onclick="filterProjects('SEC')">安全防封 (1)</button>
+      <button class="filter-tab" onclick="filterProjects('AI-EDU')">AI 知识付费 (1)</button>
+      <button class="filter-tab" onclick="filterProjects('WEB3D')">3D 玄学互动 (1)</button>
+      <button class="filter-tab" onclick="filterProjects('LOCKED')">待归档 (97)</button>
+    </div>
+
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="搜索项目、标签、技术栈 (如 MBTI, Three.js)..." oninput="searchProjects()">
+    </div>
+  </section>
+
+  <!-- 100 项目网格矩阵 -->
+  <section class="grid-section">
+    <div class="project-grid" id="projectGrid">
+      <!-- 动态注入 100 个卡片 -->
+    </div>
+  </section>
+
+  <!-- 实时交互沙箱 Modal -->
+  <div class="sandbox-overlay" id="sandboxModal">
+    <div class="sandbox-window">
+      <div class="sandbox-header">
+        <div class="sandbox-title-wrap">
+          <span class="card-id-badge" id="modalId">001</span>
+          <span class="sandbox-title" id="modalTitle">项目实时预览</span>
+        </div>
+
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div class="device-switcher" id="deviceSwitcher">
+            <button class="device-btn active" onclick="setDeviceMode('desktop')">💻 桌面宽屏</button>
+            <button class="device-btn" onclick="setDeviceMode('mobile')">📱 手机真机</button>
+          </div>
+          <button class="btn btn-sm" onclick="openInNewTab()">↗️ 独立新窗口</button>
+          <button class="btn btn-sm" onclick="closeModal()" style="color: #ff4757;">✕ 关闭</button>
+        </div>
+      </div>
+
+      <div class="sandbox-body" id="sandboxBody">
+        <div class="preview-frame-wrap" id="frameWrap">
+          <iframe class="preview-iframe" id="previewIframe" src=""></iframe>
+        </div>
+        <div class="readme-viewer" id="readmeViewer" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 100 个逆向项目的核心数据库
+    const projectsData = [
+      {
+        id: "001",
+        title: "伪装安全检测防封跳板页",
+        category: "SEC",
+        categoryName: "安全防封",
+        desc: "用于绕过平台爬虫与审查的 Cloaking 落地页。具备 UA 过滤、PC 端 5 秒重定向拦截、触控检测及伪绿色盾牌加载动效。",
+        tags: ["User-Agent", "防爬虫Cloaking", "PC拦截", "触控判定"],
+        path: "001 伪装安全检测防封跳板页/index.html",
+        readmePath: "001 伪装安全检测防封跳板页/README.md",
+        active: true
+      },
+      {
+        id: "002",
+        title: "MBTI 天赋激活测评 (AI 单页转化器)",
+        category: "AI-EDU",
+        categoryName: "AI 知识付费",
+        desc: "典型的 AI 提示词生成的 All-in-One 测评单页。内置 16 型人格全量 JSON 字典、21 题加权计分、原生 Canvas 雷达图与三阶激活漏斗。",
+        tags: ["16型MBTI", "原生Canvas雷达图", "巴纳姆效应", "加权算法"],
+        path: "002 MBTI天赋激活测评-AI知识付费单页工具/index.html",
+        readmePath: "002 MBTI天赋激活测评-AI知识付费单页工具/README.md",
+        active: true
+      },
+      {
+        id: "003",
+        title: "许愿柳 (ONE WISH WILLOW) 3D 祈愿",
+        category: "WEB3D",
+        categoryName: "3D 玄学互动",
+        desc: "基于 Three.js 的程序化生成柳树与物理断枝模拟。支持 3:4 短视频录制画框、中英双语、Web Audio 空间音效与宿命裁决。",
+        tags: ["Three.js", "Verlet物理链", "Web Audio", "GLSL氛围滤镜"],
+        path: "003 许愿柳-ThreeJS玄学互动祈愿单页/index.html",
+        readmePath: "003 许愿柳-ThreeJS玄学互动祈愿单页/README.md",
+        active: true
+      }
+    ];
+
+    // 自动补齐 004 ~ 100 待逆向占位项目
+    const categoriesPool = [
+      { cat: "MKT", name: "爆款营销", tag: "拼团裂变" },
+      { cat: "TOOL", name: "实用工具", tag: "本地算法" },
+      { cat: "GAME", name: "互动小游戏", tag: "Canvas引擎" },
+      { cat: "FORM", name: "高转化表单", tag: "线索捕获" },
+      { cat: "HACK", name: "混淆逆向", tag: "AST还原" }
+    ];
+
+    for (let i = 4; i <= 100; i++) {
+      const padId = String(i).padStart(3, '0');
+      const pool = categoriesPool[(i - 4) % categoriesPool.length];
+      projectsData.push({
+        id: padId,
+        title: `#${padId} 待逆向接入项目`,
+        category: pool.cat,
+        categoryName: pool.name,
+        desc: "该单页待逆向分析与代码解构。系统将持续监控工作区，接入后将自动激活全景沙箱与技术解构报告。",
+        tags: [pool.tag, "零依赖单页", "待归档"],
+        path: "",
+        readmePath: "",
+        active: false
+      });
+    }
+
+    // 渲染卡片矩阵
+    function renderGrid(data) {
+      const grid = document.getElementById('projectGrid');
+      grid.innerHTML = data.map(p => {
+        if (p.active) {
+          return `
+            <div class="project-card">
+              <div>
+                <div class="card-top">
+                  <span class="card-id-badge">${p.id}</span>
+                  <span class="card-category" style="color: var(--primary); border: 1px solid var(--border-active);">${p.categoryName}</span>
+                </div>
+                <h3 class="card-title">${p.title}</h3>
+                <p class="card-desc">${p.desc}</p>
+                <div class="card-tags">
+                  ${p.tags.map(t => `<span class="tag-item">#${t}</span>`).join('')}
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary btn-sm" onclick="openSandbox('${p.id}')">🚀 在线体验</button>
+                <button class="btn btn-sm" onclick="openReadmeModal('${p.id}')">📖 逆向报告</button>
+              </div>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="project-card locked">
+              <div>
+                <div class="card-top">
+                  <span class="card-id-badge" style="color: var(--text-dim); background: rgba(255,255,255,0.03); border-color: transparent;">${p.id}</span>
+                  <span class="card-category">${p.categoryName}</span>
+                </div>
+                <h3 class="card-title" style="color: var(--text-sub);">${p.title}</h3>
+                <p class="card-desc">${p.desc}</p>
+                <div class="card-tags">
+                  ${p.tags.map(t => `<span class="tag-item" style="opacity: 0.5;">#${t}</span>`).join('')}
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-sm" style="grid-column: span 2; opacity: 0.5; cursor: not-allowed;" disabled>🔒 雷达扫描锁定中</button>
+              </div>
+            </div>
+          `;
+        }
+      }).join('');
+    }
+
+    // 过滤功能
+    function filterProjects(cat) {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (cat === 'ALL') {
+        renderGrid(projectsData);
+      } else if (cat === 'ACTIVE') {
+        renderGrid(projectsData.filter(p => p.active));
+      } else if (cat === 'LOCKED') {
+        renderGrid(projectsData.filter(p => !p.active));
+      } else {
+        renderGrid(projectsData.filter(p => p.category === cat));
+      }
+    }
+
+    // 搜索功能
+    function searchProjects() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = projectsData.filter(p => 
+        p.id.includes(q) || 
+        p.title.toLowerCase().includes(q) || 
+        p.desc.toLowerCase().includes(q) ||
+        p.tags.some(t => t.toLowerCase().includes(q))
+      );
+      renderGrid(filtered);
+    }
+
+    // 沙箱弹窗交互
+    let currentActiveProject = null;
+
+    function openSandbox(id) {
+      const proj = projectsData.find(p => p.id === id);
+      if (!proj || !proj.active) return;
+
+      currentActiveProject = proj;
+      document.getElementById('modalId').innerText = proj.id;
+      document.getElementById('modalTitle').innerText = proj.title;
+      
+      const iframe = document.getElementById('previewIframe');
+      const frameWrap = document.getElementById('frameWrap');
+      const readmeViewer = document.getElementById('readmeViewer');
+      const deviceSwitcher = document.getElementById('deviceSwitcher');
+
+      readmeViewer.style.display = 'none';
+      frameWrap.style.display = 'flex';
+      deviceSwitcher.style.display = 'flex';
+
+      iframe.src = proj.path;
+      document.getElementById('sandboxModal').classList.add('active');
+    }
+
+    // 查看 Markdown 报告弹窗
+    async function openReadmeModal(id) {
+      let path = "";
+      let title = "";
+
+      if (id === '000') {
+        path = "000 项目规范与逆向分析标准/README.md";
+        title = "000 逆向工程规范与分析模板";
+      } else {
+        const proj = projectsData.find(p => p.id === id);
+        if (!proj) return;
+        path = proj.readmePath;
+        title = `${proj.id} ${proj.title} - 深度解析报告`;
+      }
+
+      document.getElementById('modalId').innerText = id;
+      document.getElementById('modalTitle').innerText = title;
+
+      const frameWrap = document.getElementById('frameWrap');
+      const readmeViewer = document.getElementById('readmeViewer');
+      const deviceSwitcher = document.getElementById('deviceSwitcher');
+
+      frameWrap.style.display = 'none';
+      deviceSwitcher.style.display = 'none';
+      readmeViewer.style.display = 'block';
+      readmeViewer.innerHTML = '<p style="color: var(--primary);">正在加载 Markdown 报告...</p>';
+
+      document.getElementById('sandboxModal').classList.add('active');
+
+      try {
+        const res = await fetch(path);
+        if (!res.ok) throw new Error("无法读取文件");
+        const mdText = await res.text();
+        
+        // 简易 Markdown 转 HTML 渲染器
+        let html = mdText
+          .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+          .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+          .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+          .replace(/^\> (.*$)/gim, '<blockquote style="border-left: 3px solid var(--primary); padding-left: 12px; color: var(--text-sub); margin: 12px 0;">$1</blockquote>')
+          .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+          .replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>')
+          .replace(/`([^`]+)`/gim, '<code>$1</code>')
+          .replace(/\n\n/gim, '<br><br>');
+
+        readmeViewer.innerHTML = html;
+      } catch (err) {
+        readmeViewer.innerHTML = `<p style="color: #ff4757;">加载失败：请确保在本地服务器环境下运行，或直接使用编辑器查看本地 README.md 文件。</p>`;
+      }
+    }
+
+    function setDeviceMode(mode) {
+      document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const wrap = document.getElementById('frameWrap');
+      if (mode === 'mobile') {
+        wrap.classList.add('mobile');
+      } else {
+        wrap.classList.remove('mobile');
+      }
+    }
+
+    function openInNewTab() {
+      if (currentActiveProject && currentActiveProject.path) {
+        window.open(currentActiveProject.path, '_blank');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('sandboxModal').classList.remove('active');
+      document.getElementById('previewIframe').src = '';
+    }
+
+    // 初始化渲染全部
+    renderGrid(projectsData);
+  </script>
+</body>
+</html>

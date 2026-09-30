@@ -1,0 +1,664 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>安全检测中</title>
+    <!-- ======== 关键：禁止搜索引擎蜘蛛抓取的 meta 标签 ======== -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, nocache">
+    <!-- 针对特定搜索引擎 -->
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="baiduspider" content="noindex, nofollow, noarchive">
+    <meta name="bingbot" content="noindex, nofollow, noarchive">
+    <meta name="yandex" content="noindex, nofollow">
+    <!-- 新增：针对搜狗和360蜘蛛 -->
+    <meta name="sogou" content="noindex, nofollow, noarchive">
+    <meta name="sogouspider" content="noindex, nofollow, noarchive">
+    <meta name="360Spider" content="noindex, nofollow, noarchive">
+    <meta name="haosouspider" content="noindex, nofollow, noarchive">
+    <!-- 防止百度转码和缓存 -->
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- 防查看代码：禁止右键、选择、复制、查看源码 -->
+    <style>
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+    
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?64c3f33887624bbbb02fa196fa48b147";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    <style>
+        /* 移动端样式重置 - 确保全屏 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 
+                        'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* 主卡片容器 - 进一步放大，填满屏幕 */
+        .security-card {
+            width: 100%;
+            max-width: 450px;
+            min-height: 550px;
+            background: #fff;
+            border-radius: 25px;
+            padding: 35px 25px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* 安全图标 - 进一步放大 */
+        .security-icon {
+            width: 85px;
+            height: 85px;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            z-index: 1;
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .security-icon svg {
+            width: 45px;
+            height: 45px;
+            fill: white;
+        }
+
+        /* 标题 - 超大字体，确保清晰 */
+        .title {
+            font-size: 30px;
+            font-weight: 800;
+            color: #222;
+            margin-bottom: 10px;
+            text-align: center;
+            z-index: 1;
+            line-height: 1.3;
+        }
+
+        /* 副标题 - 更大字体，更清晰 */
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+            text-align: center;
+            z-index: 1;
+            line-height: 1.5;
+        }
+
+        /* 进度条容器 */
+        .progress-container {
+            width: 100%;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* 进度文本 - 更大字体，更醒目 */
+        .progress-text {
+            font-size: 18px;
+            color: #333;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        /* 检测项列表 - 更大字体、更大图标 */
+        .check-list {
+            width: 100%;
+            margin-bottom: 25px;
+            z-index: 1;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #444;
+        }
+
+        .check-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            margin-right: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .check-icon.completed {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .check-icon.completed::after {
+            content: '✓';
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .check-icon.loading {
+            border: 2px solid #e0e0e0;
+            border-top: 2px solid #4CAF50;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .check-icon.loading::after {
+            content: '';
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 底部按钮 - 更大、更醒目，字体颜色优化 */
+        .action-button {
+            width: 100%;
+            padding: 16px 0;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: #fff; /* 白色字体，确保清晰 */
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1;
+            position: relative;
+            border: none;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* 添加文字阴影，增强可读性 */
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        /* 底部提示文字 */
+        .footer-tip {
+            font-size: 14px;
+            color: #888;
+            margin-top: 12px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        /* 响应式优化 - 针对小屏设备 */
+        @media (max-width: 480px) {
+            .security-card {
+                padding: 30px 20px;
+                min-height: 500px;
+                border-radius: 20px;
+            }
+            
+            .title {
+                font-size: 28px;
+            }
+            
+            .subtitle {
+                font-size: 15px;
+            }
+            
+            .check-item {
+                font-size: 16px;
+            }
+            
+            .action-button {
+                font-size: 18px;
+                padding: 14px 0;
+            }
+            
+            .security-icon {
+                width: 75px;
+                height: 75px;
+            }
+            
+            .security-icon svg {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .progress-text {
+                font-size: 16px;
+            }
+        }
+
+        /* 针对超小屏设备（如iPhone SE等） */
+        @media (max-width: 360px) {
+            .security-card {
+                padding: 25px 15px;
+                min-height: 480px;
+            }
+            
+            .title {
+                font-size: 26px;
+            }
+            
+            .check-item {
+                font-size: 15px;
+            }
+            
+            .action-button {
+                font-size: 17px;
+                padding: 12px 0;
+            }
+        }
+        
+        /* PC端检测样式 */
+        .pc-warning {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            max-width: 600px;
+            margin: 50px auto;
+        }
+        
+        .pc-warning h1 {
+            color: #f44336;
+            margin-bottom: 20px;
+        }
+        
+        .pc-warning p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- PC端警告页面 -->
+    <div class="pc-warning" id="pcWarning">
+        <h1>⚠️ 访问受限</h1>
+        <p>抱歉，本页面仅支持移动设备访问。</p>
+        <p>很遗憾不能展现真实的自己，下次见。</p>
+        <p>即将在 <span id="countdown">5</span> 秒后跳转到错误页面...</p>
+    </div>
+    
+    <!-- 移动端安全检测页面 -->
+    <div class="security-card" id="securityCard">
+        <!-- 装饰背景 -->
+        <div class="security-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7v.01h-7v-.01z"/>
+            </svg>
+        </div>
+
+        <h1 class="title">安全检测中</h1>
+        <p class="subtitle">正在为您检测访问环境，请稍候...</p>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">安全校验中 0%</div>
+        </div>
+
+        <div class="check-list">
+            <div class="check-item">
+                <div class="check-icon" id="check1"></div>
+                <span>设备真实性验证</span>
+            </div>
+            <div class="check-item">
+                <div class="check-icon" id="check2"></div>
+                <span>网络环境检测</span>
+            </div>
+            <div class="check-item">
+                <div class="check-icon" id="check3"></div>
+                <span>安全资源加载</span>
+            </div>
+            <div class="check-item">
+                <div class="check-icon" id="check4"></div>
+                <span>安全通道建立</span>
+            </div>
+        </div>
+
+        <button class="action-button" id="jumpButton" style="color: #ffffff;">
+            点击立即跳转 →
+        </button>
+
+        <p class="footer-tip" id="statusTip">正在初始化检测...</p>
+    </div>
+
+    <script>
+        // 防查看代码：禁止右键菜单、选择文本、查看源码
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            // 禁止F12
+            if (e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+            // 禁止Ctrl+U（查看源码）
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                return false;
+            }
+            // 禁止Ctrl+Shift+I（开发者工具）
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                return false;
+            }
+            // 禁止Ctrl+Shift+J（控制台）
+            if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+                e.preventDefault();
+                return false;
+            }
+            // 禁止Ctrl+S（保存网页）
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // 检测PC端
+        function isPC() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const pcKeywords = ['windows', 'macintosh', 'linux', 'x11'];
+            const mobileKeywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod'];
+            
+            // 检测屏幕宽度和触摸支持
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isSmallScreen = window.innerWidth <= 768;
+            
+            // 如果是移动设备关键词且是触摸设备或小屏幕，则认为是移动端
+            for (let keyword of mobileKeywords) {
+                if (userAgent.indexOf(keyword) > -1) {
+                    return false;
+                }
+            }
+            
+            // 如果是PC设备关键词且不是触摸设备，则认为是PC端
+            for (let keyword of pcKeywords) {
+                if (userAgent.indexOf(keyword) > -1 && !isTouchDevice) {
+                    return true;
+                }
+            }
+            
+            // 如果屏幕宽度大且不是触摸设备，也认为是PC端
+            if (!isTouchDevice && !isSmallScreen) {
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // PC端跳转到404页面
+        function redirectTo404() {
+            const countdownElement = document.getElementById('countdown');
+            let count = 5;
+            
+            const countdown = setInterval(() => {
+                count--;
+                countdownElement.textContent = count;
+                
+                if (count <= 0) {
+                    clearInterval(countdown);
+                    window.location.href = '/404.html';
+                }
+            }, 1000);
+        }
+        
+        // 设备检测
+        function deviceDetection() {
+            if (isPC()) {
+                // 显示PC警告，隐藏安全检测页面
+                document.getElementById('pcWarning').style.display = 'block';
+                document.getElementById('securityCard').style.display = 'none';
+                document.body.style.background = '#f5f5f5';
+                redirectTo404();
+                return false;
+            }
+            return true;
+        }
+        
+        // 配置参数
+        const config = {
+            targetUrl: '/404.html',
+            totalDuration: 3000,
+            checkItems: [
+                { name: '设备真实性验证', duration: 600 },
+                { name: '网络环境检测', duration: 600 },
+                { name: '安全资源加载', duration: 900 },
+                { name: '安全通道建立', duration: 900 }
+            ]
+        };
+
+        // 获取DOM元素
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const jumpButton = document.getElementById('jumpButton');
+        const statusTip = document.getElementById('statusTip');
+        const checkIcons = [
+            document.getElementById('check1'),
+            document.getElementById('check2'),
+            document.getElementById('check3'),
+            document.getElementById('check4')
+        ];
+
+        let currentProgress = 0;
+        let isDetecting = true;
+        let hasJumped = false;
+
+        // 初始化检测
+        function initDetection() {
+            // 首先进行设备检测
+            if (!deviceDetection()) {
+                return; // 如果是PC端，不执行后续代码
+            }
+            
+            statusTip.textContent = '正在快速检测...';
+            
+            setTimeout(() => {
+                runFastDetection();
+            }, 100);
+        }
+
+        // 快速检测流程
+        function runFastDetection() {
+            if (!isDetecting) return;
+            
+            const progressSteps = [25, 50, 75, 100];
+            const startTime = Date.now();
+            
+            config.checkItems.forEach((item, index) => {
+                const startDelay = index * 200;
+                
+                setTimeout(() => {
+                    if (!isDetecting) return;
+                    
+                    statusTip.textContent = `检测 ${item.name}...`;
+                    
+                    const checkIcon = checkIcons[index];
+                    checkIcon.className = 'check-icon loading';
+                    checkIcon.innerHTML = '';
+                    
+                    setTimeout(() => {
+                        if (!isDetecting) return;
+                        
+                        checkIcon.className = 'check-icon completed';
+                        
+                        currentProgress = progressSteps[index];
+                        updateProgress(currentProgress);
+                        
+                        if (index === config.checkItems.length - 1) {
+                            setTimeout(() => {
+                                if (isDetecting) {
+                                    autoJump();
+                                }
+                            }, 300);
+                        }
+                    }, item.duration);
+                    
+                }, startDelay);
+            });
+            
+            const smoothProgress = () => {
+                if (!isDetecting) return;
+                
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(100, Math.floor((elapsed / config.totalDuration) * 100));
+                
+                if (progress > currentProgress) {
+                    currentProgress = progress;
+                    updateProgress(currentProgress);
+                }
+                
+                if (elapsed < config.totalDuration) {
+                    requestAnimationFrame(smoothProgress);
+                }
+            };
+            
+            requestAnimationFrame(smoothProgress);
+        }
+
+        // 更新进度条
+        function updateProgress(percent) {
+            progressFill.style.width = `${percent}%`;
+            progressText.textContent = `安全校验中 ${percent}%`;
+            
+            if (percent >= 100) {
+                progressText.textContent = '安全校验完成 100%';
+                statusTip.textContent = '检测完成，正在自动跳转...';
+            }
+        }
+
+        // 自动跳转
+        function autoJump() {
+            if (!isDetecting || hasJumped) return;
+            
+            hasJumped = true;
+            isDetecting = false;
+            statusTip.textContent = '正在跳转，请稍候...';
+            
+            jumpButton.innerHTML = '✅ 正在跳转...';
+            jumpButton.style.background = 'linear-gradient(90deg, #4CAF50, #8BC34A)';
+            jumpButton.disabled = true;
+            
+            setTimeout(() => {
+                window.location.href = config.targetUrl;
+            }, 500);
+        }
+
+        // 立即跳转（点击按钮）
+        function immediateJump() {
+            if (!isDetecting || hasJumped) return;
+            
+            hasJumped = true;
+            isDetecting = false;
+            statusTip.textContent = '正在跳转...';
+            
+            jumpButton.innerHTML = '✅ 正在跳转...';
+            jumpButton.style.background = 'linear-gradient(90deg, #4CAF50, #8BC34A)';
+            jumpButton.disabled = true;
+            
+            setTimeout(() => {
+                window.location.href = config.targetUrl;
+            }, 300);
+        }
+
+        // 绑定点击事件
+        jumpButton.addEventListener('click', immediateJump);
+        
+        // 页面加载完成后开始检测
+        window.addEventListener('load', () => {
+            setTimeout(initDetection, 50);
+        });
+        
+        // 防止用户通过返回键取消跳转
+        window.addEventListener('beforeunload', (e) => {
+            if (isDetecting && !hasJumped) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+        
+        // 防止页面被iframe嵌入
+        if (window.top !== window.self) {
+            window.top.location = window.self.location;
+        }
+    </script>
+</body>
+</html>
